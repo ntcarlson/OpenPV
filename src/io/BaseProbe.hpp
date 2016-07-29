@@ -37,13 +37,6 @@ public:
    int ioParams(enum ParamsIOFlag ioFlag);
 
    /**
-    * A pure virtual function called during HyPerCol::run, during the communicateInitInfo stage.
-    * BaseProbe::communicateInitInfo sets up the triggering layer and attaches to the energy probe,
-    * if either triggerFlag or energyProbe are set.
-    */
-   virtual int communicateInitInfo() = 0;
-
-   /**
     * Called during HyPerCol::run, during the allocateDataStructures stage.
     * BaseProbe::allocateDataStructures sets up the output stream.
     * Derived classes that override this method should make sure to
@@ -198,6 +191,13 @@ protected:
    virtual void ioParam_coefficient(enum ParamsIOFlag ioFlag);
    /** @} */
 
+   /**
+    * A pure virtual function called during HyPerCol::run, during the communicateInitInfo stage.
+    * BaseProbe::communicateInitInfo sets up the triggering layer and attaches to the energy probe,
+    * if either triggerFlag or energyProbe are set.
+    */
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+
    virtual int initOutputStream(const char * filename);
 
    /**
@@ -322,7 +322,6 @@ private:
    double lastUpdateTime; // The time of the last time calcValues was called.
    bool textOutputFlag;
    bool writingToFile; // true outputStream is a FileStream
-   bool mInitInfoCommunicatedFlag = false;
    bool mDataStructuresAllocatedFlag = false;
 };
 

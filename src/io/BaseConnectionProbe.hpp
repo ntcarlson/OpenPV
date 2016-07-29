@@ -21,14 +21,14 @@ public:
    BaseConnectionProbe(const char * probeName, HyPerCol * hc);
    virtual ~BaseConnectionProbe();
 
-   virtual int communicateInitInfo();
-
    BaseConnection * getTargetConn()             {return targetConn;}
 
 protected:
    BaseConnectionProbe(); // Default constructor, can only be called by derived classes
    int initialize(const char * probeName, HyPerCol * hc);
    virtual void ioParam_targetName(enum ParamsIOFlag ioFlag);
+
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
 private:
    int initialize_base();

@@ -83,7 +83,7 @@ void FilenameParsingGroundTruthLayer::ioParam_classes(enum ParamsIOFlag ioFlag) 
    inputfile.close();
 }
 
-int FilenameParsingGroundTruthLayer::communicateInitInfo() {
+int FilenameParsingGroundTruthLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    movieLayer = dynamic_cast<Movie *>(parent->getLayerFromName(movieLayerName));
    if(movieLayer==NULL) {
       if (parent->columnId()==0) {

@@ -101,8 +101,8 @@ void Segmentify::ioParam_segmentLayerName(enum ParamsIOFlag ioFlag) {
    }
 }
 
-int Segmentify::communicateInitInfo() {
-   int status = HyPerLayer::communicateInitInfo();
+int Segmentify::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = HyPerLayer::communicateInitInfo(message);
 
    //Get original layer
    originalLayer = parent->getLayerFromName(originalLayerName);

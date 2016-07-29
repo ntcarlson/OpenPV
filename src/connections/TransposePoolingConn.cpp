@@ -276,7 +276,7 @@ void TransposePoolingConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
-int TransposePoolingConn::communicateInitInfo() {
+int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {
@@ -320,7 +320,7 @@ int TransposePoolingConn::communicateInitInfo() {
       exit(EXIT_FAILURE);
    }
 
-   status = HyPerConn::communicateInitInfo(); // calls setPatchSize()
+   status = HyPerConn::communicateInitInfo(message); // calls setPatchSize()
    if (status != PV_SUCCESS) return status;
 
    if(!originalConn->needPostIndex() && poolingType == PoolingConn::MAX){

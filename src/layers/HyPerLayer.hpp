@@ -467,7 +467,7 @@ public:
    Publisher * getPublisher() { return publisher; }
 
 protected:
-   virtual int communicateInitInfo() override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int allocateDataStructures() override;
    virtual int initializeState() final; // Not overridable since all layers should respond to initializeFromCheckpointFlag and (deprecated) restartFlag in the same way.
                           // initializeState calls the virtual methods readStateFromCheckpoint(), and setInitialValues().

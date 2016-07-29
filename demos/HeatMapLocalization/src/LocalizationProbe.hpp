@@ -39,7 +39,6 @@ public:
    double getImageDilationY() { return imageDilationY; }
    inline int getNumDisplayedCategories() const { return numDisplayedCategories; }
    inline float getDetectionThreshold(int idx) const { return (idx>=0 && idx<numDisplayedCategories) ? detectionThreshold[idx] : std::numeric_limits<float>::signaling_NaN(); }
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual int outputStateWrapper(double timef, double dt);
 
@@ -103,6 +102,7 @@ protected:
    virtual void ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_displayCommand(enum PV::ParamsIOFlag ioFlag);
    virtual int initNumValues();
+   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) override;
    virtual bool needUpdate(double timed, double dt);
    virtual int calcValues(double timevalue);
    virtual int outputState(double timevalue);

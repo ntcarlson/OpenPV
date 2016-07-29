@@ -43,8 +43,8 @@ int RescaleLayer::initialize(const char * name, HyPerCol * hc) {
    return status_init;
 }
 
-int RescaleLayer::communicateInitInfo() {
-   int status = CloneVLayer::communicateInitInfo();
+int RescaleLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = CloneVLayer::communicateInitInfo(message);
    // CloneVLayer sets originalLayer and errors out if originalLayerName is not valid
    return status;
 }

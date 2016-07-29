@@ -43,12 +43,6 @@ public:
    virtual ~ColProbe();
    
    /**
-    * Calls BaseProbe::communicateInitInfo (which sets up any triggering or attaching to an energy probe)
-    * and then attaches to the parent HyPerCol by calling parent->insertProbe().
-    */
-   virtual int communicateInitInfo();
-   
-   /**
     * The virtual method for outputting the quantities measured by the ColProbe.
     * Derived classes should override this method.  Typically, outputState
     * will fprintf to outputstream->fp, where stream is the BaseProbe member variable.
@@ -85,6 +79,12 @@ protected:
     * neither read nor written by this method.
     */
    virtual void ioParam_targetName(enum ParamsIOFlag ioFlag);
+   
+   /**
+    * Calls BaseProbe::communicateInitInfo (which sets up any triggering or attaching to an energy probe)
+    * and then attaches to the parent HyPerCol by calling parent->insertProbe().
+    */
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
     
    /**
     * Calls BaseProbe::initOutputStream and then calls outputHeader()

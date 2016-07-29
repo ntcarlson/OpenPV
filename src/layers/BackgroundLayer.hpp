@@ -19,7 +19,6 @@ class BackgroundLayer: public CloneVLayer {
 public:
    BackgroundLayer(const char * name, HyPerCol * hc);
    virtual ~BackgroundLayer();
-   virtual int communicateInitInfo();
    virtual int allocateV();
    virtual int updateState(double timef, double dt);
    virtual int setActivity();
@@ -28,6 +27,7 @@ protected:
    int initialize(const char * name, HyPerCol * hc);
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    void ioParam_repFeatureNum(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 private:
    int initialize_base();
    int repFeatureNum;

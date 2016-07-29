@@ -19,8 +19,6 @@ public:
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
 
-   virtual int communicateInitInfo();
-
 protected:
    NormalizeGroup();
    int initialize(char const * name, HyPerCol * hc);
@@ -50,6 +48,8 @@ protected:
     * The group head cannot itself be a NormalizeGroup.
     */
    virtual void ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag);
+
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    /**
     * Overrides normalizeWeights to do nothing.

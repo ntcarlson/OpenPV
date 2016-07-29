@@ -18,7 +18,6 @@ public:
    virtual ~BBFindConfRemapProbe();
 
    void setOutputFilenameBase(char const * fn);
-   int communicateInitInfo();
    int allocateDataStructures();
    virtual int outputStateWrapper(double t, double dt);
 
@@ -38,6 +37,7 @@ protected:
    virtual void ioParam_imageBlendCoeff(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_displayCommand(enum PV::ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) override;
    virtual int calcValues(double timevalue);
    virtual int outputState(double timevalue);
    int makeMontage(int b);

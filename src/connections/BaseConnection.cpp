@@ -424,7 +424,7 @@ int BaseConnection::outputProbeParams() {
    return status;
 }
 
-int BaseConnection::communicateInitInfo() {
+int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    int status = PV_SUCCESS;
 
    if (this->getPreLayerName()==NULL) {

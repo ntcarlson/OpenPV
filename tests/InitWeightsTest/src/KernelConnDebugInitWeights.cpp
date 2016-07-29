@@ -62,8 +62,8 @@ void KernelConnDebugInitWeights::ioParam_copiedConn(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "copiedConn", &otherConnName);
 }
 
-int KernelConnDebugInitWeights::communicateInitInfo() {
-   HyPerConn::communicateInitInfo();
+int KernelConnDebugInitWeights::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   HyPerConn::communicateInitInfo(message);
    BaseConnection * baseConn = parent->getConnFromName(otherConnName);
    otherConn = dynamic_cast<HyPerConn *>(baseConn);
    if (otherConn == NULL) {

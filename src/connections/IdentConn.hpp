@@ -20,7 +20,6 @@ class IdentConn : public HyPerConn {
 public:
    IdentConn(const char * name, HyPerCol *hc);
 
-   virtual int communicateInitInfo();
    virtual int updateWeights(int axonID) {return PV_SUCCESS;}
    //virtual int deliver();
 
@@ -56,6 +55,7 @@ protected:
    void ioParam_weightUpdatePeriod(enum ParamsIOFlag ioFlag);
    void ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag);
 
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int setWeightInitializer();
 
    // IdentConn does not need to checkpoint

@@ -18,7 +18,6 @@ public:
    virtual ~BBFindConfRemapLayer();
 
    bool activityIsSpiking() { return false; }
-   int communicateInitInfo();
    int allocateDataStructures();
    double getDeltaUpdateTime();
    virtual int updateState(double t, double dt);
@@ -48,6 +47,7 @@ protected:
    virtual void ioParam_detectionWait(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_internalMapWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_internalMapHeight(enum PV::ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) override;
 
 private:
    int initialize_base();

@@ -17,7 +17,6 @@ public:
    TransposeConn();
    TransposeConn(const char * name, HyPerCol * hc);
    virtual ~TransposeConn();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    inline HyPerConn * getOriginalConn() {return originalConn;}
 
@@ -82,6 +81,7 @@ protected:
     virtual void ioParam_shrinkPatches(enum ParamsIOFlag ioFlag);
     virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
     virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
+    virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
     virtual int setPatchSize();
     virtual int setNeededRNGSeeds() {return 0;}
     virtual int setInitialValues();

@@ -59,7 +59,6 @@ public:
    LIF(const char* name, HyPerCol * hc, int num_channels);
    virtual ~LIF();
 
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
 
    virtual int updateState(double time, double dt);
@@ -113,6 +112,7 @@ protected:
    virtual void ioParam_noiseFreqI(enum ParamsIOFlag ioFlag);
    virtual void ioParam_noiseFreqIB(enum ParamsIOFlag ioFlag);
    virtual void ioParam_method(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int allocateBuffers();
    virtual int allocateConductances(int num_channels);
    virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);

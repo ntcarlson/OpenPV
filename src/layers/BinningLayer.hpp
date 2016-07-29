@@ -8,7 +8,6 @@ namespace PV {
 class BinningLayer: public PV::HyPerLayer {
 public:
    BinningLayer(const char * name, HyPerCol * hc);
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual int requireMarginWidth(int marginWidthNeeded, int * marginWidthResult, char axis);
    virtual bool activityIsSpiking() { return false; }
@@ -25,6 +24,7 @@ protected:
    void ioParam_zeroNeg(enum ParamsIOFlag ioFlag);
    void ioParam_zeroDCR(enum ParamsIOFlag ioFlag);
    void ioParam_normalDist(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    int allocateV();
    int initializeV();
    virtual int initializeActivity();

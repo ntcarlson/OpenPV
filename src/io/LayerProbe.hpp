@@ -32,13 +32,6 @@ public:
    LayerProbe(const char * probeName, HyPerCol * hc);
    virtual ~LayerProbe();
 
-   /**
-    * Called by HyPerCol::run.  It calls BaseProbe::communicateInitInfo, then checks that
-    * the targetLayer/targetName parameter refers to a HyPerLayer in the parent HyPerCol,
-    * and then calls the layer's insertProbe method.
-    */
-   virtual int communicateInitInfo();
-
    HyPerLayer * getTargetLayer() {return targetLayer;}
 
 protected:
@@ -58,6 +51,13 @@ protected:
     */
    virtual void ioParam_targetName(enum ParamsIOFlag ioFlag);
    /** @} */
+
+   /**
+    * Called by HyPerCol::run.  It calls BaseProbe::communicateInitInfo, then checks that
+    * the targetLayer/targetName parameter refers to a HyPerLayer in the parent HyPerCol,
+    * and then calls the layer's insertProbe method.
+    */
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    
    /**
     * Implements the needRecalc method.  Returns true if the target layer's getLastUpdateTime method

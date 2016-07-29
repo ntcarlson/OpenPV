@@ -19,8 +19,6 @@ public:
    CloneConn(const char * name, HyPerCol * hc);
    virtual ~CloneConn();
 
-   virtual int communicateInitInfo();
-
    virtual int updateState(double time, double dt);
 
    virtual int writeWeights(double time, bool last=false){return PV_SUCCESS;}
@@ -88,6 +86,7 @@ protected:
    virtual void ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag);
    virtual void ioParam_writeCompressedWeights(enum ParamsIOFlag ioFlag);
    virtual void ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int setWeightInitializer();
    virtual PVPatch *** initializeWeights(PVPatch *** patches, pvdata_t ** dataStart);
    virtual int cloneParameters();

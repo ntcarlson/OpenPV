@@ -16,7 +16,6 @@ class CopyConn: public HyPerConn {
 public:
    CopyConn(char const * name, HyPerCol * hc);
    virtual ~CopyConn();
-   virtual int communicateInitInfo();
    virtual bool needUpdate(double time, double dt);
    virtual int updateState(double time, double dt);
    char const * getOriginalConnName() { return originalConnName; }
@@ -113,6 +112,7 @@ protected:
    virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
    /** @} */
 
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int setPatchSize();
 
    virtual int setInitialValues();

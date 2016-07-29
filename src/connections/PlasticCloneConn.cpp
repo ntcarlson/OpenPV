@@ -58,8 +58,8 @@ void PlasticCloneConn::ioParam_normalizeDw(enum ParamsIOFlag ioFlag) {
    // During the communication phase, normalizeDw will be copied from originalConn
 }
 
-int PlasticCloneConn::communicateInitInfo() {
-   int status = CloneConn::communicateInitInfo();
+int PlasticCloneConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = CloneConn::communicateInitInfo(message);
    originalConn->addClone(this);
    normalizeDwFlag = originalConn->getNormalizeDwFlag();
 

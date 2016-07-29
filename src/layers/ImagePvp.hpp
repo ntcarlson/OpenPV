@@ -27,6 +27,7 @@ protected:
     * @}
     */
 
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int getFrame(double timef, double dt);
    virtual int retrieveData(double timef, double dt, int batchIndex);
    virtual int readPvp(const char * filename, int frameNumber);
@@ -46,7 +47,6 @@ public:
    ImagePvp(const char * name, HyPerCol * hc);
    virtual ~ImagePvp();
    virtual int initialize(const char * name, HyPerCol * hc);
-   virtual int communicateInitInfo();
 
    float getPvpFileTime(){ return pvpFileTime;};
    virtual long getPvpFrameIdx() { return pvpFrameIdx; }

@@ -17,7 +17,6 @@ class RunningAverageLayer: public CloneVLayer {
 public:
    RunningAverageLayer(const char * name, HyPerCol * hc);
    virtual ~RunningAverageLayer();
-   virtual int communicateInitInfo();
    virtual int allocateV();
    virtual int updateState(double timef, double dt);
    virtual int setActivity();
@@ -28,6 +27,7 @@ protected:
    int initialize(const char * name, HyPerCol * hc);
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    void ioParam_numImagesToAverage(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 private:
    int initialize_base();
 

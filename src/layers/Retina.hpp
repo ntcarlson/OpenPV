@@ -45,7 +45,6 @@ public:
 
    Retina(const char * name, HyPerCol * hc);
    virtual ~Retina();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
 
    int setRetinaParams(PVParams * p);
@@ -70,6 +69,7 @@ protected:
    virtual void ioParam_burstDuration(enum ParamsIOFlag ioFlag);
    virtual void ioParam_refractoryPeriod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_absRefractoryPeriod(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int allocateV();
    virtual int initializeV();
    virtual int initializeActivity();

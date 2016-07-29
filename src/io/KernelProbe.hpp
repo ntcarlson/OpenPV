@@ -18,7 +18,6 @@ class KernelProbe : public BaseHyPerConnProbe {
 public:
    KernelProbe(const char * probename, HyPerCol * hc);
    virtual ~KernelProbe();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual int outputState(double timef);
 protected:
@@ -30,6 +29,7 @@ protected:
    virtual void ioParam_outputWeights(enum ParamsIOFlag ioFlag);
    virtual void ioParam_outputPlasticIncr(enum ParamsIOFlag ioFlag);
    virtual void ioParam_outputPatchIndices(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    int patchIndices(HyPerConn * conn);
    
    virtual int initNumValues();

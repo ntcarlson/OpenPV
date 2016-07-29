@@ -34,7 +34,7 @@ protected:
    virtual void ioParam_triggerLayerName(enum ParamsIOFlag ioFlag);
    /** @} */ // End list of ConstantLayer parameters
 
-   virtual int communicateInitInfo();
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
 private:
    int initialize_base();

@@ -18,13 +18,13 @@ public:
    BaseHyPerConnProbe(const char * probeName, HyPerCol * hc);
    virtual ~BaseHyPerConnProbe();
 
-   virtual int communicateInitInfo();
-
    HyPerConn * getTargetHyPerConn() { return targetHyPerConn; }
 
 protected:
    BaseHyPerConnProbe();
    int initialize(const char * probeName, HyPerCol * hc);
+
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual bool needRecalc(double timevalue);
 
    /**

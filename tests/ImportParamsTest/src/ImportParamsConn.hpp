@@ -8,11 +8,13 @@ namespace PV {
 class ImportParamsConn: public PV::HyPerConn{
 public:
    ImportParamsConn(const char* name, HyPerCol * hc);
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
 
-private:
+protected:
    int initialize(const char * name, HyPerCol * hc);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message);
+
+private:
    int initialize_base();
 };
 

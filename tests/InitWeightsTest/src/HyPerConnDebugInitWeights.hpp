@@ -18,7 +18,6 @@ public:
    HyPerConnDebugInitWeights(const char * name, HyPerCol * hc);
    virtual ~HyPerConnDebugInitWeights();
 
-   virtual int communicateInitInfo();
    virtual PVPatch *** initializeWeights(PVPatch *** arbors, pvdata_t ** dataStart, int numPatches,
          const char * filename);
 
@@ -28,6 +27,7 @@ protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual void ioParam_channelCode(enum ParamsIOFlag ioFlag);
    virtual void ioParam_copiedConn(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message);
    virtual void readChannelCode(PVParams * params) { channel = CHANNEL_INH;}
 
    PVPatch ** initializeGaussian2DWeights(PVPatch ** patches, pvdata_t * dataStart, int numPatches);

@@ -71,8 +71,6 @@ public:
 
    /** @} */ /* end of io functions for QuotientColProbe parameters */
    
-   virtual int communicateInitInfo();
-   
    /**
     * A function to find a probe, whether it belongs to a layer, a connection, or the hypercol.
     * Returns NULL if the probe cannot be found.
@@ -98,6 +96,8 @@ protected:
     * and should be called by the initializer of any derived classes.
     */
    int initializeQuotientColProbe(const char * probename, HyPerCol * hc);
+   
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    
    virtual bool needRecalc(double timevalue) { return true; }
    

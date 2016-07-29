@@ -186,8 +186,8 @@ int PoolingConn::initialize(const char * name, HyPerCol * hc, InitWeights * weig
    return status;
 }
 
-int PoolingConn::communicateInitInfo() {
-   int status = HyPerConn::communicateInitInfo();
+int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = HyPerConn::communicateInitInfo(message);
 
    //Check pre/post connections here
    const PVLayerLoc * preLoc = pre->getLayerLoc();

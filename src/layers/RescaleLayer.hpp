@@ -15,7 +15,6 @@ class RescaleLayer: public CloneVLayer {
 public:
    RescaleLayer(const char * name, HyPerCol * hc);
    virtual ~RescaleLayer();
-   virtual int communicateInitInfo();
    virtual int allocateV();
    virtual int updateState(double timef, double dt);
    virtual int setActivity();
@@ -37,6 +36,7 @@ protected:
    void ioParam_targetStd(enum ParamsIOFlag ioFlag);
    void ioParam_rescaleMethod(enum ParamsIOFlag ioFlag);
    void ioParam_patchSize(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 private:
    int initialize_base();
 

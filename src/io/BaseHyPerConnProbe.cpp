@@ -27,8 +27,8 @@ int BaseHyPerConnProbe::initialize(const char * probeName, HyPerCol * hc) {
    return BaseConnectionProbe::initialize(probeName, hc);
 }
 
-int BaseHyPerConnProbe::communicateInitInfo() {
-   int status = BaseConnectionProbe::communicateInitInfo();
+int BaseHyPerConnProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = BaseConnectionProbe::communicateInitInfo(message);
    assert(getTargetConn());
    targetHyPerConn = dynamic_cast<HyPerConn *>(targetConn);
    if (targetHyPerConn==NULL) {

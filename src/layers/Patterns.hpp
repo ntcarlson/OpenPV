@@ -51,7 +51,6 @@ class Patterns : public PV::BaseInput {
 public:
    Patterns(const char * name, HyPerCol * hc);
    virtual ~Patterns();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    //virtual bool needUpdate(double timef, double dt);
    virtual int updateState(double timef, double dt);
@@ -104,6 +103,7 @@ protected:
    virtual void ioParam_endFrame(enum ParamsIOFlag ioFlag);
    virtual void ioParam_patternsOutputPath(enum ParamsIOFlag ioFlag);
    virtual void ioParam_displayPeriod(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    int stringMatch(const char ** allowed_values, const char * stopstring, const char * string_to_match);
    int drawPattern(float val);

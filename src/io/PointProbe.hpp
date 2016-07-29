@@ -17,8 +17,6 @@ public:
    PointProbe(const char * probeName, HyPerCol * hc);
    virtual ~PointProbe();
 
-   virtual int communicateInitInfo();
-
    virtual int outputState(double timef);
 
 protected:
@@ -34,6 +32,7 @@ protected:
    virtual void ioParam_yLoc(enum ParamsIOFlag ioFlag);
    virtual void ioParam_fLoc(enum ParamsIOFlag ioFlag);
    virtual void ioParam_batchLoc(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int writeState(double timef);
    
    /**

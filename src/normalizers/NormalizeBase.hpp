@@ -28,14 +28,6 @@ public:
    int addConnToList(HyPerConn * newConn);
 
    /**
-    * Called by HyPerConn::communicateInitInfo this virtual method is where
-    * settings that depend on other objects take place.
-    * In particular, NormalizeGroup calls its group head's addConnToList
-    * method from NormalizeGroup::communicateInitInfo method.
-    */
-   virtual int communicateInitInfo();
-
-   /**
     * The public interface for normalizing weights.
     * If normalizeOnInitialize is true and the simulation time is startTime(),
     * or if normalizeOnWeightUpdate is true and the simulation time is the conn's lastUpdateTime,
@@ -58,6 +50,14 @@ protected:
    virtual void ioParam_normalizeArborsIndividually(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeOnInitialize(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeOnWeightUpdate(enum ParamsIOFlag ioFlag);
+
+   /**
+    * Called by HyPerConn::communicateInitInfo this virtual method is where
+    * settings that depend on other objects take place.
+    * In particular, NormalizeGroup calls its group head's addConnToList
+    * method from NormalizeGroup::communicateInitInfo method.
+    */
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    virtual int normalizeWeights();
    int accumulateSum(pvwdata_t * dataPatchStart, int weights_in_patch, double * sum);

@@ -19,7 +19,6 @@ public:
    PoolingConn();
    PoolingConn(const char * name, HyPerCol * hc);
    virtual ~PoolingConn();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual int checkpointRead(const char * cpDir, double* timef);
    virtual int checkpointWrite(const char * cpDir);
@@ -39,6 +38,7 @@ protected:
    void ioParam_needPostIndexLayer(enum ParamsIOFlag ioFlag);
    void ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag);
    void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int setInitialValues();
    virtual int constructWeights();
 

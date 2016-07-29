@@ -73,7 +73,7 @@ protected:
    int respondAllocateData(AllocateDataMessage const * message);
    int respondInitializeState(InitializeStateMessage const * message);
 
-   virtual int communicateInitInfo() { return PV_SUCCESS; }
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
    virtual int initializeState() { return PV_SUCCESS; }
 

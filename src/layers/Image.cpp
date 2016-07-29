@@ -429,8 +429,8 @@ int Image::scatterImageFileGDAL(const char * filename, int xOffset, int yOffset,
 }
 #endif // INACTIVE // Commented out April 19, 2016.  Might prove useful to restore the option to resize using GDAL.
 
-int Image::communicateInitInfo() {
-   int status = BaseInput::communicateInitInfo();
+int Image::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = BaseInput::communicateInitInfo(message);
    int fileType = getFileType(inputPath);
    if(fileType == PVP_FILE_TYPE){
       pvError() << "Image/Movie no longer reads PVP files. Use ImagePvp/MoviePvp layer instead.\n";

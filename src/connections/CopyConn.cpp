@@ -133,7 +133,7 @@ void CopyConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
-int CopyConn::communicateInitInfo() {
+int CopyConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {
@@ -168,7 +168,7 @@ int CopyConn::communicateInitInfo() {
    plasticityFlag = originalConn->getPlasticityFlag();
    parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
 
-   status = HyPerConn::communicateInitInfo();
+   status = HyPerConn::communicateInitInfo(message);
 
    return status;
 }

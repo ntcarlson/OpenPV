@@ -41,24 +41,6 @@ public:
 
    virtual int respond(std::shared_ptr<BaseMessage> message) override;
 
-   // manage the communicateInitInfo, allocateDataStructures, and initializeState stages.
-   /**
-    * communicateInitInfo is used to allow connections and layers to set params and related member variables based on what other
-    * layers or connections are doing.  (For example, CloneConn sets many parameters the same as its originalConn.)
-    * After a connection is constructed, it is not properly initialized until communicateInitInfo(), allocateDataStructures(), and
-    * initializeState() have been called.
-    *
-    * Return values:
-    *    PV_POSTPONE means that communicateInitInfo() cannot be run until other layers'/connections' own communicateInitInfo()
-    *    have been run successfully.
-    *
-    *    PV_SUCCESS and PV_FAILURE have their usual meanings.
-    *
-    * communicateInitInfo() is called by passing a CommunicateInitInfoMessage to respond(), which is
-    * usually done in HyPerCol::run.
-    */
-   virtual int communicateInitInfo() override;
-
    /**
     * allocateDataStructures is used to allocate blocks of memory whose size and arrangement depend on parameters.
     * (For example, HyPerConn allocates weight patches and data patches).
@@ -244,6 +226,24 @@ protected:
     * which reads params from the parent HyPerCol's params.
     */
    int initialize(const char * name, HyPerCol * hc);
+
+   // manage the communicateInitInfo, allocateDataStructures, and initializeState stages.
+   /**
+    * communicateInitInfo is used to allow connections and layers to set params and related member variables based on what other
+    * layers or connections are doing.  (For example, CloneConn sets many parameters the same as its originalConn.)
+    * After a connection is constructed, it is not properly initialized until communicateInitInfo(), allocateDataStructures(), and
+    * initializeState() have been called.
+    *
+    * Return values:
+    *    PV_POSTPONE means that communicateInitInfo() cannot be run until other layers'/connections' own communicateInitInfo()
+    *    have been run successfully.
+    *
+    *    PV_SUCCESS and PV_FAILURE have their usual meanings.
+    *
+    * communicateInitInfo() is called by passing a CommunicateInitInfoMessage to respond(), which is
+    * usually done in HyPerCol::run.
+    */
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    /**
     * Sets the pre- and post-synaptic layer names according to the parent HyPerCol's params.

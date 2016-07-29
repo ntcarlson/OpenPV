@@ -20,7 +20,6 @@ namespace PV {
 class L0NormLCAProbe: public L0NormProbe {
 public:
    L0NormLCAProbe(const char * probeName, HyPerCol * hc);
-   virtual int communicateInitInfo();
    virtual ~L0NormLCAProbe() {}
 
 protected:
@@ -32,6 +31,8 @@ protected:
     * but computes it in terms of VThresh of the target layer.
     */
    virtual void ioParam_coefficient(enum ParamsIOFlag ioFlag) {} // coefficient is set from targetLayer during communicateInitInfo.
+
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
 private:
    int initialize_base() { return PV_SUCCESS; }

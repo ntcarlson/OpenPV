@@ -155,8 +155,8 @@ void BBFindConfRemapProbe::setOutputFilenameBase(char const * fn) {
    }
 }
 
-int BBFindConfRemapProbe::communicateInitInfo() {
-   int status = PV::LayerProbe::communicateInitInfo();
+int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) {
+   int status = PV::LayerProbe::communicateInitInfo(message);
 
    assert(targetLayer);
    targetBBFindConfRemapLayer = dynamic_cast<BBFindConfRemapLayer*>(targetLayer);

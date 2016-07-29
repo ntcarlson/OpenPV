@@ -100,7 +100,7 @@ protected:
     * Calls LayerProbe::communicateInitInfo to set up the targetLayer and
     * attach the probe; and then checks the masking layer if masking is used.
     */
-   virtual int communicateInitInfo();
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    
    /**
     * Returns true if masking is used and the layer has multiple features but

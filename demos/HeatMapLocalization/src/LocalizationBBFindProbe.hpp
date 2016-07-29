@@ -24,8 +24,6 @@ public:
    LocalizationBBFindProbe(const char * probeName, PV::HyPerCol * hc);
    virtual ~LocalizationBBFindProbe();
 
-   int communicateInitInfo();
-
 protected:
    LocalizationBBFindProbe();
    int initialize(const char * probeName, PV::HyPerCol * hc);
@@ -45,6 +43,7 @@ protected:
    virtual void ioParam_internalMapWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_internalMapHeight(enum PV::ParamsIOFlag ioFlag);
 
+   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) override;
    virtual int calcValues(double timevalue);
    double computeBoxConfidence(LocalizationData const& bbox, pvadata_t const * buffer, int nx, int ny, int nf);
 

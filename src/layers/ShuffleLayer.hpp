@@ -18,7 +18,6 @@ class ShuffleLayer: public CloneVLayer {
 public:
    ShuffleLayer(const char * name, HyPerCol * hc);
    virtual ~ShuffleLayer();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual int updateState(double timef, double dt);
    virtual int setActivity();
@@ -30,6 +29,7 @@ protected:
    virtual void ioParam_readFreqFromFile(enum ParamsIOFlag ioFlag);
    virtual void ioParam_freqFilename(enum ParamsIOFlag ioFlag);
    virtual void ioParam_freqCollectTime(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    void randomShuffle(const pvdata_t * sourceData, pvdata_t * activity);
    void rejectionShuffle(const pvdata_t * sourceData, pvdata_t * activity);

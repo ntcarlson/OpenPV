@@ -479,8 +479,8 @@ void Patterns::ioParam_displayPeriod(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, 0.0);
 }
 
-int Patterns::communicateInitInfo() {
-   int status = BaseInput::communicateInitInfo();
+int Patterns::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = BaseInput::communicateInitInfo(message);
 
    patternRandState = new Random(1);
 #ifndef NDEBUG

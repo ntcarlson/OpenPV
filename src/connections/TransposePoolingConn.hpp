@@ -19,7 +19,6 @@ public:
    TransposePoolingConn();
    TransposePoolingConn(const char * name, HyPerCol * hc);
    virtual ~TransposePoolingConn();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    inline PoolingConn * getOriginalConn() {return originalConn;}
 
@@ -63,6 +62,7 @@ protected:
     virtual void ioParam_shrinkPatches(enum ParamsIOFlag ioFlag);
     virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
     virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
+    virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
     virtual int setPatchSize();
     virtual int setNeededRNGSeeds() {return 0;}
     virtual int setInitialValues();

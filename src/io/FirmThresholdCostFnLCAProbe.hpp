@@ -20,7 +20,6 @@ namespace PV {
 class FirmThresholdCostFnLCAProbe: public FirmThresholdCostFnProbe {
 public:
    FirmThresholdCostFnLCAProbe(const char * probeName, HyPerCol * hc);
-   virtual int communicateInitInfo();
    virtual ~FirmThresholdCostFnLCAProbe() {}
 
 protected:
@@ -32,6 +31,8 @@ protected:
     * but computes it from VThresh of the target layer.
     */
    virtual void ioParam_coefficient(enum ParamsIOFlag ioFlag) {} // coefficient is set from targetLayer during communicateInitInfo.
+
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
 private:
    int initialize_base() { return PV_SUCCESS; }

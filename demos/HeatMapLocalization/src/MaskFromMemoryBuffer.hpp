@@ -16,7 +16,6 @@ public:
    MaskFromMemoryBuffer(const char * name, PV::HyPerCol * hc);
    MaskFromMemoryBuffer();
    virtual ~MaskFromMemoryBuffer();
-   virtual int communicateInitInfo();
 protected:
    virtual int updateState(double time, double dt);
    virtual int ioParamsFillGroup(enum PV::ParamsIOFlag ioFlag);
@@ -28,6 +27,7 @@ protected:
     * to construct the mask.
     */
    virtual void ioParam_imageLayerName(enum PV::ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) override;
 private:
    int initialize_base();
 

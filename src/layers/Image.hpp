@@ -36,11 +36,11 @@ protected:
    Image();
    int initialize(const char * name, HyPerCol * hc);
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
 public:
    Image(const char * name, HyPerCol * hc);
    virtual ~Image();
-   virtual int communicateInitInfo();
 
    // primary layer interface
    //

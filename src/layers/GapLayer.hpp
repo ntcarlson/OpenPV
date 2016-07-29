@@ -20,7 +20,6 @@ public:
    GapLayer(const char * name, HyPerCol * hc);
    virtual ~GapLayer();
 
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
 
    virtual int updateState(double timef, double dt);
@@ -33,6 +32,7 @@ protected:
       // use LIFGap as source layer instead (LIFGap updates gap junctions more accurately)
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual void ioParam_ampSpikelet(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    /* static */ int updateState(double timef, double dt, const PVLayerLoc * loc, pvdata_t * A, pvdata_t * V, pvdata_t * checkActive);
    virtual int setActivity();

@@ -28,7 +28,6 @@ public:
    virtual ~InitWeights();
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
-   virtual int communicateParamsInfo();
 
    /*
     * initializeWeights is not virtual.  It checks initFromLastFlag and then
@@ -56,7 +55,9 @@ protected:
    InitWeights();
    int initialize(const char * name, HyPerCol * hc);
    virtual int setDescription();
+
    virtual int initRNGs(bool isKernel) { return PV_SUCCESS; }
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int zeroWeightsOutsideShrunkenPatch(PVPatch *** patches);
    virtual int readListOfArborFiles(PVPatch *** patches, pvwdata_t ** dataStart,int numPatches,
          const char * listOfArborsFilename, double * timef=NULL);

@@ -34,8 +34,8 @@ void StochasticReleaseTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
    requireType(BufActivity);
 }
 
-int StochasticReleaseTestProbe::communicateInitInfo() {
-   int status = StatsProbe::communicateInitInfo();
+int StochasticReleaseTestProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = StatsProbe::communicateInitInfo(message);
    assert(getTargetLayer());
    long int num_steps = getParent()->getFinalStep() - getParent()->getInitialStep();
    pvalues = (double *) calloc(num_steps*getTargetLayer()->getLayerLoc()->nf, sizeof(double));

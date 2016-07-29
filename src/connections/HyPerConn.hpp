@@ -78,7 +78,6 @@ public:
     */
    HyPerConn(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer); // Deprecated June 22, 2016.
    virtual ~HyPerConn();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
 
    virtual int checkpointRead(const char * cpDir, double* timef);
@@ -509,6 +508,7 @@ protected:
 
 protected:
    HyPerConn();
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int initNumWeightPatches();
    virtual int initNumDataPatches();
 

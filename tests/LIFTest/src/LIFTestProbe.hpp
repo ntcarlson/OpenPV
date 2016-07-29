@@ -18,7 +18,6 @@ public:
    LIFTestProbe(const char * probeName, HyPerCol * hc);
    virtual ~LIFTestProbe();
 
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
 
    virtual int outputState(double timed);
@@ -29,6 +28,7 @@ protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual void ioParam_endingTime(enum ParamsIOFlag ioFlag);
    virtual void ioParam_tolerance(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message);
 
 private:
    int initialize_base();

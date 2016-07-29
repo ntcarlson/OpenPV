@@ -88,7 +88,7 @@ int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
 int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    int status = PV_SUCCESS;
    if (getInitInfoCommunicatedFlag()) { return status; }
-   status = communicateInitInfo();
+   status = communicateInitInfo(message);
    if (status==PV_SUCCESS) { setInitInfoCommunicatedFlag(); }
    return status;
 }

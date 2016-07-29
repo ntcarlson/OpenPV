@@ -9,7 +9,6 @@ namespace PV {
 class SegmentLayer: public PV::HyPerLayer {
 public:
    SegmentLayer(const char * name, HyPerCol * hc);
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual bool activityIsSpiking() { return false; }
    virtual ~SegmentLayer();
@@ -21,6 +20,7 @@ protected:
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    void ioParam_originalLayerName(enum ParamsIOFlag ioFlag);
    void ioParam_segmentMethod(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int initializeActivity();
 
    virtual int allocateV();

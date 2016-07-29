@@ -30,8 +30,6 @@ class FirmThresholdCostFnProbe : public AbstractNormProbe {
 public:
    FirmThresholdCostFnProbe(const char * probeName, HyPerCol * hc);
    virtual ~FirmThresholdCostFnProbe();
-   
-   virtual int communicateInitInfo();
 
 protected:
    FirmThresholdCostFnProbe();
@@ -61,6 +59,8 @@ protected:
     */
    virtual void ioParam_VWidth(enum ParamsIOFlag ioFlag);
    /** @} */
+   
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
 
    /**
     * Overrides AbstractNormProbe::setNormDescription() to set normDescription to "Cost function".

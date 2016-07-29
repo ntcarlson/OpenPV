@@ -67,8 +67,8 @@ int KernelProbe::initNumValues() {
    return setNumValues(-1);
 }
 
-int KernelProbe::communicateInitInfo() {
-   int status = BaseHyPerConnProbe::communicateInitInfo();
+int KernelProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = BaseHyPerConnProbe::communicateInitInfo(message);
    assert(targetHyPerConn);
    if(getTargetHyPerConn()->usingSharedWeights()==false) {
       if (parent->columnId()==0) {

@@ -16,7 +16,6 @@ class privateTransposeConn: public HyPerConn {
 public:
    privateTransposeConn(const char * name, HyPerCol * hc, HyPerConn * parentConn, bool needWeights=true);
    virtual ~privateTransposeConn();
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    inline HyPerConn * getOriginalConn() {return postConn;}
 
@@ -31,6 +30,7 @@ protected:
     int initialize(const char * name, HyPerCol * hc, HyPerConn * parentConn, bool needWeights);
     virtual int setDescription();
     virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+    virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
     virtual int setPatchSize();
     virtual int setNeededRNGSeeds() {return 0;}
     virtual int setInitialValues();

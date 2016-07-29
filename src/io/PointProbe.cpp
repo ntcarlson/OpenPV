@@ -73,8 +73,8 @@ int PointProbe::initNumValues() {
    return setNumValues(2);
 }
 
-int PointProbe::communicateInitInfo() {
-   int status = LayerProbe::communicateInitInfo();
+int PointProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = LayerProbe::communicateInitInfo(message);
    assert(getTargetLayer());
    const PVLayerLoc * loc = getTargetLayer()->getLayerLoc();
    bool isRoot = getParent()->getCommunicator()->commRank()==0;

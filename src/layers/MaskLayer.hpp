@@ -17,13 +17,13 @@ public:
    MaskLayer(const char * name, HyPerCol * hc);
    MaskLayer();
    virtual ~MaskLayer();
-   virtual int communicateInitInfo();
 protected:
    virtual int updateState(double time, double dt);
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual void ioParam_maskMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_maskLayerName(enum ParamsIOFlag ioFlag);
    virtual void ioParam_featureIdxs(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    char* maskMethod;
    char* maskLayerName;
    int* features;

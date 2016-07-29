@@ -28,6 +28,7 @@ protected:
    virtual void ioParam_labelStart(enum ParamsIOFlag ioFlag);
    virtual void ioParam_labelLength(enum ParamsIOFlag ioFlag);
    virtual void ioParam_echoLabelFlag(enum ParamsIOFlag ioFlag);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
    virtual int allocateV();
    virtual int initializeActivity();
    char * movieLayerName;
@@ -45,7 +46,6 @@ protected:
 
 public:
    LabelLayer(const char * name, HyPerCol * hc);
-   virtual int communicateInitInfo();
    virtual int allocateDataStructures();
    virtual bool activityIsSpiking() { return false; }
    virtual int updateState(double time, double dt);

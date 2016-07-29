@@ -1115,7 +1115,7 @@ int HyPerConn::setPostPatchSize() {
    return PV_SUCCESS;
 }
 
-int HyPerConn::communicateInitInfo() {
+int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    // HyPerConns need to tell the parent HyPerCol how many random number
    // seeds they need.  At the start of HyPerCol::run, the parent HyPerCol
    // calls each layer's and each connection's communicateInitInfo() sequentially in
@@ -1141,7 +1141,7 @@ int HyPerConn::communicateInitInfo() {
    // phase.  These subclasses should override communicateInitInfo(), and the
    // subclass's communicateInitInfo() should call the parent class's communicateInitInfo().
 
-   int status = BaseConnection::communicateInitInfo();
+   int status = BaseConnection::communicateInitInfo(message);
    if (status != PV_SUCCESS) {
       if (parent->columnId()==0) {
          pvErrorNoExit().printf("%s: communicateInitInfo failed.\n", getDescription_c());
@@ -1275,7 +1275,8 @@ int HyPerConn::communicateInitInfo() {
       weightUpdateTime = parent->getDeltaTime();
    }
 
-   if (weightInitializer) { weightInitializer->communicateParamsInfo(); }
+   auto messagePtr = std::make_shared<CommunicateInitInfoMessage<BaseObject*> >(*message);
+   if (weightInitializer) { weightInitializer->respond(messagePtr); }
 
    if (sharedWeights) {
       fileType = PVP_KERNEL_FILE_TYPE;
@@ -1284,7 +1285,7 @@ int HyPerConn::communicateInitInfo() {
       fileType = PVP_WGT_FILE_TYPE;
    }
 
-   if (normalizer) { normalizer->communicateInitInfo(); }
+   if (normalizer) { normalizer->respond(messagePtr); }
 
    //Check if need transpose
    if(updateGSynFromPostPerspective) {

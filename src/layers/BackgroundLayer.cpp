@@ -37,8 +37,8 @@ int BackgroundLayer::initialize(const char * name, HyPerCol * hc) {
    return status_init;
 }
 
-int BackgroundLayer::communicateInitInfo() {
-   int status = HyPerLayer::communicateInitInfo();
+int BackgroundLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
       if (parent->columnId()==0) {

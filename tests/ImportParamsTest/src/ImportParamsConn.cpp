@@ -37,8 +37,8 @@ int ImportParamsConn::initialize(const char * name, HyPerCol * hc)
    return PV_SUCCESS;
 }
 
-int ImportParamsConn::communicateInitInfo() {
-   int status = HyPerConn::communicateInitInfo();
+int ImportParamsConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+   int status = HyPerConn::communicateInitInfo(message);
    return status;
 }
 
