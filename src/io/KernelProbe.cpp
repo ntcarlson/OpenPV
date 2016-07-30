@@ -71,7 +71,7 @@ int KernelProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
    int status = BaseHyPerConnProbe::communicateInitInfo(message);
    assert(targetHyPerConn);
    if(getTargetHyPerConn()->usingSharedWeights()==false) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: %s is not using shared weights.\n", getDescription_c(), targetConn->getDescription_c());
       }
       status = PV_FAILURE;

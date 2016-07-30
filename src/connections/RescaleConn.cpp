@@ -61,7 +61,7 @@ int RescaleConn::deliverPresynapticPerspective(PVLayerCube const * activity, int
 
 #ifdef DEBUG_OUTPUT
    int rank;
-   MPI_Comm_rank(parent->icCommunicator()->communicator(), &rank);
+   MPI_Comm_rank(parent->getCommunicator()->communicator(), &rank);
    pvDebug(debugMessage);
    debugMessage.printf("[%d]: HyPerLayr::recvSyn: neighbor=%d num=%d actv=%p this=%p conn=%p\n", rank, 0, numExtended, activity, this, conn);
    debugMessage.flush();

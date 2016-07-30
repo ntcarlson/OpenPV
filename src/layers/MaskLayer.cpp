@@ -61,7 +61,7 @@ void MaskLayer::ioParam_maskMethod(enum ParamsIOFlag ioFlag) {
    else if(strcmp(maskMethod, "noMaskFeatures") == 0){
    }
    else{
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: \"%s\" is not a valid maskMethod. Options are \"layer\", \"invertLayer\", \"maskFeatures\", or \"noMaskFeatures\".\n",
                getDescription_c(), maskMethod);
       }
@@ -81,7 +81,7 @@ void MaskLayer::ioParam_featureIdxs(enum ParamsIOFlag ioFlag) {
    if(strcmp(maskMethod, "maskFeatures") == 0 || strcmp(maskMethod, "noMaskFeatures") == 0){
       parent->ioParamArray(ioFlag, name, "featureIdxs", &features, &numSpecifiedFeatures);
       if(numSpecifiedFeatures == 0){
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: MaskLayer must specify at least one feature for maskMethod \"%s\".\n",
                   getDescription_c(), maskMethod);
          }
@@ -95,7 +95,7 @@ int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
    if(strcmp(maskMethod, "layer") == 0 || strcmp(maskMethod, "invertLayer") == 0){
       maskLayer = parent->getLayerFromName(maskLayerName);
       if (maskLayer==NULL) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: maskLayerName \"%s\" is not a layer in the HyPerCol.\n",
                   getDescription_c(), maskLayerName);
          }
@@ -107,7 +107,7 @@ int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
       const PVLayerLoc * loc = getLayerLoc();
       assert(maskLoc != NULL && loc != NULL);
       if (maskLoc->nxGlobal != loc->nxGlobal || maskLoc->nyGlobal != loc->nyGlobal) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit(errorMessage);
             errorMessage.printf("%s: maskLayerName \"%s\" does not have the same x and y dimensions.\n",
                   getDescription_c(), maskLayerName);
@@ -119,7 +119,7 @@ int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
       }
 
       if(maskLoc->nf != 1 && maskLoc->nf != loc->nf){
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit(errorMessage);
             errorMessage.printf("%s: maskLayerName \"%s\" must either have the same number of features as this layer, or one feature.\n",
                   getDescription_c(), maskLayerName);

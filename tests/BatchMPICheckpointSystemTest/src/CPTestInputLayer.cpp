@@ -55,7 +55,7 @@ int CPTestInputLayer::allocateDataStructures() {
 
    status = initializeV();
    if (status != PV_SUCCESS) {
-      pvErrorNoExit().printf("CPTestInputLayer \"%s\" in rank %d process: initializeV failed.\n", name, parent->columnId());
+      pvErrorNoExit().printf("CPTestInputLayer \"%s\" in rank %d process: initializeV failed.\n", name, parent->getCommunicator()->commRank());
    }
    return status;
 }

@@ -62,7 +62,7 @@ int ResetStateOnTriggerTestProbe::calcValues(double timevalue) {
 
 int ResetStateOnTriggerTestProbe::outputState(double timevalue) {
    getValues(timevalue); // calls calcValues
-   if (parent->columnId()!=0) { return PV_SUCCESS; }
+   if (parent->getCommunicator()->commRank()!=0) { return PV_SUCCESS; }
    if (probeStatus != 0) {
       int nBatch = getNumValues();
       if (nBatch==1) {

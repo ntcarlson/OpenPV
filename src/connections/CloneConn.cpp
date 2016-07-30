@@ -185,7 +185,7 @@ int CloneConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
    // Need to set originalConn before calling HyPerConn::communicate, since HyPerConn::communicate calls setPatchSize, which needs originalConn.
    BaseConnection * originalConnBase = parent->getConnFromName(originalConnName);
    if (originalConnBase == NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a connection in the column.\n",
                getDescription_c(), originalConnName);
       }
@@ -194,13 +194,13 @@ int CloneConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
    }
    originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
    if (originalConn == NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a HyPerConn or HyPerConn-derived class.\n",
                getDescription_c(), originalConnName);
       }
    }
    if (!originalConn->getInitInfoCommunicatedFlag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;
@@ -237,7 +237,7 @@ int CloneConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
       if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: CloneConn and originalConn \"%s\" must have presynaptic layers with the same nx,ny,nf.\n",
-               getDescription_c(), parent->columnId(), originalConn->getName());
+               getDescription_c(), parent->getCommunicator()->commRank(), originalConn->getName());
          errorMessage.printf("{nx=%d, ny=%d, nf=%d} versus {nx=%d, ny=%d, nf=%d}\n",
                  preLoc->nx, preLoc->ny, preLoc->nf, origPreLoc->nx, origPreLoc->ny, origPreLoc->nf);
       }
@@ -271,7 +271,7 @@ int CloneConn::allocatePostConn(){
 
 int CloneConn::allocateDataStructures() {
    if (!originalConn->getDataStructuresAllocatedFlag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;

@@ -30,7 +30,7 @@ StatsProbe::StatsProbe()
 
 StatsProbe::~StatsProbe()
 {
-   int rank = getParent()->columnId();
+   int rank = getParent()->getCommunicator()->commRank();
    if (rank==0) {
       iotimer->fprint_time(output());
       mpitimer->fprint_time(output());
@@ -134,7 +134,7 @@ void StatsProbe::requireType(PVBufType requiredType) {
             break;
          }
          if (type != BufV) {
-            if (getParent()->columnId()==0) {
+            if (getParent()->getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("   Value \"%s\" is inconsistent with allowed values %s.\n",
                      params->stringValue(getName(), "buffer"), requiredString);
             }
@@ -171,7 +171,7 @@ void StatsProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
          type = BufActivity;
       }
       else {
-         if (getParent()->columnId()==0) {
+         if (getParent()->getCommunicator()->commRank()==0) {
             const char * bufnameinparams = getParent()->parameters()->stringValue(getName(), "buffer");
             assert(bufnameinparams);
             pvErrorNoExit().printf("%s: buffer \"%s\" is not recognized.\n",

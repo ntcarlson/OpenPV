@@ -104,7 +104,7 @@ void PoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
 }
 
 void PoolingConn::unsetAccumulateType() {
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       pvErrorNoExit(errorMessage);
       if (pvpatchAccumulateTypeString) {
          errorMessage.printf("%s: pvpatchAccumulateType \"%s\" is unrecognized.",
@@ -206,7 +206,7 @@ int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
    if(needPostIndexLayer){
       BaseLayer * basePostIndexLayer = parent->getLayerFromName(this->postIndexLayerName);
       if (basePostIndexLayer==NULL) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayerName \"%s\" does not refer to any layer in the column.\n", getDescription_c(), this->postIndexLayerName);
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -215,7 +215,7 @@ int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
 
       postIndexLayer = dynamic_cast<PoolingIndexLayer*>(basePostIndexLayer);
       if (postIndexLayer==NULL) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayerName \"%s\" is not a PoolingIndexLayer.\n", getDescription_c(), this->postIndexLayerName);
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -223,7 +223,7 @@ int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
       }
 
       if(postIndexLayer->getDataType() != PV_INT){
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayer \"%s\" must have data type of int. Specify parameter dataType in this layer to be \"int\".\n", getDescription_c(), this->postIndexLayerName);
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -235,7 +235,7 @@ int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
       //postIndexLayer must be the same size as the post layer
       //(margins doesnt matter)
       if(idxLoc->nxGlobal != postLoc->nxGlobal || idxLoc->nyGlobal != postLoc->nyGlobal || idxLoc->nf != postLoc->nf){
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayer \"%s\" must have the same dimensions as the post pooling layer \"%s\".", getDescription_c(), this->postIndexLayerName, this->postLayerName);
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -288,7 +288,7 @@ int PoolingConn::allocateDataStructures(){
             int* thread_buffer = (int*) malloc(sizeof(int) * post->getNumNeurons());
             //float* thread_buffer = (float*) malloc(sizeof(float) * post->getNumNeurons());
             if(!thread_buffer){
-               pvError().printf("HyPerLayer \"%s\" error: rank %d unable to allocate %zu memory for thread_gateIdxBuffer: %s\n", name, parent->columnId(), sizeof(int) * post->getNumNeurons(), strerror(errno));
+               pvError().printf("HyPerLayer \"%s\" error: rank %d unable to allocate %zu memory for thread_gateIdxBuffer: %s\n", name, parent->getCommunicator()->commRank(), sizeof(int) * post->getNumNeurons(), strerror(errno));
             }
             thread_gateIdxBuffer[i] = thread_buffer;
          }

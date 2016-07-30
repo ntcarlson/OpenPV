@@ -75,7 +75,7 @@ int QuotientColProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*
    denomProbe = findProbe(denominator);
    if (numerProbe==NULL || denomProbe==NULL) {
       status = PV_FAILURE;
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          if (numerProbe==NULL) {
             pvErrorNoExit().printf("%s: numerator probe \"%s\" could not be found.\n", getDescription_c(), numerator);
          }
@@ -88,7 +88,7 @@ int QuotientColProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*
       int nNumValues = numerProbe->getNumValues();
       int dNumValues = denomProbe->getNumValues();
       if (nNumValues != dNumValues) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: numerator probe \"%s\" and denominator probe \"%s\" have differing numbers of values (%d vs. %d)\n",
                   getDescription_c(), numerator, denominator, nNumValues, dNumValues);
          }

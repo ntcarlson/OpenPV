@@ -64,7 +64,7 @@ int MoviePvp::checkpointRead(const char * cpDir, double * timef){
       long timestampFilePos = 0L;
       parent->readScalarFromFile(cpDir, getName(), "TimestampState", &timestampFilePos, timestampFilePos);
       if (timestampFile) {
-         assert(parent->columnId()==0);
+         assert(parent->getCommunicator()->commRank()==0);
          if (PV_fseek(timestampFile, timestampFilePos, SEEK_SET) != 0) {
             pvError().printf("MovieLayer::checkpointRead error: unable to recover initial file position in timestamp file for layer %s: %s\n", name, strerror(errno));
          }
@@ -283,8 +283,8 @@ int MoviePvp::allocateDataStructures() {
    }
    else if(strcmp(batchMethod, "bySpecified") == 0){
       int nbatchGlobal = parent->getNBatchGlobal();
-      int commBatch = parent->commBatch();
-      int numBatchPerProc = parent->numCommBatches();
+      int commBatch = parent->getCommunicator()->commBatch();
+      int numBatchPerProc = parent->getCommunicator()->numCommBatches();
 
       if(numStartFrame != nbatchGlobal && numStartFrame != 0){
          pvError() << "Movie layer " << name << " batchMethod of \"bySpecified\" requires 0 or " << nbatchGlobal << " start_frame_index values\n";
@@ -475,7 +475,7 @@ int MoviePvp::updateFrameNum(int batchIdx) {
    frameNumbers[batchIdx] += 1;
    //numFrames only set if pvp file
    if(frameNumbers[batchIdx] >= fileNumFrames){
-      if(parent->columnId()==0){
+      if(parent->getCommunicator()->commRank()==0){
          pvInfo().printf("Movie %s: EOF reached, rewinding file \"%s\"\n", name, inputPath );
       }
       if(resetToStartOnLoop){

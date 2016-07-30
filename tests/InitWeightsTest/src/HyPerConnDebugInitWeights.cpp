@@ -61,7 +61,7 @@ int HyPerConnDebugInitWeights::communicateInitInfo(CommunicateInitInfoMessage<Ba
    otherConn = dynamic_cast<HyPerConn *>(baseConn);
    if (otherConn == NULL) {
       pvError().printf("HyPerConnDebugInitWeights \"%s\" error in rank %d process: copiedConn \"%s\" is not a connection in the column.\n",
-            name, parent->columnId(), otherConnName);
+            name, parent->getCommunicator()->commRank(), otherConnName);
    }
    return PV_SUCCESS;
 }

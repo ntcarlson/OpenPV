@@ -67,7 +67,7 @@ void ImprintConn::ioParam_imprintTimeThresh(enum ParamsIOFlag ioFlag) {
       if (imprintTimeThresh==-1) {
          imprintTimeThresh = weightUpdateTime * 100; //Default value of 100 weight updates
       }
-      else if(imprintTimeThresh <= weightUpdateTime && parent->columnId()==0){
+      else if(imprintTimeThresh <= weightUpdateTime && parent->getCommunicator()->commRank()==0){
          pvWarn().printf("ImprintConn's imprintTimeThresh is smaller than weightUpdateTime. The algorithm will imprint on every weight update\n");
       }
    }
@@ -79,7 +79,7 @@ void ImprintConn::ioParam_imprintTimeThresh(enum ParamsIOFlag ioFlag) {
 //      if (imprintTimeThresh==-1) {
 //         imprintTimeThresh = weightUpdateTime * 100; //Default value of 100 weight updates
 //      }
-//      else if(imprintTimeThresh <= weightUpdateTime && parent->columnId()==0){
+//      else if(imprintTimeThresh <= weightUpdateTime && parent->getCommunicator()->commRank()==0){
 //         pvWarn().printf("ImprintConn's imprintTimeThresh is smaller than weightUpdateTime. The algorithm will imprint on every weight update\n");
 //      }
 //   }
@@ -268,7 +268,7 @@ int ImprintConn::updateWeights(int arbor_ID){
 int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
    int status = HyPerConn::checkpointRead(cpDir, timeptr);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
-   if( parent->columnId() == 0 ) {
+   if( parent->getCommunicator()->commRank() == 0 ) {
       char * filename = parent->pathInCheckpoint(cpDir, getName(), "_ImprintState.bin");
       PV_Stream * pvstream = PV_fopen(filename, "r", false/*verifyWrites*/);
       if( pvstream != NULL ) {
@@ -291,7 +291,7 @@ int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
 int ImprintConn::checkpointWrite(const char * cpDir) {
    int status = HyPerConn::checkpointWrite(cpDir);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
-   if( parent->columnId() == 0 ) {
+   if( parent->getCommunicator()->commRank() == 0 ) {
       int filenamesize = strlen(cpDir)+1+strlen(name)+18;
       // The +1 is for the slash between cpDir and name; the +18 needs to be large enough to hold the suffix _PatternState.{bin,txt} plus the null terminator
       char * filename = (char *) malloc( filenamesize*sizeof(char) );

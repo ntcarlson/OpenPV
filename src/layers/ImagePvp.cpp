@@ -117,7 +117,7 @@ int ImagePvp::readPvp(const char * filename, int frameNumber) {
 
    int status = PV_SUCCESS;
    int rootproc = 0;
-   int rank = parent->columnId();
+   int rank = parent->getCommunicator()->commRank();
    Communicator * comm = parent->getCommunicator();
    PV_Stream * pvstream = PV::pvp_open_read_file(filename, comm);
    int numParams = NUM_BIN_PARAMS;

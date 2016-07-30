@@ -49,7 +49,7 @@ void NormalizeGroup::ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag) {
 int NormalizeGroup::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    groupHead = parent->getNormalizerFromName(normalizeGroupName);
    if (groupHead==nullptr) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: normalizeGroupName \"%s\" is not a recognized normalizer.\n",
                getDescription_c(), normalizeGroupName);
       }

@@ -168,7 +168,7 @@ void Retina::ioParam_foregroundRate(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ && !params->present(name, "foregroundRate")) {
       if (params->present(name, "noiseOnFreq")) {
          probStimParam = params->value(name, "noiseOnFreq");
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvError().printf("noiseOnFreq is obsolete.  Use foregroundRate instead.\n");
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -176,7 +176,7 @@ void Retina::ioParam_foregroundRate(enum ParamsIOFlag ioFlag) {
       }
       if (params->present(name, "poissonEdgeProb")) {
          probStimParam = params->value(name, "poissonEdgeProb");
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvError().printf("poissonEdgeProb is deprecated.  Use foregroundRate instead.\n");
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -193,7 +193,7 @@ void Retina::ioParam_backgroundRate(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ && !params->present(name, "backgroundRate")) {
       if (params->present(name, "noiseOffFreq")) {
          probBaseParam = params->value(name, "noiseOffFreq");
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvWarn().printf("noiseOffFreq is deprecated.  Use backgroundRate instead.\n");
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -201,7 +201,7 @@ void Retina::ioParam_backgroundRate(enum ParamsIOFlag ioFlag) {
       }
       if (params->present(name, "poissonBlankProb")) {
          probBaseParam = params->value(name, "poissonBlankProb");
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvWarn().printf("poissonEdgeProb is deprecated.  Use backgroundRate instead.\n");
          }
          MPI_Barrier(parent->getCommunicator()->communicator());

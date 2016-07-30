@@ -68,11 +68,11 @@ int KernelConnDebugInitWeights::communicateInitInfo(CommunicateInitInfoMessage<B
    otherConn = dynamic_cast<HyPerConn *>(baseConn);
    if (otherConn == NULL) {
       pvError().printf("KernelConnDebugInitWeights \"%s\" error in rank %d process: copiedConn \"%s\" is not a connection in the column.\n",
-            name, parent->columnId(), otherConnName);
+            name, parent->getCommunicator()->commRank(), otherConnName);
    }
    if (otherConn->usingSharedWeights() == false) {
       pvError().printf("KernelConnDebugInitWeights \"%s\" error in rank %d process: copiedConn \"%s\" does not use shared weights.\n",
-            name, parent->columnId(), otherConnName);
+            name, parent->getCommunicator()->commRank(), otherConnName);
    }
    return PV_SUCCESS;
 }

@@ -30,7 +30,7 @@ void MaskTestLayer::ioParam_maskMethod(enum ParamsIOFlag ioFlag) {
    else if(strcmp(maskMethod, "noMaskFeatures") == 0){
    }
    else{
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: \"%s\" is not a valid maskMethod. Options are \"invertLayer\", \"maskFeatures\", or \"noMaskFeatures\".\n",
                getDescription_c(), maskMethod);
       }

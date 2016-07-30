@@ -60,7 +60,7 @@ int RequireAllZeroActivityProbe::outputState(double timed) {
             nonzeroTime = timed;
          }
          nonzeroFound = true;
-         nonzeroFoundMessage(nonzeroTime, parent->columnId()==0, immediateExitOnFailure);
+         nonzeroFoundMessage(nonzeroTime, parent->getCommunicator()->commRank()==0, immediateExitOnFailure);
       }
    }
    return status;
@@ -86,7 +86,7 @@ void RequireAllZeroActivityProbe::nonzeroFoundMessage(double badTime, bool isRoo
 RequireAllZeroActivityProbe::~RequireAllZeroActivityProbe() {
    //We check for exits on failure in destructor
    if(exitOnFailure && getNonzeroFound()) {
-      nonzeroFoundMessage(nonzeroTime, parent->columnId()==0, true/*fatalError*/);
+      nonzeroFoundMessage(nonzeroTime, parent->getCommunicator()->commRank()==0, true/*fatalError*/);
    }
 }
 

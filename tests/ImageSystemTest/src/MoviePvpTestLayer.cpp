@@ -15,8 +15,8 @@ int MoviePvpTestLayer::updateState(double time, double dt)
    int nf = loc->nf;
    int nbatch = loc->nbatch;
    int nbatchGlobal = loc->nbatchGlobal;
-   int commBatch = parent->commBatch();
-   int numBatchPerProc = parent->numCommBatches();
+   int commBatch = parent->getCommunicator()->commBatch();
+   int numBatchPerProc = parent->getCommunicator()->numCommBatches();
 
    for(int b = 0; b < nbatch; b++){
       pvdata_t * dataBatch = data + b * getNumExtended();

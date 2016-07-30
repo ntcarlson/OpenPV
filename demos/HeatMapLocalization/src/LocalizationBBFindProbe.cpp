@@ -152,7 +152,7 @@ int LocalizationBBFindProbe::calcValues(double timevalue) {
    pvadata_t confidenceLocal[targetLayer->getNumExtended()];
    PV::Communicator * icComm = parent->getCommunicator();
    int const rootProcess = 0;
-   if (parent->columnId()==rootProcess) {
+   if (parent->getCommunicator()->commRank()==rootProcess) {
       PVLayerLoc const * loc = targetLayer->getLayerLoc();
       PVHalo const * halo = &loc->halo;
       int const nx = loc->nx;

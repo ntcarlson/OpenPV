@@ -53,7 +53,7 @@ void GapConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "sharedWeights", &sharedWeights, true/*default*/, true/*warn if absent*/);
    if (ioFlag==PARAMS_IO_READ && !parent->parameters()->present(name, "sharedWeights")) {
       sharedWeights = true;
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: sharedWeights defaults to true for GapConns, but the default may be changed to false in a future release, to be consistent with other HyPerConns.\n", getDescription_c());
       }
       return;
@@ -69,7 +69,7 @@ void GapConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
       normalizeMethod = strdup("normalizeSum");
       GapConn * conn = this;
       normalizer = new NormalizeGap(name, parent);
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: normalizeMethod defaults to normalizeSum for GapConns, but this parameter may be required in a future release, to be consistent with other HyPerConns.\n", getDescription_c());
       }
       return;
@@ -81,7 +81,7 @@ int GapConn::allocateDataStructures() {
    HyPerLayer * postHyPerLayer = this->postSynapticLayer();
    LIFGap * postLIFGap = dynamic_cast <LIFGap*> (postHyPerLayer);
    if (postLIFGap == NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: postsynaptic layer must be a LIFGap or LIFGap-derived layer.\n",
                getDescription_c());
       }

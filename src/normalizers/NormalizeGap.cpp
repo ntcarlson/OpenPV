@@ -41,7 +41,7 @@ void NormalizeGap::ioParam_normalizeFromPostPerspective(enum ParamsIOFlag ioFlag
    // Now GapConn can be normalized using any method, so eventually the default will be removed and the parameter required as is for other HyPerConns.
    if (ioFlag == PARAMS_IO_READ) {
       normalizeFromPostPerspective = true;
-      if (parent->parameters()->present(name, "normalizeFromPostPerspective") && parent->columnId()==0) {
+      if (parent->parameters()->present(name, "normalizeFromPostPerspective") && parent->getCommunicator()->commRank()==0) {
          pvWarn().printf("%s \"%s\": normalizeFromPostPerspective default is true for GapConns with normalizeMethod of normalizeSum, but the default for this parameter may change to false in a future release, to be consistent with other normalizerMethods.\n", parent->parameters()->groupKeywordFromName(name), name);
       }
    }

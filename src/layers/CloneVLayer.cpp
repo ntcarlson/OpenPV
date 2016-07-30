@@ -51,7 +51,7 @@ int CloneVLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);
       }
@@ -63,7 +63,7 @@ int CloneVLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);
    if (srcLoc->nxGlobal != loc->nxGlobal || srcLoc->nyGlobal != loc->nyGlobal || srcLoc->nf != loc->nf) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayerName \"%s\" does not have the same dimensions.\n",
                getDescription_c(), originalLayerName);
@@ -104,13 +104,13 @@ int CloneVLayer::allocateV() {
    clayer->V = originalLayer->getV();
    if (getV()==NULL) {
       pvError().printf("%s: originalLayer \"%s\" has a null V buffer in rank %d process.\n",
-            getDescription_c(), originalLayerName, parent->columnId());
+            getDescription_c(), originalLayerName, parent->getCommunicator()->commRank());
    }
    return PV_SUCCESS;
 }
 
 int CloneVLayer::requireChannel(int channelNeeded, int * numChannelsResult) {
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       pvErrorNoExit().printf("%s: layers derived from CloneVLayer do not have GSyn channels (requireChannel called with channel %d)\n", getDescription_c(), channelNeeded);
    }
    return PV_FAILURE;

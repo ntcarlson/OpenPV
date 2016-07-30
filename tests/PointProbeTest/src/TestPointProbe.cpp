@@ -27,7 +27,7 @@ TestPointProbe::~TestPointProbe()
 
 
 int TestPointProbe::point_writeState(double timef, float outVVal, float outAVal) {
-   if(parent->columnId()==0){
+   if(parent->getCommunicator()->commRank()==0){
       //Input pvp layer's spinning order is nf, nx, ny
       float expectedVal = fLoc * 64 + xLoc * 8 + yLoc;
       if(outAVal != expectedVal){

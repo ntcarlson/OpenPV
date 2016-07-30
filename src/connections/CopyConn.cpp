@@ -137,7 +137,7 @@ int CopyConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const 
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" does not refer to any connection in the column.\n", getDescription_c(), this->originalConnName);
       }
       MPI_Barrier(parent->getCommunicator()->communicator());
@@ -145,7 +145,7 @@ int CopyConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const 
    }
    this->originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
    if (originalConn == NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not an existing connection.\n", getDescription_c(), originalConnName);
          status = PV_FAILURE;
       }
@@ -153,7 +153,7 @@ int CopyConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const 
    if (status != PV_SUCCESS) return status;
 
    if (!originalConn->getInitInfoCommunicatedFlag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;

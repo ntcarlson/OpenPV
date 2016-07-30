@@ -49,7 +49,7 @@ int InitGaussianRandomWeights::initRNGs(bool isKernel) {
    }
 
    if (gaussianRandState == NULL) {
-      pvError().printf("InitRandomWeights error in rank %d process: unable to create object of class Random.\n", callingConn->getParent()->columnId());
+      pvError().printf("InitRandomWeights error in rank %d process: unable to create object of class Random.\n", callingConn->getParent()->getCommunicator()->commRank());
    }
    randState = (Random *) gaussianRandState;
    return status;

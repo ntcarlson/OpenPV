@@ -86,7 +86,7 @@ void FilenameParsingGroundTruthLayer::ioParam_classes(enum ParamsIOFlag ioFlag) 
 int FilenameParsingGroundTruthLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
    movieLayer = dynamic_cast<Movie *>(parent->getLayerFromName(movieLayerName));
    if(movieLayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: movieLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), movieLayerName);
       }

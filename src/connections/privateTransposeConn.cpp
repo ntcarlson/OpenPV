@@ -252,8 +252,8 @@ int privateTransposeConn::transposeNonsharedWeights(int arborId) {
    bool hasRestrictedNeighbor[NUM_NEIGHBORHOOD];
    for (int neighbor=0; neighbor<NUM_NEIGHBORHOOD; neighbor++) {
       hasRestrictedNeighbor[neighbor] = neighbor!=LOCAL &&
-                                        icComm->neighborIndex(parent->columnId(), neighbor)>=0 &&
-                                        icComm->reverseDirection(parent->columnId(), neighbor) + neighbor == NUM_NEIGHBORHOOD;
+                                        icComm->neighborIndex(parent->getCommunicator()->commRank(), neighbor)>=0 &&
+                                        icComm->reverseDirection(parent->getCommunicator()->commRank(), neighbor) + neighbor == NUM_NEIGHBORHOOD;
    }
    for (int neighbor=0; neighbor<NUM_NEIGHBORHOOD; neighbor++) {
       if (hasRestrictedNeighbor[neighbor]==false ) {
@@ -272,11 +272,11 @@ int privateTransposeConn::transposeNonsharedWeights(int arborId) {
          mpiexchangesize(neighbor,  &size[neighbor], &startx[neighbor], &stopx[neighbor], &starty[neighbor], &stopy[neighbor], &blocksize[neighbor], &buffersize[neighbor]);
          sendbuf[neighbor] = (pvwdata_t *) malloc(buffersize[neighbor]);
          if (sendbuf[neighbor]==NULL) {
-            pvError().printf("%s: Rank %d process unable to allocate memory for Transpose send buffer: %s\n", getDescription_c(), parent->columnId(), strerror(errno));
+            pvError().printf("%s: Rank %d process unable to allocate memory for Transpose send buffer: %s\n", getDescription_c(), parent->getCommunicator()->commRank(), strerror(errno));
          }
          recvbuf[neighbor] = (pvwdata_t *) malloc(buffersize[neighbor]);
          if (recvbuf[neighbor]==NULL) {
-            pvError().printf("%s: Rank %d process unable to allocate memory for Transpose receive buffer: %s\n", getDescription_c(), parent->columnId(), strerror(errno));
+            pvError().printf("%s: Rank %d process unable to allocate memory for Transpose receive buffer: %s\n", getDescription_c(), parent->getCommunicator()->commRank(), strerror(errno));
          }
          request[neighbor] = NULL;
       }
@@ -284,7 +284,7 @@ int privateTransposeConn::transposeNonsharedWeights(int arborId) {
 
    for (int neighbor=0; neighbor<NUM_NEIGHBORHOOD; neighbor++) {
       if (!hasRestrictedNeighbor[neighbor]) { continue; }
-      int nbrIdx = icComm->neighborIndex(parent->columnId(), neighbor);
+      int nbrIdx = icComm->neighborIndex(parent->getCommunicator()->commRank(), neighbor);
       assert(nbrIdx>=0); // If neighborIndex is negative, there is no neighbor in that direction so hasRestrictedNeighbor should be false
 
       char * b = (char *) sendbuf[neighbor];
@@ -297,8 +297,8 @@ int privateTransposeConn::transposeNonsharedWeights(int arborId) {
             int yGlobalRes = yGlobalExt-preLocOrig->halo.up;
             if (xGlobalRes >= preLocOrig->kx0 && xGlobalRes < preLocOrig->kx0+preLocOrig->nx && yGlobalRes >= preLocOrig->ky0 && yGlobalRes < preLocOrig->ky0+preLocOrig->ny) {
                pvError(errorMessage);
-               errorMessage.printf("Rank %d, %s, x=%d, y=%d, neighbor=%d: xGlobalRes = %d, preLocOrig->kx0 = %d, preLocOrig->nx = %d\n", parent->columnId(), getDescription_c(), x, y, neighbor, xGlobalRes, preLocOrig->kx0, preLocOrig->nx);
-               errorMessage.printf("Rank %d, %s, x=%d, y=%d, neighbor=%d: yGlobalRes = %d, preLocOrig->ky0 = %d, preLocOrig->ny = %d\n", parent->columnId(), getDescription_c(), x, y, neighbor, yGlobalRes, preLocOrig->ky0, preLocOrig->ny);
+               errorMessage.printf("Rank %d, %s, x=%d, y=%d, neighbor=%d: xGlobalRes = %d, preLocOrig->kx0 = %d, preLocOrig->nx = %d\n", parent->getCommunicator()->commRank(), getDescription_c(), x, y, neighbor, xGlobalRes, preLocOrig->kx0, preLocOrig->nx);
+               errorMessage.printf("Rank %d, %s, x=%d, y=%d, neighbor=%d: yGlobalRes = %d, preLocOrig->ky0 = %d, preLocOrig->ny = %d\n", parent->getCommunicator()->commRank(), getDescription_c(), x, y, neighbor, yGlobalRes, preLocOrig->ky0, preLocOrig->ny);
             }
             int idxGlobalRes = kIndex(xGlobalRes, yGlobalRes, 0, preLocOrig->nxGlobal, preLocOrig->nyGlobal, preLocOrig->nf);
             memcpy(b, &idxGlobalRes, sizeof(idxGlobalRes));
@@ -353,7 +353,7 @@ int privateTransposeConn::transposeNonsharedWeights(int arborId) {
 #ifdef PV_USE_MPI
    for (int neighbor=0; neighbor<NUM_NEIGHBORHOOD; neighbor++) {
       if (!hasRestrictedNeighbor[neighbor]) { continue; }
-      int nbrIdx = icComm->neighborIndex(parent->columnId(), neighbor);
+      int nbrIdx = icComm->neighborIndex(parent->getCommunicator()->commRank(), neighbor);
       assert(nbrIdx>=0); // If neighborIndex is negative, there is no neighbor in that direction so hasRestrictedNeighbor should be false
 
       MPI_Recv(recvbuf[neighbor], buffersize[neighbor], MPI_CHAR, nbrIdx, icComm->getReverseTag(neighbor), icComm->communicator(), MPI_STATUS_IGNORE);

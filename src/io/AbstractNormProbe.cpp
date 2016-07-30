@@ -60,7 +60,7 @@ int AbstractNormProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject
    if (maskLayerName && maskLayerName[0]) {
       maskLayer = parent->getLayerFromName(maskLayerName);
       if (maskLayer==NULL) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: maskLayerName \"%s\" is not a layer in the HyPerCol.\n",
                   getDescription_c(), maskLayerName);
          }
@@ -72,7 +72,7 @@ int AbstractNormProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject
       const PVLayerLoc * loc = targetLayer->getLayerLoc();
       assert(maskLoc != NULL && loc != NULL);
       if (maskLoc->nxGlobal != loc->nxGlobal || maskLoc->nyGlobal != loc->nyGlobal) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit(maskLayerBadSize);
             maskLayerBadSize.printf("%s: maskLayerName \"%s\" does not have the same x and y dimensions.\n",
                   getDescription_c(), maskLayerName);
@@ -84,7 +84,7 @@ int AbstractNormProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject
       }
 
       if(maskLoc->nf != 1 && maskLoc->nf != loc->nf){
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit(maskLayerBadSize);
             maskLayerBadSize.printf("%s: maskLayerName \"%s\" must either have the same number of features as this layer, or one feature.\n",
                   getDescription_c(), maskLayerName);

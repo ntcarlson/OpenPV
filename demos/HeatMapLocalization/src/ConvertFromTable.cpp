@@ -49,7 +49,7 @@ int ConvertFromTable::allocateDataStructures() {
 
 int ConvertFromTable::loadConversionTable() {
    int status = PV_SUCCESS;
-   if (parent->globalRank()==0) {
+   if (parent->getCommunicator()->globalCommRank()==0) {
       FILE * conversionTableFP = fopen(dataFile, "r");
       if (conversionTableFP==NULL) {
          pvError().printf("%s: unable to open dataFile \"%s\": %s\n",
@@ -118,7 +118,7 @@ int ConvertFromTable::loadConversionTable() {
    MPI_Bcast(&convTable, sizeof(convTableStruct), MPI_CHAR, 0, parent->getCommunicator()->communicator());
    assert(convTable.numFeatures == getLayerLoc()->nf);
    int numValues = convTable.numPoints * convTable.numFeatures;
-   if (parent->globalRank()!=0) {
+   if (parent->getCommunicator()->globalCommRank()!=0) {
       convData = (float *) malloc(sizeof(float)*numValues);
       if (convData==NULL) {
          pvError().printf("%s: unable to allocate memory for loading dataFile \"%s\": %s.\n",

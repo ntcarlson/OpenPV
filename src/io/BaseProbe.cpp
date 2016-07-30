@@ -139,7 +139,7 @@ void BaseProbe::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ && parent->parameters()->present(name, "triggerFlag")) {
       bool flagFromParams = false;
       parent->ioParamValue(ioFlag, name, "triggerFlag", &flagFromParams, flagFromParams);
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvWarn(triggerFlagDeprecated);
          triggerFlagDeprecated.printf("%s: triggerFlag has been deprecated.\n", getDescription_c());
          triggerFlagDeprecated.printf("   If triggerLayerName is a nonempty string, triggering will be on;\n");
@@ -161,13 +161,13 @@ void BaseProbe::ioParam_triggerOffset(enum ParamsIOFlag ioFlag) {
    if (triggerFlag) {
       parent->ioParamValue(ioFlag, name, "triggerOffset", &triggerOffset, triggerOffset);
       if(triggerOffset < 0){
-         pvError().printf("%s \"%s\" error in rank %d process: TriggerOffset (%f) must be positive\n", parent->parameters()->groupKeywordFromName(name), name, parent->columnId(), triggerOffset);
+         pvError().printf("%s \"%s\" error in rank %d process: TriggerOffset (%f) must be positive\n", parent->parameters()->groupKeywordFromName(name), name, parent->getCommunicator()->commRank(), triggerOffset);
       }
    }
 }
 
 int BaseProbe::initOutputStream(const char * filename) {
-   if( parent->columnId()==0 ) {
+   if( parent->getCommunicator()->commRank()==0 ) {
       if( filename != NULL ) {
          std::string path("");
          if (filename[0]!='/') {
@@ -226,7 +226,7 @@ int BaseProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
    if(triggerFlag){
       triggerLayer = parent->getLayerFromName(triggerLayerName);
       if (triggerLayer==NULL) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": triggerLayer \"%s\" is not a layer in the HyPerCol.\n",
                   parent->parameters()->groupKeywordFromName(name), name, triggerLayerName);
          }
@@ -240,7 +240,7 @@ int BaseProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
       BaseProbe * baseprobe = getParent()->getBaseProbeFromName(energyProbe);
       ColumnEnergyProbe * probe = dynamic_cast<ColumnEnergyProbe *>(baseprobe);
       if (probe==NULL) {
-         if (getParent()->columnId()==0) {
+         if (getParent()->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": energyProbe \"%s\" is not a ColumnEnergyProbe in the column.\n",
                   getParent()->parameters()->groupKeywordFromName(getName()), getName(), energyProbe);
          }

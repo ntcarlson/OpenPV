@@ -232,14 +232,14 @@ void LIF::ioParam_method(enum ParamsIOFlag ioFlag) {
    }
    method = methodString ? methodString[0] : 'a'; // Default is ARMA; 'beginning' and 'original' are deprecated.
    if (method != 'o' && method != 'b' && method != 'a') {
-      if (getParent()->columnId()==0) {
+      if (getParent()->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("LIF::setLIFParams error.  Layer \"%s\" has method \"%s\".  Allowable values are \"arma\", \"beginning\" and \"original\".", name, methodString);
       }
       MPI_Barrier(parent->getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if (method != 'a') {
-      if (getParent()->columnId()==0) {
+      if (getParent()->getCommunicator()->commRank()==0) {
          pvWarn().printf("LIF layer \"%s\" integration method \"%s\" is deprecated.  Method \"arma\" is preferred.\n", name, methodString);
       }
    }
@@ -280,7 +280,7 @@ int LIF::allocateBuffers() {
    Vth = (pvdata_t *) calloc((size_t) getNumNeuronsAllBatches(), sizeof(pvdata_t));
    if(Vth == NULL) {
       pvError().printf("%s: rank %d process unable to allocate memory for Vth: %s\n",
-            getDescription_c(), parent->columnId(), strerror(errno));
+            getDescription_c(), parent->getCommunicator()->commRank(), strerror(errno));
    }
    return HyPerLayer::allocateBuffers();
 }
@@ -291,7 +291,7 @@ int LIF::allocateConductances(int num_channels) {
    G_E = (pvdata_t *) calloc((size_t) (getNumNeuronsAllBatches()*numChannels), sizeof(pvdata_t));
    if(G_E == NULL) {
       pvError().printf("%s: rank %d process unable to allocate memory for %d conductances: %s\n",
-            getDescription_c(), parent->columnId(), num_channels, strerror(errno));
+            getDescription_c(), parent->getCommunicator()->commRank(), num_channels, strerror(errno));
    }
 
    G_I  = G_E + 1*numNeurons;

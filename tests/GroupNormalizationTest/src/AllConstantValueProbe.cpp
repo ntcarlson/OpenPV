@@ -37,7 +37,7 @@ void AllConstantValueProbe::ioParam_correctValue(enum ParamsIOFlag ioFlag) {
 
 int AllConstantValueProbe::outputState(double timed) {
    int status = StatsProbe::outputState(timed);
-   if (this->parent->columnId()==0) {
+   if (this->parent->getCommunicator()->commRank()==0) {
       for(int b = 0; b < this->parent->getNBatch(); b++){
          if (timed>0 && (fMin[b]<correctValue-nnzThreshold || fMax[b] > correctValue+nnzThreshold)) {
             outputStream->printf("     Values outside of tolerance nnzThreshold=%f\n", nnzThreshold);

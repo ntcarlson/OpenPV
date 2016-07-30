@@ -216,7 +216,7 @@ int NormalizeBase::addConnToList(HyPerConn * newConn) {
    connectionList = newList;
    connectionList[numConnections] = newConn;
    numConnections++;
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       pvInfo().printf("Adding %s to normalizer group \"%s\".\n", newConn->getDescription_c(), this->getName());
    }
    return PV_SUCCESS;

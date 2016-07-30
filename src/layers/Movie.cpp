@@ -119,7 +119,7 @@ int Movie::checkpointRead(const char * cpDir, double * timef){
       long timestampFilePos = 0L;
       parent->readScalarFromFile(cpDir, getName(), "TimestampState", &timestampFilePos, timestampFilePos);
       if (timestampFile) {
-         assert(parent->columnId()==0);
+         assert(parent->getCommunicator()->commRank()==0);
          if (PV_fseek(timestampFile, timestampFilePos, SEEK_SET) != 0) {
             pvError().printf("MovieLayer::checkpointRead error: unable to recover initial file position in timestamp file for layer %s: %s\n", name, strerror(errno));
          }
@@ -365,8 +365,8 @@ int Movie::allocateDataStructures() {
    }
    else if(strcmp(batchMethod, "bySpecified") == 0){
       int nbatchGlobal = parent->getNBatchGlobal();
-      int commBatch = parent->commBatch();
-      int numBatchPerProc = parent->numCommBatches();
+      int commBatch = parent->getCommunicator()->commBatch();
+      int numBatchPerProc = parent->getCommunicator()->numCommBatches();
 
       if(numStartFrame != nbatchGlobal && numStartFrame != 0){
          pvError() << "Movie layer " << name << " batchMethod of \"bySpecified\" requires 0 or " << nbatchGlobal << " start_frame_index values\n";
@@ -402,7 +402,7 @@ int Movie::allocateDataStructures() {
       //This should never excute, as this check was done in the reading of this parameter
       assert(0);
    }
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       for (int b=0; b<parent->getNBatch(); b++) {
          frameNumbers[b] = -1;
       }
@@ -493,7 +493,7 @@ bool Movie::updateImage(double time, double dt)
 
    //TODO: Fix movie layer to take with batches. This is commented out for compile
    //if(!flipOnTimescaleError && (parent->getTimeScale() > 0 && parent->getTimeScale() < parent->getTimeScaleMin())){
-   //   if (parent->icCommunicator()->commRank()==0) {
+   //   if (parent->getCommunicator()->commRank()==0) {
    //      pvWarn() << "timeScale of " << parent->getTimeScale() << " is less than timeScaleMin of " << parent->getTimeScaleMin() << ", Movie is keeping the same frame\n";
    //   }
    //}
@@ -575,7 +575,7 @@ const char * Movie::getNextFileName(int n_skip, int batchIdx) {
 //This function will reset the file position of the open file
 int Movie::getNumFrames(){
    int count = 0;
-   if(parent->columnId()==0){
+   if(parent->getCommunicator()->commRank()==0){
       int c;
       PV_fseek(filenamestream, 0L, SEEK_SET);
       while((c = fgetc(filenamestream->fp)) != EOF) {
@@ -595,7 +595,7 @@ int Movie::getNumFrames(){
 //This function takes care of rewinding for frame files
 const char * Movie::advanceFileName(int batchIdx) {
    // IMPORTANT!! This function should only be called by getNextFileName(int), and only by the root process
-   assert(parent->columnId()==0);
+   assert(parent->getCommunicator()->commRank()==0);
 
    //Restore position of batch Idx
    PV_fseek(filenamestream, batchPos[batchIdx], SEEK_SET);

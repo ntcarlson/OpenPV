@@ -86,7 +86,7 @@ int Patterns::initialize(const char * name, HyPerCol * hc) {
       //
       snprintf(file_name, PV_PATH_MAX-1, "%s/patterns-pos.txt", patternsOutputPath);
       //int nchars = snprintf(file_name, PV_PATH_MAX-1, "%s/bar-pos.txt", patternsOutputPath);
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("write position to %s\n",file_name);
          patternsFile = PV_fopen(file_name,"a",parent->getVerifyWrites());
          if(patternsFile == NULL) {
@@ -173,7 +173,7 @@ void Patterns::ioParam_patternType(enum ParamsIOFlag ioFlag) {
       };
       int match = stringMatch(allowed_pattern_types, "_End_allowedPatternTypes", typeString);
       if( match < 0 ) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("Group \"%s\": Pattern type \"%s\" not recognized.\n", name, typeString);
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -199,7 +199,7 @@ void Patterns::ioParam_orientation(enum ParamsIOFlag ioFlag) {
    };
    int match = stringMatch(allowedOrientationModes, "_End_allowedOrientationTypes", orientationString);
    if (match < 0) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("Group \"%s\": Orientation mode \"%s\" not recognized.\n", name, orientationString);
       }
       MPI_Barrier(parent->getCommunicator()->communicator());
@@ -255,7 +255,7 @@ void Patterns::ioParam_movementType(enum ParamsIOFlag ioFlag) {
       };
       int match = stringMatch(allowedMovementTypes, "_End_allowedMovementTypes", movementTypeString);
       if (match < 0) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("Group \"%s\": movementType \"%s\" not recognized.\n", name, movementTypeString);
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -1038,7 +1038,7 @@ float Patterns::calcPosition(float pos, int step)
       break;
    }
    if (patternsFile != NULL) {
-      assert(parent->columnId()==0);
+      assert(parent->getCommunicator()->commRank()==0);
       fprintf(patternsFile->fp, "Time %f, position %f\n", parent->simulationTime(), pos);
    }
 
@@ -1053,7 +1053,7 @@ int Patterns::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
-   if( parent->columnId() == 0 ) {
+   if( parent->getCommunicator()->commRank() == 0 ) {
       char * filename = parent->pathInCheckpoint(cpDir, getName(), "_PatternState.bin");
       PV_Stream * pvstream = PV_fopen(filename, "r", false/*verifyWrites*/);
       if( pvstream != NULL ) {
@@ -1099,7 +1099,7 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
       int * ints = (int *) (tempbuf+sizeof(PatternType)+sizeof(taus_uint4)+sizeof(OrientationMode)+sizeof(float)+3*sizeof(double));
       Drop * drops = (Drop *) (tempbuf+sizeof(PatternType)+sizeof(taus_uint4)+sizeof(OrientationMode)+sizeof(float)+3*sizeof(double)+4*sizeof(int));
       int numdrops;
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          *savedtype = type;
          memcpy(rstate, patternRandState->getRNG(0), sizeof(taus_uint4));
          *om = orientation;

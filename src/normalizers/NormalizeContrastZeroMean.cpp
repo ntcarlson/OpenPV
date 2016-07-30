@@ -39,7 +39,7 @@ void NormalizeContrastZeroMean::ioParam_minSumTolerated(enum ParamsIOFlag ioFlag
 void NormalizeContrastZeroMean::ioParam_normalizeFromPostPerspective(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       if (parent->parameters()->present(name, "normalizeFromPostPerspective")) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvWarn().printf("%s \"%s\": normalizeMethod \"normalizeContrastZeroMean\" doesn't use normalizeFromPostPerspective parameter.\n",
                   parent->parameters()->groupKeywordFromName(name), name);
          }
@@ -58,14 +58,14 @@ int NormalizeContrastZeroMean::normalizeWeights() {
    for (int c=1; c<numConnections; c++) {
       HyPerConn * conn = connectionList[c];
       if (conn->numberOfAxonalArborLists() != conn0->numberOfAxonalArborLists()) {
-         if (parent->columnId() == 0) {
+         if (parent->getCommunicator()->commRank() == 0) {
             pvErrorNoExit().printf("%s: All connections in the normalization group must have the same number of arbors (%s has %d; %s has %d).\n",
                   getDescription_c(), conn0->getDescription_c(), conn0->numberOfAxonalArborLists(), conn->getDescription_c(), conn->numberOfAxonalArborLists());
          }
          status = PV_FAILURE;
       }
       if (conn->getNumDataPatches() != conn0->getNumDataPatches()) {
-         if (parent->columnId() == 0) {
+         if (parent->getCommunicator()->commRank() == 0) {
             pvErrorNoExit().printf("%s: All connections in the normalization group must have the same number of data patches (%s has %d; %s has %d).\n",
                   getDescription_c(), conn0->getDescription_c(), conn0->getNumDataPatches(), conn->getDescription_c(), conn->getNumDataPatches());
          }

@@ -47,7 +47,7 @@ void BinningLayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalLayerName", &originalLayerName);
    assert(originalLayerName);
    if (ioFlag==PARAMS_IO_READ && originalLayerName[0]=='\0') {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName must be set.\n",
                getDescription_c());
       }
@@ -60,7 +60,7 @@ void BinningLayer::ioParam_binMaxMin(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "binMax", &binMax, binMax);
    parent->ioParamValue(ioFlag, name, "binMin", &binMin, binMin);
    if(ioFlag == PARAMS_IO_READ && binMax <= binMin){
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: binMax (%f) must be greater than binMin (%f).\n",
                getDescription_c(), binMax, binMin);
       }
@@ -95,7 +95,7 @@ int BinningLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> co
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);
       }
@@ -111,7 +111,7 @@ int BinningLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> co
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);
    if (srcLoc->nxGlobal != loc->nxGlobal || srcLoc->nyGlobal != loc->nyGlobal) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayerName \"%s\" does not have the same dimensions.\n",
                getDescription_c(), originalLayerName);

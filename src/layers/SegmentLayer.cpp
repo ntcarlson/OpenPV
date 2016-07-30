@@ -51,7 +51,7 @@ void SegmentLayer::ioParam_segmentMethod(enum ParamsIOFlag ioFlag) {
    //TODO add in other segmentation methods
    //How do we segment across MPI margins?
    else{
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: segmentMethod %s not recognized. Current options are \"none\".\n",
                  getDescription_c(), segmentMethod);
       }
@@ -64,7 +64,7 @@ void SegmentLayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalLayerName", &originalLayerName);
    assert(originalLayerName);
    if (ioFlag==PARAMS_IO_READ && originalLayerName[0]=='\0') {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName must be set.\n",
                  getDescription_c());
       }
@@ -78,7 +78,7 @@ int SegmentLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> co
    //Get original layer
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), originalLayerName);
       }
@@ -99,7 +99,7 @@ int SegmentLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> co
 
    //Original layer must be the same x/y size as this layer
    if (srcLoc->nxGlobal != thisLoc->nxGlobal || srcLoc->nyGlobal != thisLoc->nyGlobal) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayer \"%s\" does not have the same x and y dimensions as this layer.\n",
                  getDescription_c(), originalLayerName);
@@ -112,7 +112,7 @@ int SegmentLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> co
 
    //This layer must have only 1 feature
    if(thisLoc->nf != 1){
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: SegmentLayer must have 1 feature.\n",
                  getDescription_c());
       }
@@ -122,7 +122,7 @@ int SegmentLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> co
 
    //If segmentMethod is none, we also need to make sure the srcLayer also has nf == 1
    if(strcmp(segmentMethod, "none") == 0 && srcLoc->nf != 1){
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: Source layer must have 1 feature with segmentation method \"none\".\n",
                  getDescription_c());
       }

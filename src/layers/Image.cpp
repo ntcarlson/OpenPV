@@ -109,7 +109,7 @@ double Image::getDeltaUpdateTime(){
 }
 
 int Image::readImageFileGDAL(char const * filename, PVLayerLoc const * loc) {
-   assert(parent->columnId()==0);
+   assert(parent->getCommunicator()->commRank()==0);
 
    GDALAllRegister();
 
@@ -456,7 +456,7 @@ void Image::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
 
 int Image::readImage(const char * filename)
 {
-   assert(parent->columnId()==0); // readImage is called by retrieveData, which only the root process calls.  BaseInput::scatterInput does the scattering.
+   assert(parent->getCommunicator()->commRank()==0); // readImage is called by retrieveData, which only the root process calls.  BaseInput::scatterInput does the scattering.
    int status = 0;
    PVLayerLoc * loc = & clayer->loc;
 

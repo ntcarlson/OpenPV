@@ -140,7 +140,7 @@ void BaseInput::ioParam_offsetAnchor(enum ParamsIOFlag ioFlag){
    if (ioFlag==PARAMS_IO_READ) {
       int status = checkValidAnchorString();
       if (status != PV_SUCCESS) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: offsetAnchor must be a two-letter string.  The first character must be \"t\", \"c\", or \"b\" (for top, center or bottom); and the second character must be \"l\", \"c\", or \"r\" (for left, center or right).\n", getDescription_c());
          }
          MPI_Barrier(parent->getCommunicator()->communicator());
@@ -173,7 +173,7 @@ void BaseInput::ioParam_aspectRatioAdjustment(enum ParamsIOFlag ioFlag) {
          for (char * c = aspectRatioAdjustment; *c; c++) { *c = tolower(*c); }
       }
       if (strcmp(aspectRatioAdjustment, "crop") && strcmp(aspectRatioAdjustment, "pad")) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: aspectRatioAdjustment must be either \"crop\" or \"pad\".\n",
                   getDescription_c());
          }
@@ -198,7 +198,7 @@ void BaseInput::ioParam_interpolationMethod(enum ParamsIOFlag ioFlag) {
             interpolationMethod = INTERPOLATE_NEARESTNEIGHBOR;
          }
          else {
-            if (parent->columnId()==0) {
+            if (parent->getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("%s: interpolationMethod must be either \"bicubic\" or \"nearestNeighbor\".\n",
                      getDescription_c());
             }
@@ -408,7 +408,7 @@ int BaseInput::allocateDataStructures() {
 int BaseInput::getFrame(double timef, double dt) {
    int status = PV_SUCCESS;
    for(int b = 0; b < parent->getNBatch(); b++) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          if (status == PV_SUCCESS) { status = retrieveData(timef, dt, b); }
       }
       if (status == PV_SUCCESS) { status = scatterInput(b); }
@@ -418,7 +418,7 @@ int BaseInput::getFrame(double timef, double dt) {
 }
 
 int BaseInput::scatterInput(int batchIndex) {
-   int const rank = parent->columnId();
+   int const rank = parent->getCommunicator()->commRank();
    MPI_Comm mpi_comm = parent->getCommunicator()->communicator();
    int const rootproc = 0;
    pvadata_t * A = data + batchIndex * getNumExtended();
@@ -493,7 +493,7 @@ int BaseInput::scatterInput(int batchIndex) {
 }
 
 int BaseInput::resizeInput() {
-   pvAssert(parent->columnId()==0); // Should only be called by root process.
+   pvAssert(parent->getCommunicator()->commRank()==0); // Should only be called by root process.
    if (!autoResizeFlag) {
       resizeFactor = 1.0f;
       return PV_SUCCESS;
@@ -1129,7 +1129,7 @@ bool BaseInput::constrainOffsets() {
 }
 
 int BaseInput::requireChannel(int channelNeeded, int * numChannelsResult) {
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       pvErrorNoExit().printf("%s cannot be a post-synaptic layer.\n",
             getDescription_c());
    }
@@ -1141,7 +1141,7 @@ int BaseInput::initRandState() {
    assert(randState==NULL);
    randState = new Random(1);
    if (randState==NULL) {
-      pvError().printf("%s: rank %d process unable to create object of class Random.\n", getDescription_c(), parent->columnId());
+      pvError().printf("%s: rank %d process unable to create object of class Random.\n", getDescription_c(), parent->getCommunicator()->commRank());
    }
    return PV_SUCCESS;
 }
@@ -1162,7 +1162,7 @@ int BaseInput::initializeActivity() {
 
 int BaseInput::checkpointRead(const char * cpDir, double * timeptr){
    PVParams * params = parent->parameters();
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       pvWarn().printf("Initializing image from checkpoint NOT from params file location! \n");
    }
    HyPerLayer::checkpointRead(cpDir, timeptr);

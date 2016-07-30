@@ -181,7 +181,7 @@ int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> c
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" does not refer to any connection in the column.\n", getDescription_c(), this->originalConnName);
       }
       MPI_Barrier(parent->getCommunicator()->communicator());
@@ -189,7 +189,7 @@ int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> c
    }
    this->originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
    if (originalConn == NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not an existing connection.\n", getDescription_c(), originalConnName);
          status = PV_FAILURE;
       }
@@ -197,7 +197,7 @@ int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> c
    if (status != PV_SUCCESS) return status;
 
    if (!originalConn->getInitInfoCommunicatedFlag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;
@@ -213,7 +213,7 @@ int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> c
    //parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
 
    if(originalConn->getShrinkPatches_flag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("TransposeConn \"%s\": original conn \"%s\" has shrinkPatches set to true.  TransposeConn has not been implemented for that case.\n", name, originalConn->getName());
       }
       MPI_Barrier(parent->getCommunicator()->communicator());
@@ -226,7 +226,7 @@ int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> c
    const PVLayerLoc * preLoc = pre->getLayerLoc();
    const PVLayerLoc * origPostLoc = originalConn->postSynapticLayer()->getLayerLoc();
    if (preLoc->nx != origPostLoc->nx || preLoc->ny != origPostLoc->ny || preLoc->nf != origPostLoc->nf) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: transpose's pre layer and original connection's post layer must have the same dimensions.\n", getDescription_c());
          errorMessage.printf("    (x=%d, y=%d, f=%d) versus (x=%d, y=%d, f=%d).\n", preLoc->nx, preLoc->ny, preLoc->nf, origPostLoc->nx, origPostLoc->ny, origPostLoc->nf);
@@ -237,7 +237,7 @@ int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> c
    const PVLayerLoc * postLoc = pre->getLayerLoc();
    const PVLayerLoc * origPreLoc = originalConn->postSynapticLayer()->getLayerLoc();
    if (postLoc->nx != origPreLoc->nx || postLoc->ny != origPreLoc->ny || postLoc->nf != origPreLoc->nf) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: transpose's post layer and original connection's pre layer must have the same dimensions.\n", getDescription_c());
          errorMessage.printf("    (x=%d, y=%d, f=%d) versus (x=%d, y=%d, f=%d).\n", postLoc->nx, postLoc->ny, postLoc->nf, origPreLoc->nx, origPreLoc->ny, origPreLoc->nf);
@@ -329,7 +329,7 @@ int TransposeConn::allocatePostConn(){
 
 int TransposeConn::allocateDataStructures() {
    if (!originalConn->getDataStructuresAllocatedFlag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its allocateDataStructures stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;

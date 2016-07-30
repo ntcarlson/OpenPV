@@ -60,12 +60,11 @@ int compar(const void * a, const void * b) {
 int StochasticReleaseTestProbe::outputState(double timed) {
    // Set conn.  Can't do that in initStochasticReleaseTestProbe because we need to search for a conn with the given post, and connections' postLayerName is not necessarily set.
    if (conn==NULL) {
-      HyPerCol * hc = getTargetLayer()->getParent();
-      int numconns = hc->numberOfConnections();
+      int numconns = parent->numberOfConnections();
       for (int c=0; c<numconns; c++) {
-         if (!strcmp(hc->getConnection(c)->getPostLayerName(),getTargetLayer()->getName())) {
+         if (!strcmp(parent->getConnection(c)->getPostLayerName(),getTargetLayer()->getName())) {
             assert(conn==NULL); // Only one connection can go to this layer for this probe to work
-            BaseConnection * baseConn = hc->getConnection(c);
+            BaseConnection * baseConn = parent->getConnection(c);
             conn = dynamic_cast<HyPerConn *>(baseConn);
          }
       }
@@ -78,17 +77,16 @@ int StochasticReleaseTestProbe::outputState(double timed) {
    int status = StatsProbe::outputState(timed);
    assert(status==PV_SUCCESS);
    HyPerLayer * l = getTargetLayer();
-   HyPerCol * hc = l->getParent();
    int nf = l->getLayerLoc()->nf;
    if (timed>0.0) {
       for (int f=0; f < nf; f++) {
-         if (computePValues(hc->getCurrentStep(), f)!=PV_SUCCESS) status = PV_FAILURE;
+         if (computePValues(parent->getCurrentStep(), f)!=PV_SUCCESS) status = PV_FAILURE;
       }
       assert(status == PV_SUCCESS);
-      if (hc->columnId()==0 && hc->simulationTime()+hc->getDeltaTime()/2>=hc->getStopTime()) {
+      if (parent->getCommunicator()->commRank()==0 && parent->simulationTime()+parent->getDeltaTime()/2>=parent->getStopTime()) {
          // This is the last timestep
          // sort the p-values and apply Holm-Bonferroni method since there is one for each timestep and each feature.
-         long int num_steps = hc->getFinalStep() - hc->getInitialStep();
+         long int num_steps = parent->getFinalStep() - parent->getInitialStep();
          long int N = num_steps * nf;
          qsort(pvalues, (size_t) N, sizeof(*pvalues), compar);
          while(N>0 && isnan(pvalues[N-1])) {
@@ -148,9 +146,8 @@ int StochasticReleaseTestProbe::computePValues(long int step, int f) {
       if (activity[nExt]!=0) nnzf++;
    }
    HyPerLayer * l = getTargetLayer();
-   HyPerCol * hc = l->getParent();
-   MPI_Allreduce(MPI_IN_PLACE, &nnzf, 1, MPI_INT, MPI_SUM, hc->getCommunicator()->communicator());
-   if (hc->columnId()==0) {
+   MPI_Allreduce(MPI_IN_PLACE, &nnzf, 1, MPI_INT, MPI_SUM, parent->getCommunicator()->communicator());
+   if (parent->getCommunicator()->commRank()==0) {
       const int neuronsPerFeature = l->getNumGlobalNeurons()/nf;
       double mean = preact * neuronsPerFeature;
       double stddev = sqrt(neuronsPerFeature*preact*(1-preact));

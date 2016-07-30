@@ -111,7 +111,7 @@ int PointProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> cons
 int PointProbe::outputState(double timef)
 {
    getValues(timef);
-   if (parent->columnId()==0) {
+   if (parent->getCommunicator()->commRank()==0) {
       return writeState(timef);
    }
    else{
@@ -159,13 +159,13 @@ int PointProbe::calcValues(double timevalue) {
          valuesBuffer[1] = 0.0;
       }
       //If not in root process, send to root process
-      if(parent->columnId()!=0){
+      if(parent->getCommunicator()->commRank()!=0){
          MPI_Send(valuesBuffer, 2, MPI_DOUBLE, 0, 0, parent->getCommunicator()->communicator());
       }
    }
 
    //Root process
-   if(parent->columnId()==0){
+   if(parent->getCommunicator()->commRank()==0){
       //Calculate which rank target neuron is
       //TODO we need to calculate rank from batch as well
       int xRank = xLoc/nx;
@@ -183,7 +183,7 @@ int PointProbe::calcValues(double timevalue) {
 
 int PointProbe::writeState(double timef) {
    double * valuesBuffer = this->getValuesBuffer();
-   if(parent->columnId()==0){
+   if(parent->getCommunicator()->commRank()==0){
       pvAssert(outputStream);
       outputStream->printf("%s t=%.1f V=%6.5f a=%.5f", getMessage(), timef, getV(), getA());
       output() << std::endl;

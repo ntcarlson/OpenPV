@@ -41,7 +41,7 @@ int BackgroundLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*>
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);
       }
@@ -53,7 +53,7 @@ int BackgroundLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*>
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);
    if (srcLoc->nxGlobal != loc->nxGlobal || srcLoc->nyGlobal != loc->nyGlobal) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayerName \"%s\" does not have the same X/Y dimensions.\n",
                getDescription_c(), originalLayerName);
@@ -64,7 +64,7 @@ int BackgroundLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*>
       exit(EXIT_FAILURE);
    }
    if ((srcLoc->nf + 1)*repFeatureNum != loc->nf) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: nf must have (n+1)*repFeatureNum (%d) features in BackgroundLayer \"%s\", where n is the orig layer number of features.\n",
                getDescription_c(), (srcLoc->nf+1)*repFeatureNum, originalLayerName);

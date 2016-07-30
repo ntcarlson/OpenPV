@@ -24,7 +24,7 @@ int L0NormLCAProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> 
    assert(targetLayer);
    HyPerLCALayer * targetLCALayer = dynamic_cast<HyPerLCALayer *>(targetLayer);
    if (targetLCALayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: targetLayer \"%s\" is not an LCA layer.\n",
                getDescription_c(), getTargetName());
       }
@@ -32,7 +32,7 @@ int L0NormLCAProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> 
       exit(EXIT_FAILURE);
    }
    if (targetLCALayer->layerListsVerticesInParams()==true) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: LCAProbes require targetLayer \"%s\" to use VThresh etc. instead of verticesV/verticesV.\n",
                getDescription_c(), getTargetName());
       }

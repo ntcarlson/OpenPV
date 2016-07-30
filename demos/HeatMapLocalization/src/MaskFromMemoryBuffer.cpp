@@ -47,7 +47,7 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage<PV:
    int status = ANNLayer::communicateInitInfo(message);
    HyPerLayer * hyperLayer = parent->getLayerFromName(imageLayerName);
    if (hyperLayer==NULL) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), imageLayerName);
       }
@@ -56,7 +56,7 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage<PV:
    else {
       imageLayer = dynamic_cast<PV::BaseInput *>(hyperLayer);
       if (imageLayer==NULL) {
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not an BaseInput-derived layer.\n",
                getDescription_c(), imageLayerName);
          }
@@ -65,7 +65,7 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage<PV:
    }
    MPI_Barrier(parent->getCommunicator()->communicator());
    if (!imageLayer->getInitInfoCommunicatedFlag()) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until imageLayer \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), imageLayerName);
       }
       return PV_POSTPONE;
@@ -73,7 +73,7 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage<PV:
    PVLayerLoc const * imageLayerLoc = imageLayer->getLayerLoc();
    PVLayerLoc const * loc = getLayerLoc();
    if (imageLayerLoc->nx != loc->nx || imageLayerLoc->ny != loc->ny) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: dimensions (%d-by-%d) do not agree with dimensions of image layer \"%s\" (%d-by-%d)n", getDescription_c(), loc->nx, loc->ny, imageLayerName, imageLayerLoc->nx, imageLayerLoc->ny);
       }
       status = PV_FAILURE;

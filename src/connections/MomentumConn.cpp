@@ -133,7 +133,7 @@ void MomentumConn::ioParam_batchPeriod(enum ParamsIOFlag ioFlag) {
 ////No normalize reduction here, just summing up
 //int MomentumConn::sumKernels(const int arborID) {
 //   assert(sharedWeights && plasticityFlag);
-//   Communicator * comm = parent->icCommunicator();
+//   Communicator * comm = parent->getCommunicator();
 //   const MPI_Comm mpi_comm = comm->communicator();
 //   int ierr;
 //   const int nxProcs = comm->numCommColumns();
@@ -428,7 +428,7 @@ int MomentumConn::checkpointRead(const char * cpDir, double * timeptr) {
    PVPatch *** patches_arg = sharedWeights ? NULL : get_wPatches();
    double filetime=0.0;
    int status = PV::readWeights(patches_arg, prev_dwDataStart, numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path, parent->getCommunicator(), &filetime, pre->getLayerLoc());
-   if (parent->columnId()==0 && timeptr && *timeptr != filetime) {
+   if (parent->getCommunicator()->commRank()==0 && timeptr && *timeptr != filetime) {
       pvWarn().printf("\"%s\" checkpoint has timestamp %g instead of the expected value %g.\n", path, filetime, *timeptr);
    }
    free(path);

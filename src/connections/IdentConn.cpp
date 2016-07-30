@@ -105,7 +105,7 @@ void IdentConn::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
       if (parent->parameters()->present(name, "writeStep")) {
          parent->ioParamValue(ioFlag, name, "writeStep", &writeStep, -1.0/*default*/, false/*warnIfAbsent*/);
          if (writeStep>=0) {
-            if (parent->columnId()==0) {
+            if (parent->getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("%s does not use writeStep, but the parameters file sets it to %f.\n", getDescription_c(), writeStep);
             }
             MPI_Barrier(parent->getCommunicator()->communicator());
@@ -225,7 +225,7 @@ int IdentConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
    const PVLayerLoc * preLoc = pre->getLayerLoc();
    const PVLayerLoc * postLoc = post->getLayerLoc();
    if( preLoc->nx != postLoc->nx || preLoc->ny != postLoc->ny || preLoc->nf != postLoc->nf ) {
-      if (parent->columnId()==0) {
+      if (parent->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("IdentConn \"%s\" Error: %s and %s do not have the same dimensions.\n Dims: %dx%dx%d vs. %dx%dx%d\n",
                   name, preLayerName,postLayerName,preLoc->nx,preLoc->ny,preLoc->nf,postLoc->nx,postLoc->ny,postLoc->nf);
       }

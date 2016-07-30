@@ -87,7 +87,7 @@ int InitWeights::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
       BaseConnection * baseCallingConn = parent->getConnFromName(name);
       if (baseCallingConn==NULL) {
          status = PV_FAILURE;
-         if (parent->columnId()==0) {
+         if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("InitWeights error: \"%s\" is not a connection in the column.\n", name);
          }
       }
@@ -95,7 +95,7 @@ int InitWeights::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> con
          callingConn = dynamic_cast<HyPerConn *>(baseCallingConn);
          if (callingConn==NULL) {
             status = PV_FAILURE;
-            if (parent->columnId()==0) {
+            if (parent->getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("InitWeights error: \"%s\" is not a HyPerConn.\n", name);
             }
          }
@@ -119,11 +119,11 @@ int InitWeights::initializeWeights(PVPatch *** patches, pvwdata_t ** dataStart,
    PVParams * inputParams = callingConn->getParent()->parameters();
    int numPatches = callingConn->getNumDataPatches();
    if (inputParams->present(callingConn->getName(), "initFromLastFlag")) {
-      if (callingConn->getParent()->columnId()==0) {
+      if (callingConn->getParent()->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: initFromLastFlag is obsolete.\n", callingConn->getDescription_c());
       }
       if (inputParams->value(callingConn->getName(), "initFromLastFlag")) {
-         if (callingConn->getParent()->columnId()==0) {
+         if (callingConn->getParent()->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("Instead, use weightInitType=\"FileWeight\" or set HyPerCol initializeFromCheckpointDir and set initializeFromCheckpointFlag to true\n");
          }
          MPI_Barrier(callingConn->getParent()->getCommunicator()->communicator());
