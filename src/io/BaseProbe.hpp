@@ -196,7 +196,7 @@ protected:
     * BaseProbe::communicateInitInfo sets up the triggering layer and attaches to the energy probe,
     * if either triggerFlag or energyProbe are set.
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
 
    virtual int initOutputStream(const char * filename);
 

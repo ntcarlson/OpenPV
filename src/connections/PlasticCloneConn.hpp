@@ -24,7 +24,7 @@ protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual void ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeDw(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    virtual int cloneParameters();
    virtual int constructWeights();
    int deleteWeights();

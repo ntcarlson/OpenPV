@@ -12,7 +12,7 @@ public:
 
 protected:
    int initialize(const char * name, HyPerCol * hc);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message);
 
 private:
    int initialize_base();

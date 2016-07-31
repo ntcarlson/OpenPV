@@ -19,7 +19,7 @@ L1NormLCAProbe::L1NormLCAProbe() {
    initialize_base();
 }
 
-int L1NormLCAProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int L1NormLCAProbe::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = L1NormProbe::communicateInitInfo(message);
    assert(targetLayer);
    HyPerLCALayer * targetLCALayer = dynamic_cast<HyPerLCALayer *>(targetLayer);

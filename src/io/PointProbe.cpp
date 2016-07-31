@@ -73,7 +73,7 @@ int PointProbe::initNumValues() {
    return setNumValues(2);
 }
 
-int PointProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int PointProbe::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = LayerProbe::communicateInitInfo(message);
    assert(getTargetLayer());
    const PVLayerLoc * loc = getTargetLayer()->getLayerLoc();

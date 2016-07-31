@@ -32,7 +32,7 @@ protected:
    virtual void ioParam_yLoc(enum ParamsIOFlag ioFlag);
    virtual void ioParam_fLoc(enum ParamsIOFlag ioFlag);
    virtual void ioParam_batchLoc(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    virtual int writeState(double timef);
    
    /**

@@ -30,7 +30,7 @@ protected:
     int initialize(const char * name, HyPerCol * hc, HyPerConn * parentConn, bool needWeights);
     virtual int setDescription();
     virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
-    virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+    virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
     virtual int setPatchSize();
     virtual int setNeededRNGSeeds() {return 0;}
     virtual int setInitialValues();

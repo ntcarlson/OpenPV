@@ -1043,7 +1043,7 @@ int HyPerLayer::allocateDeviceBuffers()
 
 #endif // PV_USE_CUDA
 
-int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message)
+int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message)
 {
    // HyPerLayers need to tell the parent HyPerCol how many random number
    // seeds they need.  At the start of HyPerCol::run, the parent HyPerCol

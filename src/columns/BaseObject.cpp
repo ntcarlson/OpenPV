@@ -71,7 +71,7 @@ int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
    if (message==nullptr) {
       return PV_SUCCESS;
    }
-   else if (CommunicateInitInfoMessage<BaseObject*> const * castMessage = dynamic_cast<CommunicateInitInfoMessage<BaseObject*> const*>(message.get())) {
+   else if (CommunicateInitInfoMessage<Observer*> const * castMessage = dynamic_cast<CommunicateInitInfoMessage<Observer*> const*>(message.get())) {
       return respondCommunicateInitInfo(castMessage);
    }
    else if (AllocateDataMessage const * castMessage = dynamic_cast<AllocateDataMessage const*>(message.get())) {
@@ -85,7 +85,7 @@ int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
    }
 }
 
-int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = PV_SUCCESS;
    if (getInitInfoCommunicatedFlag()) { return status; }
    status = communicateInitInfo(message);

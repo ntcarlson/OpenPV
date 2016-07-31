@@ -25,7 +25,7 @@ protected:
    //Defines the way to fill the output segment with the
    //reduced scalar method. Options are "centroid" and "fill"
    void ioParam_outputMethod(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    int allocateV();
    int initializeV();
    virtual int initializeActivity();

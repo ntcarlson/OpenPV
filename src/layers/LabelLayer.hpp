@@ -28,7 +28,7 @@ protected:
    virtual void ioParam_labelStart(enum ParamsIOFlag ioFlag);
    virtual void ioParam_labelLength(enum ParamsIOFlag ioFlag);
    virtual void ioParam_echoLabelFlag(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    virtual int allocateV();
    virtual int initializeActivity();
    char * movieLayerName;

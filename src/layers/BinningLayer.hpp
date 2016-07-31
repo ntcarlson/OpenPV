@@ -24,7 +24,7 @@ protected:
    void ioParam_zeroNeg(enum ParamsIOFlag ioFlag);
    void ioParam_zeroDCR(enum ParamsIOFlag ioFlag);
    void ioParam_normalDist(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    int allocateV();
    int initializeV();
    virtual int initializeActivity();

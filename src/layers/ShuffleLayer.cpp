@@ -99,7 +99,7 @@ int ShuffleLayer::allocateDataStructures(){
    return status;
 }
 
-int ShuffleLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int ShuffleLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = CloneVLayer::communicateInitInfo(message);
    return status;
 }

@@ -73,7 +73,7 @@ void SegmentLayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
    }
 }
 
-int SegmentLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int SegmentLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = HyPerLayer::communicateInitInfo(message);
    //Get original layer
    originalLayer = parent->getLayerFromName(originalLayerName);

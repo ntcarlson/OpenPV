@@ -77,7 +77,7 @@ int InitWeights::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    return status;
 }
 
-int InitWeights::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int InitWeights::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    // to be called during communicateInitInfo stage;
    // set any member variables that depend on other objects
    // having been initialized or communicateInitInfo'd

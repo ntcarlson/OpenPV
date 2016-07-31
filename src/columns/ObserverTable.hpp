@@ -5,10 +5,10 @@
  *      Author: pschultz
  */
 
-#ifndef OBJECTHIERARCHY_HPP_
-#define OBJECTHIERARCHY_HPP_
+#ifndef OBSERVERTABLE_HPP_
+#define OBSERVERTABLE_HPP_
 
-#include "columns/BaseObject.hpp"
+#include "columns/Observer.hpp"
 #include <vector>
 #include <map>
 
@@ -21,34 +21,31 @@ namespace PV {
  * By keeping the vector, we can guarantee the order in which we iterate through the objects.
  * By keeping the map, we have an easy way to look up the object from the name.
  */
-class ObjectHierarchy {
+class ObserverTable {
 public:
-   ObjectHierarchy();
-   virtual ~ObjectHierarchy();
+   ObserverTable() {}
+   virtual ~ObserverTable() {}
 
-   std::vector<BaseObject*> const& getObjectVector() const { return mObjectVector; }
-   std::map<std::string, BaseObject*> const& getObjectMap() const { return mObjectMap; }
-   BaseObject * getObject(std::string const& name) const {
+   std::vector<Observer*> const& getObjectVector() const { return mObjectVector; }
+   std::map<std::string, Observer*> const& getObjectMap() const { return mObjectMap; }
+   Observer * getObject(std::string const& name) const {
       auto lookupResult = mObjectMap.find(name);
       return lookupResult==mObjectMap.end() ? nullptr : lookupResult->second;
    }
-   BaseObject * getObject(char * name) const {
+   Observer * getObject(char * name) const {
       return getObject(std::string(name));
    };
-   std::vector<BaseObject*>::size_type size() const {
-      pvAssert(mObjectVector.size()==mObjectMap.size());
-      return mObjectVector.size();
-   }
-   bool addObject(BaseObject *);
+   std::vector<Observer*>::size_type size() const;
+   bool addObject(std::string const& name, Observer * entry);
    void deleteObject(std::string const& name, bool deallocateFlag);
    void deleteObject(char const * name, bool deallocateFlag) { deleteObject(std::string(name), deallocateFlag); }
    void clear(bool deallocateFlag);
 
 private:
-   std::vector<BaseObject*> mObjectVector;
-   std::map<std::string, BaseObject*> mObjectMap;
+   std::vector<Observer*> mObjectVector;
+   std::map<std::string, Observer*> mObjectMap;
 };
 
 } /* namespace PV */
 
-#endif /* OBJECTHIERARCHY_HPP_ */
+#endif /* OBSERVERTABLE_HPP_ */

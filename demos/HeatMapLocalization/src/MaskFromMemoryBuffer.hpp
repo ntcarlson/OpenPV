@@ -27,7 +27,7 @@ protected:
     * to construct the mask.
     */
    virtual void ioParam_imageLayerName(enum PV::ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) override;
+   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage<PV::Observer*> const * message) override;
 private:
    int initialize_base();
 

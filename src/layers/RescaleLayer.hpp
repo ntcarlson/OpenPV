@@ -36,7 +36,7 @@ protected:
    void ioParam_targetStd(enum ParamsIOFlag ioFlag);
    void ioParam_rescaleMethod(enum ParamsIOFlag ioFlag);
    void ioParam_patchSize(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
 private:
    int initialize_base();
 

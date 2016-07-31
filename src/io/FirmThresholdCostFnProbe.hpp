@@ -60,7 +60,7 @@ protected:
    virtual void ioParam_VWidth(enum ParamsIOFlag ioFlag);
    /** @} */
    
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
 
    /**
     * Overrides AbstractNormProbe::setNormDescription() to set normDescription to "Cost function".

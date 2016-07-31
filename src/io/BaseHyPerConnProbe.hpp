@@ -24,7 +24,7 @@ protected:
    BaseHyPerConnProbe();
    int initialize(const char * probeName, HyPerCol * hc);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    virtual bool needRecalc(double timevalue);
 
    /**

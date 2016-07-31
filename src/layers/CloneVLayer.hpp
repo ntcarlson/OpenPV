@@ -29,7 +29,7 @@ protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual void ioParam_originalLayerName(enum ParamsIOFlag ioFlag);
    virtual void ioParam_InitVType(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    virtual int allocateV();
    virtual int initializeV();
    virtual int readVFromCheckpoint(const char * cpDir, double * timeptr);

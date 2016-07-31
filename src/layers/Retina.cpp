@@ -103,7 +103,7 @@ int Retina::initialize(const char * name, HyPerCol * hc) {
    return status;
 }
 
-int Retina::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int Retina::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = HyPerLayer::communicateInitInfo(message);
    if(parent->getNBatch() != 1){
       pvError() << "Retina does not support batches yet, TODO\n";

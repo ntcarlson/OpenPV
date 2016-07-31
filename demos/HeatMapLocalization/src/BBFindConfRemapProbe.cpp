@@ -155,7 +155,7 @@ void BBFindConfRemapProbe::setOutputFilenameBase(char const * fn) {
    }
 }
 
-int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) {
+int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::Observer*> const * message) {
    int status = PV::LayerProbe::communicateInitInfo(message);
 
    assert(targetLayer);

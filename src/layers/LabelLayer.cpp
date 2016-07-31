@@ -113,7 +113,7 @@ void LabelLayer::ioParam_echoLabelFlag(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "echoLabelFlag", &echoLabelFlag, echoLabelFlag);
 }
 
-int LabelLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int LabelLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = HyPerLayer::communicateInitInfo(message);
 
    HyPerLayer * hyperlayer = parent->getLayerFromName(movieLayerName);

@@ -39,7 +39,7 @@ void BaseConnectionProbe::ioParam_targetName(enum ParamsIOFlag ioFlag) {
    }
 }
 
-int BaseConnectionProbe::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int BaseConnectionProbe::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    BaseProbe::communicateInitInfo(message);
    int status = setTargetConn(targetName);
    if (status == PV_SUCCESS){

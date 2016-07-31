@@ -243,7 +243,7 @@ protected:
     * communicateInitInfo() is called by passing a CommunicateInitInfoMessage to respond(), which is
     * usually done in HyPerCol::run.
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
 
    /**
     * Sets the pre- and post-synaptic layer names according to the parent HyPerCol's params.

@@ -28,7 +28,7 @@ protected:
    int initialize(const char * probeName, HyPerCol * hc);
    virtual void ioParam_targetName(enum ParamsIOFlag ioFlag);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
 
 private:
    int initialize_base();

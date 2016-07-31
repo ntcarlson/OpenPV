@@ -112,7 +112,7 @@ protected:
    virtual void ioParam_noiseFreqI(enum ParamsIOFlag ioFlag);
    virtual void ioParam_noiseFreqIB(enum ParamsIOFlag ioFlag);
    virtual void ioParam_method(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
    virtual int allocateBuffers();
    virtual int allocateConductances(int num_channels);
    virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);

@@ -23,6 +23,7 @@
 #ifndef BASEOBJECT_HPP_
 #define BASEOBJECT_HPP_
 
+#include "columns/Observer.hpp"
 #include "columns/Messages.hpp"
 #include "include/pv_common.h"
 #include "utils/PVLog.hpp"
@@ -34,14 +35,13 @@ namespace PV {
 
 class HyPerCol;
 
-class BaseObject {
+class BaseObject : public Observer {
 public:
    inline char const * getName() const { return name; }
    inline HyPerCol * getParent() const { return parent; }
    inline char const * getDescription_c() const { return description.c_str(); }
-   inline std::string const& getDescription() const { return description; }
    char const * getKeyword() const;
-   virtual int respond(std::shared_ptr<BaseMessage> message); // TODO: should return enum with values corresponding to PV_SUCCESS, PV_FAILURE, PV_POSTPONE
+   virtual int respond(std::shared_ptr<BaseMessage> message) override; // TODO: should return enum with values corresponding to PV_SUCCESS, PV_FAILURE, PV_POSTPONE
    virtual ~BaseObject();
 
    /**
@@ -69,11 +69,11 @@ protected:
    int setParent(HyPerCol * hc);
    virtual int setDescription();
 
-   int respondCommunicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message);
+   int respondCommunicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message);
    int respondAllocateData(AllocateDataMessage const * message);
    int respondInitializeState(InitializeStateMessage const * message);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) { return PV_SUCCESS; }
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
    virtual int initializeState() { return PV_SUCCESS; }
 
@@ -96,7 +96,6 @@ protected:
 protected:
    char * name = nullptr;
    HyPerCol * parent = nullptr; // TODO: eliminate HyPerCol argument to constructor in favor of PVParams argument
-   std::string description;
    bool mInitInfoCommunicatedFlag = false;
    bool mDataStructuresAllocatedFlag = false;
    bool mInitialValuesSetFlag = false;

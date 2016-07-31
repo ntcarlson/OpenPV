@@ -29,7 +29,7 @@ protected:
    virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
    virtual void ioParam_copiedConn(enum ParamsIOFlag ioFlag);
    virtual void readChannelCode(PVParams * params) { channel = CHANNEL_INH;}
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message);
    PVPatch ** initializeGaussian2DWeights(PVPatch ** patches, pvdata_t * dataStart, int numPatches);
    virtual int gauss2DCalcWeights(pvdata_t * dataStart, int kPre, int noPost,
                              int numFlanks, float shift, float rotate, float aspect, float sigma,

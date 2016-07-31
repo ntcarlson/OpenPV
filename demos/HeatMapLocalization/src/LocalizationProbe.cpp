@@ -207,7 +207,7 @@ int LocalizationProbe::initNumValues() {
    // If we add batching to LocalizationProbe, this should change to the batch size.
 }
 
-int LocalizationProbe::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::BaseObject*> const * message) {
+int LocalizationProbe::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::Observer*> const * message) {
    int status = PV::LayerProbe::communicateInitInfo(message);
    assert(targetLayer);
    int const nf = targetLayer->getLayerLoc()->nf;

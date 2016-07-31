@@ -1115,7 +1115,7 @@ int HyPerConn::setPostPatchSize() {
    return PV_SUCCESS;
 }
 
-int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    // HyPerConns need to tell the parent HyPerCol how many random number
    // seeds they need.  At the start of HyPerCol::run, the parent HyPerCol
    // calls each layer's and each connection's communicateInitInfo() sequentially in
@@ -1275,7 +1275,7 @@ int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const
       weightUpdateTime = parent->getDeltaTime();
    }
 
-   auto messagePtr = std::make_shared<CommunicateInitInfoMessage<BaseObject*> >(*message);
+   auto messagePtr = std::make_shared<CommunicateInitInfoMessage<Observer*> >(*message);
    if (weightInitializer) { weightInitializer->respond(messagePtr); }
 
    if (sharedWeights) {

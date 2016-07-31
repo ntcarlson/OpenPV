@@ -80,7 +80,7 @@ void SigmoidLayer::ioParam_SigmoidAlpha(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "SigmoidAlpha", &SigmoidAlpha, (float) SIGMOIDALPHA);
 }
 
-int SigmoidLayer::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int SigmoidLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = CloneVLayer::communicateInitInfo(message);
 
    return status;

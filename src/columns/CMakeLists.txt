@@ -8,12 +8,14 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
    ${SUBDIR}/HyPerCol.cpp
    ${SUBDIR}/InterColComm.cpp
    ${SUBDIR}/KeywordHandler.cpp
-   ${SUBDIR}/ObjectHierarchy.cpp
+   ${SUBDIR}/Observer.cpp
+   ${SUBDIR}/ObserverTable.cpp
    ${SUBDIR}/Publisher.cpp
    ${SUBDIR}/PV_Arguments.cpp
    ${SUBDIR}/PV_Init.cpp
    ${SUBDIR}/Random.cpp
    ${SUBDIR}/RandomSeed.cpp
+   ${SUBDIR}/Subject.cpp
 )
 
 set (PVLibSrcHpp ${PVLibSrcHpp}
@@ -27,12 +29,14 @@ set (PVLibSrcHpp ${PVLibSrcHpp}
    ${SUBDIR}/InterColComm.hpp
    ${SUBDIR}/KeywordHandler.hpp
    ${SUBDIR}/Messages.hpp
+   ${SUBDIR}/Observer.hpp
+   ${SUBDIR}/ObserverTable.hpp
    ${SUBDIR}/Publisher.hpp
    ${SUBDIR}/PV_Arguments.hpp
-   ${SUBDIR}/ObjectHierarchy.cpp
    ${SUBDIR}/PV_Arguments.hpp
    ${SUBDIR}/PV_Init.hpp
    ${SUBDIR}/Random.hpp
    ${SUBDIR}/RandomSeed.hpp
+   ${SUBDIR}/Subject.hpp
 )
 

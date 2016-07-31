@@ -251,7 +251,7 @@ int LIF::setActivity() {
    return 0;
 }
 
-int LIF::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int LIF::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = HyPerLayer::communicateInitInfo(message);
 
    return status;

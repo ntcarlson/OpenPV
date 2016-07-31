@@ -219,7 +219,7 @@ int IdentConn::setWeightInitializer() {
    return PV_SUCCESS;
 }
 
-int IdentConn::communicateInitInfo(CommunicateInitInfoMessage<BaseObject*> const * message) {
+int IdentConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
    int status = HyPerConn::communicateInitInfo(message);
    assert(pre && post);
    const PVLayerLoc * preLoc = pre->getLayerLoc();
