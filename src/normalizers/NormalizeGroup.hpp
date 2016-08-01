@@ -64,7 +64,6 @@ private:
 // Data members
 private:
    char * normalizeGroupName = nullptr;
-   NormalizeBase * groupHead = nullptr;
 }; // class NormalizeGroup
 
 } /* namespace PV */

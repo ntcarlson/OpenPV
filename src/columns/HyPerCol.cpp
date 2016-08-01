@@ -14,7 +14,7 @@
 #include "columns/Factory.hpp"
 #include "columns/RandomSeed.hpp"
 #include "columns/Communicator.hpp"
-#include "normalizers/NormalizeBase.hpp"
+#include "connections/BaseConnection.hpp"
 #include "io/Clock.hpp"
 #include "io/io.hpp"
 
@@ -51,24 +51,12 @@ HyPerCol::~HyPerCol() {
    finalizeThreads();
 #endif // PV_USE_CUDA
    writeTimers(getOutputStream());
-   int rank = globalRank(); // Need to save so that we know whether we're the process that does I/O, even after deleting mCommunicator.
 
-   for(auto iterator = mConnections.begin(); iterator != mConnections.end();) {
-      delete *iterator;
-      iterator = mConnections.erase(iterator);
-   }
-   for(auto iterator = mNormalizers.begin(); iterator != mNormalizers.end();) {
-      delete *iterator;
-      iterator = mNormalizers.erase(iterator);
-   }   
-   for(auto iterator = mPhaseRecvTimers.begin(); iterator != mPhaseRecvTimers.end();) { 
-      delete *iterator;
-      iterator = mPhaseRecvTimers.erase(iterator);
-   }
-   for(auto iterator = mLayers.begin(); iterator != mLayers.end();) {
-      delete *iterator;
-      iterator = mLayers.erase(iterator);
-   }
+   for (auto c : mConnections) { delete c; } mConnections.clear();
+
+   for (auto timer : mPhaseRecvTimers) { delete timer; } mPhaseRecvTimers.clear();
+ 
+   for (auto layer : mLayers) { delete layer; } mLayers.clear();
 
    // mColProbes[i] should not be deleted; it points to an entry in mBaseProbes and will
    // be deleted when mBaseProbes is deleted
@@ -163,8 +151,7 @@ int HyPerCol::initialize_base() {
    mOrigStdOut = -1;
    mOrigStdErr = -1;
    mLayers.clear();
-   mConnections.clear();
-   mNormalizers.clear(); //Pretty sure these aren't necessary
+   mConnections.clear(); //Pretty sure these aren't necessary
    mLayerStatus = nullptr;
    mConnectionStatus = nullptr;
    mOutputPath = nullptr;
@@ -244,10 +231,6 @@ int HyPerCol::initialize(const char * name, PV_Init* initObj)
    mName = strdup(name);
    mRunTimer = new Timer(mName, "column", "run    ");
    mCheckpointTimer = new Timer(mName, "column", "checkpoint ");
-   // Commented out in conversion to std::vector
-   //mLayers = (HyPerLayer **) malloc(mLayerArraySize * sizeof(HyPerLayer *));
-   //mConnections = (BaseConnection **) malloc(mConnectionArraySize * sizeof(BaseConnection *));
-   //mNormalizers = (NormalizeBase **) malloc(mNormalizerArraySize * sizeof(NormalizeBase *));
 
    // mNumThreads will not be set, or used until HyPerCol::run.
    // This means that threading cannot happen in the initialization or communicateInitInfo stages,
@@ -1280,11 +1263,6 @@ int HyPerCol::addConnection(BaseConnection * conn)
    return mConnections.size() - 1;
 }
 
-int HyPerCol::addNormalizer(NormalizeBase * normalizer) {
-   mNormalizers.push_back(normalizer);
-   return PV_SUCCESS; //Why does this return success when the other add functions return an index?
-}
-
   // typically called by buildandrun via HyPerCol::run()
 int HyPerCol::run(double start_time, double stop_time, double dt)
 {
@@ -1353,7 +1331,7 @@ int HyPerCol::run(double start_time, double stop_time, double dt)
       notify(std::make_shared<InitializeStateMessage>());
 
       // Initial normalization moved here to facilitate normalizations of groups of HyPerConns
-      normalizeWeights();
+      notify(std::make_shared<ConnectionNormalizeMessage>());
       notify(std::make_shared<ConnectionFinalizeUpdateMessage>(mSimTime, mDeltaTimeBase));
 
       // publish initial conditions
@@ -1563,18 +1541,6 @@ int HyPerCol::processParams(char const * path) {
    }
    mParamsProcessedFlag = true;
    return PV_SUCCESS;
-}
-
-int HyPerCol::normalizeWeights() {
-   int status = PV_SUCCESS;
-   for (int n = 0; n < mNormalizers.size(); n++) {
-      NormalizeBase * normalizer = mNormalizers.at(n);
-      if (normalizer) { status = normalizer->normalizeWeightsWrapper(); }
-      if (status != PV_SUCCESS) {
-         pvErrorNoExit().printf("Normalizer \"%s\" failed.\n", mNormalizers[n]->getName());
-      }
-   }
-   return status;
 }
 
 double * HyPerCol::adaptTimeScale(){
@@ -1891,7 +1857,7 @@ int HyPerCol::advanceTime(double sim_time)
    // update the connections (weights)
    //
    notify(std::make_shared<ConnectionUpdateMessage>(mSimTime, mDeltaTimeBase));
-   normalizeWeights();
+   notify(std::make_shared<ConnectionNormalizeMessage>());
    notify(std::make_shared<ConnectionFinalizeUpdateMessage>(mSimTime, mDeltaTimeBase));
    notify(std::make_shared<ConnectionOutputMessage>(mSimTime));
 
@@ -2821,19 +2787,6 @@ BaseConnection * HyPerCol::getConnFromName(const char * connName) {
       const char * curConnName = curConn->getName();
       assert(curConnName);
       if( !strcmp( curConn->getName(), connName) ) return curConn;
-   }
-   return nullptr;
-}
-
-NormalizeBase * HyPerCol::getNormalizerFromName(const char * normalizerName) {
-   if( normalizerName == nullptr ) return nullptr;
-   int n = numberOfNormalizers();
-   for( int i=0; i<n; i++ ) {
-      NormalizeBase * curNormalizer = getNormalizer(i);
-      assert(curNormalizer);
-      const char * curNormalizerName = curNormalizer->getName();
-      assert(curNormalizerName);
-      if( !strcmp(curNormalizer->getName(), normalizerName) ) return curNormalizer;
    }
    return nullptr;
 }

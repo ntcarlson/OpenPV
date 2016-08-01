@@ -8,8 +8,8 @@
 #ifndef HYPERCOL_HPP_
 #define HYPERCOL_HPP_
 
-#include <observerpattern/ObserverTable.hpp>
-#include <observerpattern/Subject.hpp>
+#include "observerpattern/ObserverTable.hpp"
+#include "observerpattern/Subject.hpp"
 #include "columns/Communicator.hpp"
 #include "columns/BaseObject.hpp"
 #include "columns/Messages.hpp"
@@ -337,7 +337,6 @@ public:
    bool addObject(BaseObject * obj) { return mObjectHierarchy.addObject(obj->getName(), obj); }
    int addBaseProbe(BaseProbe* p);
    int addConnection(BaseConnection* conn);
-   int addNormalizer(NormalizeBase* normalizer);
    int addLayer(HyPerLayer* l);
    int advanceTime(double time);
    int ensureDirExists(const char* dirname);
@@ -357,7 +356,6 @@ public:
    int writeArrayToFile(const char* cp_dir, const char* group_name, const char* val_name, T*  val, size_t count);
    template <typename T>
    int writeScalarToFile(const char* cp_dir, const char* group_name, const char* val_name, T val);
-   NormalizeBase* getNormalizerFromName(const char* normalizerName);
    template <typename T>
    void ioParamValueRequired(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T * val);
    template <typename T>
@@ -426,7 +424,6 @@ public:
    int includeConnectionName() const { return mFilenamesContainConnectionNames;}
    int numberOfLayers() const { return mLayers.size();}
    int numberOfConnections() const { return mConnections.size();}
-   int numberOfNormalizers() const { return mNormalizers.size();}
    int numberOfProbes() const {return mColProbes.size();}
    int numberOfBaseProbes() const {return mBaseProbes.size();}
    int numberOfBorderRegions() const {return MAX_NEIGHBORS;}
@@ -439,7 +436,6 @@ public:
    int numCommRows() { return mCommunicator->numCommRows(); }
    int numCommBatches() { return mCommunicator->numCommBatches(); }
    Communicator * getCommunicator() const { return mCommunicator; }
-   NormalizeBase * getNormalizer(int which) { return mNormalizers.at(which); }
    PV_Init * getPV_InitObj() const { return mPVInitObj; }
    PV_Stream * getPrintParamsStream() const { return mPrintParamsStream; }
    PVParams * parameters() const { return mParams; }
@@ -482,7 +478,6 @@ private:
    inline void notify(std::shared_ptr<BaseMessage> message) {
       Subject::notify(mObjectHierarchy, std::vector<std::shared_ptr<BaseMessage> >{message});
    }
-   int normalizeWeights();
    int checkpointRead();
    int checkpointWrite(const char * cpDir);
    int writeTimers(std::ostream& stream);
@@ -589,14 +584,12 @@ private:
    long int mCurrentStep;
    long int mInitialStep;
    long int mFinalStep;
-   std::vector<NormalizeBase*> mNormalizers; //NormalizeBase ** mNormalizers; // Objects for normalizing mConnections or groups of mConnections
    PV_Init* mPVInitObj;
    PV_Stream* mPrintParamsStream; // file pointer associated with mPrintParamsFilename
    PV_Stream* mLuaPrintParamsStream; // file pointer associated with the output lua file
    PVParams* mParams; // manages input parameters
    size_t mLayerArraySize;
    size_t mConnectionArraySize;
-   size_t mNormalizerArraySize;
    std::vector<std::string> mOldCheckpointDirectories; // A ring buffer of existing checkpoints, used if mDeleteOlderCheckpoints is true.
    std::ofstream mTimeScaleStream;
    std::vector<HyPerLayer*> mRecvLayerBuffer;

@@ -72,6 +72,8 @@ HyPerConn::~HyPerConn()
    // free the task information
    free(normalizeMethod);
 
+   delete normalizer;
+
    free(weightInitTypeString);
 
    pvDelete(weightInitializer);
@@ -1332,6 +1334,37 @@ int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
       exit(EXIT_FAILURE);
    }
 
+   return status;
+}
+
+void HyPerConn::addObserver(Observer * observer, BaseMessage const& message) {
+   Subject::addObserver(observer, message);
+   if (ConnectionAddNormalizerMessage const * castMessage = dynamic_cast<ConnectionAddNormalizerMessage const*>(&message)) {
+      HyPerConn * conn = dynamic_cast<HyPerConn*>(observer);
+      if (conn==nullptr) {
+         if (parent->getCommunicator()->commRank()==0) {
+            pvErrorNoExit() << "Cannot add" << observer->getDescription() << "to list of connections normalized by the weight normalizer for " << getDescription() <<  ": not a HyPerConn or HyPerConn-derived type.\n";
+         }
+         MPI_Barrier(parent->getCommunicator()->communicator());
+         exit(EXIT_FAILURE);
+      }
+      normalizer->addConnToList(conn);
+   }
+}
+
+int HyPerConn::respond(std::shared_ptr<BaseMessage> message) {
+   int status = BaseConnection::respond(message);
+   if (status != PV_SUCCESS) {
+      return status;
+   }
+   else if (ConnectionNormalizeMessage const * castMessage = dynamic_cast<ConnectionNormalizeMessage const*>(message.get())) {
+      return respondConnectionNormalize(castMessage);
+   }
+   return status;
+}
+
+int HyPerConn::respondConnectionNormalize(ConnectionNormalizeMessage const * message) {
+   int status = normalizer ? normalizer->normalizeWeightsWrapper() : PV_SUCCESS;
    return status;
 }
 

@@ -35,8 +35,6 @@ public:
     */
    int normalizeWeightsWrapper();
 
-   HyPerConn * getTargetConn();
-
    float getStrength() const {return strength;}
    // normalizeFromPostPerspective,rMinX,rMinY,normalize_cutoff moved to NormalizeMultiply
    bool  getNormalizeArborsIndividuallyFlag() const {return normalizeArborsIndividually;}
@@ -76,6 +74,7 @@ private:
 
 // Member variables
 protected:
+   HyPerConn * targetConn;
    HyPerConn ** connectionList;
    int numConnections;
    float strength;                    // Value to normalize to; precise interpretation depends on normalization method

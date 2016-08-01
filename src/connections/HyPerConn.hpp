@@ -9,15 +9,16 @@
 #define HYPERCONN_HPP_
 
 #include "BaseConnection.hpp"
-#include "../columns/Communicator.hpp"
-#include "../columns/HyPerCol.hpp"
-#include "../columns/Random.hpp"
-#include "../include/pv_common.h"
-#include "../include/pv_types.h"
-#include "../io/PVParams.hpp"
-#include "../io/BaseConnectionProbe.hpp"
-#include "../layers/HyPerLayer.hpp"
-#include "../utils/Timer.hpp"
+#include "columns/Communicator.hpp"
+#include "columns/HyPerCol.hpp"
+#include "columns/Random.hpp"
+#include "include/pv_common.h"
+#include "include/pv_types.h"
+#include "io/PVParams.hpp"
+#include "io/BaseConnectionProbe.hpp"
+#include "layers/HyPerLayer.hpp"
+#include "observerpattern/Subject.hpp"
+#include "utils/Timer.hpp"
 #include <stdlib.h>
 #include <vector>
 #include <stdlib.h>
@@ -25,9 +26,9 @@
 #include <map>
 
 #ifdef PV_USE_CUDA
-#include "../cudakernels/CudaRecvPost.hpp"
-#include "../cudakernels/CudaRecvPre.hpp"
-#include "../arch/cuda/CudaBuffer.hpp"
+#include "cudakernels/CudaRecvPost.hpp"
+#include "cudakernels/CudaRecvPre.hpp"
+#include "arch/cuda/CudaBuffer.hpp"
 #endif
 
 #define PROTECTED_NUMBER 13
@@ -57,7 +58,7 @@ class privateTransposeConn;
  * A HyPerConn identifies a connection between two layers
  */
 
-class HyPerConn : public BaseConnection {
+class HyPerConn : public BaseConnection, public Subject {
 
 public:
    friend class CloneConn;
@@ -79,6 +80,10 @@ public:
    HyPerConn(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer); // Deprecated June 22, 2016.
    virtual ~HyPerConn();
    virtual int allocateDataStructures();
+
+   virtual void addObserver(Observer * observer, BaseMessage const& message) override;
+
+   virtual int respond(std::shared_ptr<BaseMessage> message);
 
    virtual int checkpointRead(const char * cpDir, double* timef);
    virtual int checkpointWrite(const char * cpDir);
@@ -508,6 +513,7 @@ protected:
 
 protected:
    HyPerConn();
+   int respondConnectionNormalize(ConnectionNormalizeMessage const * message);
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
    virtual int initNumWeightPatches();
    virtual int initNumDataPatches();

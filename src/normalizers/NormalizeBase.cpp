@@ -36,7 +36,6 @@ int NormalizeBase::initialize(const char * name, HyPerCol * hc) {
    int status = BaseObject::initialize(name, hc);
    this->connectionList = NULL;
    this->numConnections = 0;
-   status = hc->addNormalizer(this);
    return status;
 }
 
@@ -78,14 +77,15 @@ void NormalizeBase::ioParam_normalizeOnWeightUpdate(enum ParamsIOFlag ioFlag) {
 }
 
 int NormalizeBase::communicateInitInfo(CommunicateInitInfoMessage const * message) {
-   return addConnToList(getTargetConn());
-}
-
-HyPerConn * NormalizeBase::getTargetConn() {
-   BaseConnection * baseConn = parent->getConnFromName(name);
-   HyPerConn * targetConn = dynamic_cast<HyPerConn *>(baseConn);
-   pvAssertMessage(targetConn, "%s: target connection \"%s\" is not a HyPerConn\n", getDescription_c(), name);
-   return targetConn;
+   targetConn = message->mTable->lookup<HyPerConn>(name);
+   if (targetConn==nullptr) {
+      if (parent->getCommunicator()->commRank()==0) {
+         pvErrorNoExit() << getDescription() << ": " << name << "\" is not a HyPerConn.\n";
+      }
+      MPI_Barrier(parent->getCommunicator()->communicator());
+      exit(EXIT_FAILURE);
+   }
+   return addConnToList(targetConn);
 }
 
 int NormalizeBase::normalizeWeightsWrapper() {

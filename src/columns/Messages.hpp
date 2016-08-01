@@ -42,6 +42,13 @@ public:
    double mDeltaT; // TODO: this should be the nbatch-sized vector of adaptive timesteps
 };
 
+class ConnectionNormalizeMessage : public BaseMessage {
+public:
+   ConnectionNormalizeMessage() {
+      setMessageType("ConnectionNormalize");
+   }
+};
+
 class ConnectionFinalizeUpdateMessage : public BaseMessage {
 public:
    ConnectionFinalizeUpdateMessage(double simTime, double deltaTime) {
@@ -180,6 +187,13 @@ class DeliverInputMessage : public BaseMessage {
 public:
    DeliverInputMessage() {
       setMessageType("DeliverInput");
+   }
+};
+
+class ConnectionAddNormalizerMessage : public BaseMessage {
+public:
+   ConnectionAddNormalizerMessage() {
+      setMessageType("ConnectionAddNormalizer");
    }
 };
 

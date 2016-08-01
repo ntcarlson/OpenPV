@@ -47,17 +47,18 @@ void NormalizeGroup::ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag) {
 }
 
 int NormalizeGroup::communicateInitInfo(CommunicateInitInfoMessage const * message) {
-   groupHead = parent->getNormalizerFromName(normalizeGroupName);
-   if (groupHead==nullptr) {
+   int status = NormalizeBase::communicateInitInfo(message);
+   pvAssert(targetConn);
+
+   HyPerConn * normalizeGroup = message->mTable->lookup<HyPerConn>(normalizeGroupName);
+   if (normalizeGroup==nullptr) {
       if (parent->getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: normalizeGroupName \"%s\" is not a recognized normalizer.\n",
-               getDescription_c(), normalizeGroupName);
+         pvErrorNoExit() << getDescription() << ": normalizeGroupName \"" << normalizeGroupName << "\" is not recognized.\n";
       }
       MPI_Barrier(parent->getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
-   HyPerConn * conn = getTargetConn();
-   return groupHead->addConnToList(conn);
+   normalizeGroup->addObserver(targetConn, ConnectionAddNormalizerMessage());
 }
 
 int NormalizeGroup::normalizeWeights() {
