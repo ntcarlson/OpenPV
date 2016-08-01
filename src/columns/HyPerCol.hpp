@@ -8,11 +8,11 @@
 #ifndef HYPERCOL_HPP_
 #define HYPERCOL_HPP_
 
-#include "columns/Subject.hpp"
+#include <observerpattern/ObserverTable.hpp>
+#include <observerpattern/Subject.hpp>
 #include "columns/Communicator.hpp"
 #include "columns/BaseObject.hpp"
 #include "columns/Messages.hpp"
-#include "columns/ObserverTable.hpp"
 #include "layers/HyPerLayer.hpp"
 #include "io/PVParams.hpp"
 #include "include/pv_types.h"

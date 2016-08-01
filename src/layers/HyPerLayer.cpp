@@ -18,7 +18,6 @@
 #include "include/pv_common.h"
 #include "include/default_params.h"
 #include "columns/HyPerCol.hpp"
-#include "connections/TransposeConn.hpp"
 #include "InitV.hpp"
 #include "io/fileio.hpp"
 #include "io/imageio.hpp"

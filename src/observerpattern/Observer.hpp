@@ -8,7 +8,7 @@
 #ifndef OBSERVER_HPP_
 #define OBSERVER_HPP_
 
-#include "columns/Messages.hpp"
+#include "observerpattern/BaseMessage.hpp"
 #include "include/pv_common.h"
 #include <memory>
 
@@ -16,8 +16,8 @@ namespace PV {
 
 class Observer {
 public:
-   Observer();
-   virtual ~Observer();
+   Observer() {}
+   virtual ~Observer() {}
    virtual int respond(std::shared_ptr<BaseMessage> message) { return PV_SUCCESS; }
    inline std::string const& getDescription() const { return description; }
 

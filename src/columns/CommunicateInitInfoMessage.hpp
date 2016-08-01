@@ -8,8 +8,8 @@
 #ifndef COMMUNICATEINITINFOMESSAGE_HPP_
 #define COMMUNICATEINITINFOMESSAGE_HPP_
 
+#include <observerpattern/ObserverTable.hpp>
 #include "columns/Messages.hpp"
-#include "columns/ObserverTable.hpp"
 
 namespace PV {
 

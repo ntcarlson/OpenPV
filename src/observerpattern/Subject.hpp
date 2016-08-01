@@ -8,8 +8,8 @@
 #ifndef SUBJECT_HPP_
 #define SUBJECT_HPP_
 
-#include "columns/ObserverTable.hpp"
-#include "columns/Messages.hpp"
+#include "observerpattern/ObserverTable.hpp"
+#include "observerpattern/BaseMessage.hpp"
 
 namespace PV {
 

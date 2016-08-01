@@ -8,7 +8,7 @@
 #ifndef OBSERVERTABLE_HPP_
 #define OBSERVERTABLE_HPP_
 
-#include "columns/Observer.hpp"
+#include "observerpattern/Observer.hpp"
 #include <vector>
 #include <map>
 

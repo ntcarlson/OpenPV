@@ -5,9 +5,10 @@
  *      Author: pschultz
  */
 
-#ifndef BASEMESSAGE_HPP_
-#define BASEMESSAGE_HPP_
+#ifndef MESSAGES_HPP_
+#define MESSAGES_HPP_
 
+#include "observerpattern/BaseMessage.hpp"
 #include "cMakeHeader.h"
 #include "utils/Timer.hpp"
 #include "include/pv_types.h"
@@ -15,18 +16,6 @@
 #include <string>
 
 namespace PV {
-
-class BaseMessage {
-public:
-   BaseMessage() { }
-   virtual ~BaseMessage() {}
-   inline std::string const& getMessageType() const { return mMessageType; }
-protected:
-   inline void setMessageType(std::string const& messageType) { mMessageType = messageType;}
-   inline void setMessageType(char const * messageType) { mMessageType = messageType;}
-private:
-   std::string mMessageType="";
-};
 
 class AllocateDataMessage : public BaseMessage {
 public:
@@ -196,4 +185,4 @@ public:
 
 } /* namespace PV */
 
-#endif /* BASEMESSAGE_HPP_ */
+#endif /* MESSAGES_HPP_ */

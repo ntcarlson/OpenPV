@@ -5,7 +5,7 @@
  *      Author: pschultz
  */
 
-#include "ObserverTable.hpp"
+#include "observerpattern/ObserverTable.hpp"
 #include "utils/PVAssert.hpp"
 #include <algorithm>
 

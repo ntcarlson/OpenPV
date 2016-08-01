@@ -1,23 +1,18 @@
 /*
- * ObserverPattern.cpp
+ * Subject.cpp
  *
  *  Created on: Jul 30, 2016
  *      Author: pschultz
  */
 
-#include <columns/ObserverPattern.hpp>
+#include "observerpattern/Subject.hpp"
+#include "utils/PVAssert.hpp"
+#include "utils/PVLog.hpp"
 
 namespace PV {
 
-ObserverPattern::ObserverPattern() {
-}
-
-ObserverPattern::~ObserverPattern() {
-}
-
-
-void ObserverPattern::notify(ObjectHierarchy const& recipients, std::vector<std::shared_ptr<BaseMessage> > messages) {
-   auto needsUpdate = recipients.getObjectVector();
+void Subject::notify(ObserverTable const& table, std::vector<std::shared_ptr<BaseMessage> > messages) {
+   auto needsUpdate = table.getObjectVector();
    auto numNeedsUpdate = needsUpdate.size();
    while(numNeedsUpdate>0) {
       auto oldNumNeedsUpdate = numNeedsUpdate;
@@ -66,6 +61,5 @@ void ObserverPattern::notify(ObjectHierarchy const& recipients, std::vector<std:
       }
    }
 }
-
 
 } /* namespace PV */

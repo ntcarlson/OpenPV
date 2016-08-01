@@ -23,7 +23,7 @@
 #ifndef BASEOBJECT_HPP_
 #define BASEOBJECT_HPP_
 
-#include "columns/Observer.hpp"
+#include <observerpattern/Observer.hpp>
 #include "columns/CommunicateInitInfoMessage.hpp"
 #include "columns/Messages.hpp"
 #include "include/pv_common.h"
