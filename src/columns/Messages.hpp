@@ -8,8 +8,9 @@
 #ifndef BASEMESSAGE_HPP_
 #define BASEMESSAGE_HPP_
 
-#include "utils/Timer.hpp"
 #include "cMakeHeader.h"
+#include "utils/Timer.hpp"
+#include "include/pv_types.h"
 #include <map>
 #include <string>
 
@@ -25,16 +26,6 @@ protected:
    inline void setMessageType(char const * messageType) { mMessageType = messageType;}
 private:
    std::string mMessageType="";
-};
-
-template <typename T>
-class CommunicateInitInfoMessage : public BaseMessage {
-public:
-   CommunicateInitInfoMessage(std::map<std::string, T> const& hierarchy) {
-      setMessageType("CommunicateInitInfo");
-      mHierarchy = hierarchy;
-   }
-   std::map<std::string, T> mHierarchy;
 };
 
 class AllocateDataMessage : public BaseMessage {
@@ -81,33 +72,6 @@ public:
    }
    double mTime;
 };
-
-//class LayerReceiveAndUpdateMessage : public BaseMessage {
-//public:
-//   LayerReceiveAndUpdateMessage(int phase, Timer * timer,
-//#ifdef PV_USE_CUDA
-//         bool recvOnGpuFlag, bool updateOnGpuFlag,
-//#endif // PV_USE_CUDA
-//         double simTime, double deltaTime) {
-//      setMessageType("LayerReceiveAndUpdate");
-//      mPhase = phase;
-//      mTimer = timer;
-//#ifdef PV_USE_CUDA
-//      mRecvOnGpuFlag = recvOnGpuFlag;
-//      mUpdateOnGpuFlag = updateOnGpuFlag;
-//#endif // PV_USE_CUDA
-//      mTime = simTime;
-//      mDeltaT = deltaTime;
-//   }
-//   int mPhase = 0;
-//   Timer * mTimer = nullptr;
-//#ifdef PV_USE_CUDA
-//   bool mRecvOnGpuFlag;
-//   bool mUpdateOnGpuFlag;
-//#endif // PV_USE_CUDA
-//   float mTime;
-//   float mDeltaT; // TODO: this should be the nbatch-sized vector of adaptive timesteps
-//};
 
 class LayerRecvSynapticInputMessage : public BaseMessage {
 public:
@@ -210,6 +174,24 @@ public:
       mPhase = phase;
    }
    int mPhase;
+};
+
+class LayerAddInputSourceMessage : public BaseMessage {
+public:
+   LayerAddInputSourceMessage(ChannelType channel, bool gpuFlag) {
+      setMessageType("LayerDeliverInput");
+      mChannel = channel;
+      mGPUFlag = gpuFlag;
+   }
+   ChannelType mChannel;
+   bool mGPUFlag;
+};
+
+class DeliverInputMessage : public BaseMessage {
+public:
+   DeliverInputMessage() {
+      setMessageType("DeliverInput");
+   }
 };
 
 } /* namespace PV */

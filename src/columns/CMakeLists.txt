@@ -21,6 +21,7 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
 set (PVLibSrcHpp ${PVLibSrcHpp}
    ${SUBDIR}/BaseObject.hpp
    ${SUBDIR}/buildandrun.hpp
+   ${SUBDIR}/CommunicateInitInfoMessage.hpp
    ${SUBDIR}/Communicator.hpp
    ${SUBDIR}/DataStore.hpp
    ${SUBDIR}/Factory.hpp

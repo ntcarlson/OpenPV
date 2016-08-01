@@ -243,7 +243,7 @@ protected:
     * communicateInitInfo() is called by passing a CommunicateInitInfoMessage to respond(), which is
     * usually done in HyPerCol::run.
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
 
    /**
     * Sets the pre- and post-synaptic layer names according to the parent HyPerCol's params.
@@ -431,11 +431,13 @@ protected:
     */
    virtual int setInitialValues() = 0;
 
-   virtual int respondConnectionUpdate(ConnectionUpdateMessage const * message) { return updateState(message->mTime, message->mDeltaT);  }
+   int respondConnectionUpdate(ConnectionUpdateMessage const * message) { return updateState(message->mTime, message->mDeltaT);  }
 
-   virtual int respondConnectionFinalizeUpdate(ConnectionFinalizeUpdateMessage const * message) { return finalizeUpdate(message->mTime, message->mDeltaT);  }
+   int respondConnectionFinalizeUpdate(ConnectionFinalizeUpdateMessage const * message) { return finalizeUpdate(message->mTime, message->mDeltaT);  }
 
-   virtual int respondConnectionOutput(ConnectionOutputMessage const * message) { return outputState(message->mTime);  }
+   int respondConnectionOutput(ConnectionOutputMessage const * message) { return outputState(message->mTime);  }
+
+   int respondDeliverInput(DeliverInputMessage const * message) { return deliver(); }
 
    /**
     * A pure virtual method whose implementation returns true

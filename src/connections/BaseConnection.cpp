@@ -410,6 +410,9 @@ int BaseConnection::respond(std::shared_ptr<BaseMessage> message) {
    else if (ConnectionOutputMessage const * castMessage = dynamic_cast<ConnectionOutputMessage const*>(message.get())) {
       return respondConnectionOutput(castMessage);
    }
+   else if (DeliverInputMessage const * castMessage = dynamic_cast<DeliverInputMessage const*>(message.get())) {
+      return respondDeliverInput(castMessage);
+   }
    else {
       return status;
    }
@@ -424,7 +427,7 @@ int BaseConnection::outputProbeParams() {
    return status;
 }
 
-int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = PV_SUCCESS;
 
    if (this->getPreLayerName()==NULL) {

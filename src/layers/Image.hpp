@@ -36,7 +36,7 @@ protected:
    Image();
    int initialize(const char * name, HyPerCol * hc);
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
 
 public:
    Image(const char * name, HyPerCol * hc);

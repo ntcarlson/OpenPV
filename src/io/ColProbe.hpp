@@ -84,7 +84,7 @@ protected:
     * Calls BaseProbe::communicateInitInfo (which sets up any triggering or attaching to an energy probe)
     * and then attaches to the parent HyPerCol by calling parent->insertProbe().
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
     
    /**
     * Calls BaseProbe::initOutputStream and then calls outputHeader()

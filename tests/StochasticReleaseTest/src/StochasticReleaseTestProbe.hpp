@@ -28,7 +28,7 @@ protected:
    int initStochasticReleaseTestProbe(const char * name, HyPerCol * hc);
    virtual void ioParam_buffer(enum ParamsIOFlag ioFlag);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);
    int computePValues(long int step, int f);
 private:
    int initialize_base();

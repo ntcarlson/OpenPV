@@ -1115,7 +1115,7 @@ int HyPerConn::setPostPatchSize() {
    return PV_SUCCESS;
 }
 
-int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    // HyPerConns need to tell the parent HyPerCol how many random number
    // seeds they need.  At the start of HyPerCol::run, the parent HyPerCol
    // calls each layer's and each connection's communicateInitInfo() sequentially in
@@ -1150,6 +1150,12 @@ int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const *
       exit(EXIT_FAILURE);
    }
    pvAssert(preSynapticLayer()!=NULL && postSynapticLayer()!=NULL);
+#ifdef PV_USE_CUDA
+   bool gpuFlag = getReceiveGpu();
+#else // PV_USE_CUDA
+   bool gpuFlag = false;
+#endif // PV_USE_CUDA
+   postSynapticLayer()->addObserver(this, LayerAddInputSourceMessage(getChannel(), gpuFlag));
    handleDefaultSelfFlag();
 
    if(useMask) {
@@ -1275,7 +1281,7 @@ int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const *
       weightUpdateTime = parent->getDeltaTime();
    }
 
-   auto messagePtr = std::make_shared<CommunicateInitInfoMessage<Observer*> >(*message);
+   auto messagePtr = std::make_shared<CommunicateInitInfoMessage >(*message);
    if (weightInitializer) { weightInitializer->respond(messagePtr); }
 
    if (sharedWeights) {

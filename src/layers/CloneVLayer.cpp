@@ -47,7 +47,7 @@ void CloneVLayer::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
    }
 }
 
-int CloneVLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int CloneVLayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {

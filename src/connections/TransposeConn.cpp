@@ -177,7 +177,7 @@ void TransposeConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
-int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int TransposeConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {

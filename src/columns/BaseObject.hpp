@@ -24,6 +24,7 @@
 #define BASEOBJECT_HPP_
 
 #include "columns/Observer.hpp"
+#include "columns/CommunicateInitInfoMessage.hpp"
 #include "columns/Messages.hpp"
 #include "include/pv_common.h"
 #include "utils/PVLog.hpp"
@@ -69,11 +70,11 @@ protected:
    int setParent(HyPerCol * hc);
    virtual int setDescription();
 
-   int respondCommunicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message);
+   int respondCommunicateInitInfo(CommunicateInitInfoMessage const * message);
    int respondAllocateData(AllocateDataMessage const * message);
    int respondInitializeState(InitializeStateMessage const * message);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) { return PV_SUCCESS; }
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
    virtual int initializeState() { return PV_SUCCESS; }
 

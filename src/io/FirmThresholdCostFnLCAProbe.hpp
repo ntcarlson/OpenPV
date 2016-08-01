@@ -32,7 +32,7 @@ protected:
     */
    virtual void ioParam_coefficient(enum ParamsIOFlag ioFlag) {} // coefficient is set from targetLayer during communicateInitInfo.
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
 
 private:
    int initialize_base() { return PV_SUCCESS; }

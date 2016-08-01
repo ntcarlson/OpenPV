@@ -125,7 +125,7 @@ void LocalizationBBFindProbe::ioParam_internalMapHeight(enum PV::ParamsIOFlag io
    parent->ioParamValue(ioFlag, name, "internalMapHeight", &internalMapHeight, internalMapHeight, true/*warnIfAbsent*/);
 }
 
-int LocalizationBBFindProbe::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::Observer*> const * message) {
+int LocalizationBBFindProbe::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
    int status = LocalizationProbe::communicateInitInfo(message);
    bbfinder.setImageSize(imageLayer->getLayerLoc()->nxGlobal, imageLayer->getLayerLoc()->nyGlobal);
    bbfinder.setFramesPerMap(framesPerMap);

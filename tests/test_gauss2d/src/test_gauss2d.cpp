@@ -74,8 +74,8 @@ int main(int argc, char * argv[])
 
    hc->ensureDirExists(hc->getOutputPath());
 
-   auto objectMap = hc->copyObjectMap();
-   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage<Observer*> >(*objectMap);
+   auto objectHierarchy = hc->copyObjectHierarchy();
+   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(*objectHierarchy);
    for (int l=0; l<hc->numberOfLayers(); l++) {
       HyPerLayer * layer = hc->getLayer(l);
       int status = layer->respond(commMessagePtr);
@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
       int status = conn->respond(commMessagePtr);
       assert(status==PV_SUCCESS);
    }
-   delete objectMap;
+   delete objectHierarchy;
 
    auto allocateMessagePtr = std::make_shared<AllocateDataMessage>();
    for (int l=0; l<hc->numberOfLayers(); l++) {

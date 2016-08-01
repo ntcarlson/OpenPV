@@ -1547,8 +1547,7 @@ int HyPerCol::setNumThreads(bool printMessagesFlag) {
 
 int HyPerCol::processParams(char const * path) {
    if (!mParamsProcessedFlag) {
-      auto const& objectMap = mObjectHierarchy.getObjectMap();
-      notify(std::make_shared<CommunicateInitInfoMessage<Observer*> >(objectMap));
+      notify(std::make_shared<CommunicateInitInfoMessage>(mObjectHierarchy));
    }
 
    // Print a cleaned up version of params to the file given by printParamsFilename

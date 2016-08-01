@@ -18,7 +18,6 @@
 #include "include/pv_common.h"
 #include "include/default_params.h"
 #include "columns/HyPerCol.hpp"
-#include "connections/BaseConnection.hpp"
 #include "connections/TransposeConn.hpp"
 #include "InitV.hpp"
 #include "io/fileio.hpp"
@@ -135,7 +134,10 @@ int HyPerLayer::initialize_base() {
 
 
    this->thread_gSyn = NULL;
-   this->recvConns.clear();
+   this->inputSources.clear();
+#ifdef PV_USE_CUDA
+   this->inputSourcesGPU.clear();
+#endif // PV_USE_CUDA
 
    return PV_SUCCESS;
 }
@@ -179,7 +181,7 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
    writeTime = initialWriteTime;
    writeActivityCalls = 0;
    writeActivitySparseCalls = 0;
-   numDelayLevels = 1; // If a connection has positive delay so that more delay levels are needed, numDelayLevels is increased when BaseConnection::communicateInitInfo calls increaseDelayLevels
+   numDelayLevels = 1; // If a connection has positive delay so that more delay levels are needed, numDelayLevels is increased when the connection calls increaseDelayLevels
    maxRate = 1000.0f/parent->getDeltaTime();
 
    initClayer();
@@ -984,6 +986,13 @@ int HyPerLayer::respondLayerOutputState(LayerOutputStateMessage const * message)
    return status;
 }
 
+void HyPerLayer::addObserver(Observer * observer, BaseMessage const& message) {
+   Subject::addObserver(observer, message);
+   if (LayerAddInputSourceMessage const * castMessage = dynamic_cast<LayerAddInputSourceMessage const*>(&message)) {
+      addInputSource(observer, castMessage->mChannel, castMessage->mGPUFlag);
+   }
+}
+
 #ifdef PV_USE_CUDA
 
 int HyPerLayer::allocateUpdateKernel(){
@@ -1043,7 +1052,7 @@ int HyPerLayer::allocateDeviceBuffers()
 
 #endif // PV_USE_CUDA
 
-int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message)
+int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage const * message)
 {
    // HyPerLayers need to tell the parent HyPerCol how many random number
    // seeds they need.  At the start of HyPerCol::run, the parent HyPerCol
@@ -1060,8 +1069,9 @@ int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const 
    // methods, HyPerLayer knows its marginWidth before it has to allocate
    // anything.  So the margin width does not have to be specified in params.
    if(triggerFlag){
-      triggerLayer = parent->getLayerFromName(triggerLayerName);
-      if (triggerLayer==NULL) {
+      auto hierarchy = message->mTable;
+      triggerLayer = hierarchy->lookup<HyPerLayer>(triggerLayerName);
+      if (triggerLayer==nullptr) {
          if (parent->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: triggerLayerName \"%s\" is not a layer in the HyPerCol.\n",
                   getDescription_c(), triggerLayerName);
@@ -1071,15 +1081,15 @@ int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const 
       }
       nextTriggerTime = triggerLayer->getNextUpdateTime();
       if (triggerBehaviorType==RESETSTATE_TRIGGER) {
-         char const * resetLayerName = NULL; // Will point to name of actual resetLayer, whether triggerResetLayerName is blank (in which case resetLayerName==triggerLayerName) or not
-         if (triggerResetLayerName==NULL || triggerResetLayerName[0]=='\0') {
+         char const * resetLayerName = nullptr; // Will point to name of actual resetLayer, whether triggerResetLayerName is blank (in which case resetLayerName==triggerLayerName) or not
+         if (triggerResetLayerName==nullptr || triggerResetLayerName[0]=='\0') {
             resetLayerName = triggerLayerName;
             triggerResetLayer = triggerLayer;
          }
          else {
             resetLayerName = triggerResetLayerName;
-            triggerResetLayer = parent->getLayerFromName(triggerResetLayerName);
-            if (triggerResetLayer==NULL) {
+            triggerResetLayer = hierarchy->lookup<HyPerLayer>(triggerResetLayerName);
+            if (triggerResetLayer==nullptr) {
                if (parent->getCommunicator()->commRank()==0) {
                   pvErrorNoExit().printf("%s: triggerResetLayerName \"%s\" is not a layer in the HyPerCol.\n",
                         getDescription_c(), triggerResetLayerName);
@@ -1118,6 +1128,22 @@ int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const 
    int status = PV_SUCCESS;
 
    return status;
+}
+
+void HyPerLayer::addInputSource(Observer * inputSource, ChannelType channel, bool gpuFlag) {
+   int requiredChannels;
+   requireChannel(channel, &requiredChannels);
+#ifdef PV_USE_CUDA
+   if (gpuFlag) {
+      inputSourcesGPU.emplace_back(inputSource);
+      recvGpu = true;
+   }
+   else {
+      inputSources.emplace_back(inputSource);
+   }
+#else // PV_USE_CUDA
+   inputSources.emplace_back(inputSource);
+#endif // PV_USE_CUDA
 }
 
 char const * HyPerLayer::getOutputStatePath() {
@@ -1384,29 +1410,9 @@ int HyPerLayer::allocateDataStructures()
    }
 #endif
 
-   //Make a data structure that stores the connections (in order of execution) this layer needs to recv from
-   //CPU connections must run first to avoid race conditions
-   int numConnections = parent->numberOfConnections();
-   for(int c=0; c<numConnections; c++){
-      BaseConnection * baseConn = parent->getConnection(c);
-      HyPerConn * conn = dynamic_cast<HyPerConn *>(baseConn);
-      if(conn->postSynapticLayer()!=this) continue;
-#ifdef PV_USE_CUDA
-      //If not recv from gpu, execute first
-      if(!conn->getReceiveGpu()){
-         recvConns.insert(recvConns.begin(), conn);
-      }
-      //Otherwise, add to the back. If no gpus at all, just add to back
-      else
-#endif
-      {
-         recvConns.push_back(conn);
-#ifdef PV_USE_CUDA
-         //If it is receiving from gpu, set layer flag as such
-         recvGpu = true;
-#endif
-      }
-   }
+   // Creating list of conns that deliver to this layer was moved to HyPerLayer::addInputSource.
+   // During the communicateInitInfo stage, a connection sends an AddInputSource message to
+   // its post layer, which calls addInputSource as its response.  -- Jul 31, 2016.
 
    if (status == PV_SUCCESS) {
       status = openOutputStateFile();
@@ -1811,31 +1817,21 @@ int HyPerLayer::recvAllSynapticInput() {
    int status = PV_SUCCESS;
    //Only recvAllSynapticInput if we need an update
    if(needUpdate(parent->simulationTime(), parent->getDeltaTime())){
-      bool switchGpu = false;
       //Start CPU timer here
       recvsyn_timer->start();
+      auto deliverMessage = std::make_shared<DeliverInputMessage>();
 
-      for (auto& conn : recvConns) {
-         pvAssert(conn != NULL);
-#ifdef PV_USE_CUDA
-         //Check if it's done with cpu connections
-         if(!switchGpu && conn->getReceiveGpu()){
-            //Copy GSyn over to GPU
-            copyAllGSynToDevice();
-            //Start gpu timer
-            gpu_recvsyn_timer->start();
-            switchGpu = true;
-         }
-#endif
-         conn->deliver();
+      for (auto& observer : inputSources) {
+         observer->respond(deliverMessage);
       }
 #ifdef PV_USE_CUDA
-      if(switchGpu){
-         //Stop timer
-         gpu_recvsyn_timer->stop();
+      copyAllGSynToDevice();
+      gpu_recvsyn_timer->start();
+      for (auto& observer : inputSourcesGPU) {
+         observer->respond(deliverMessage);
       }
+      gpu_recvsyn_timer->stop();
 #endif
-      recvsyn_timer->stop();
    }
    return status;
 }

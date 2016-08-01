@@ -14,7 +14,6 @@
 #include "columns/Messages.hpp"
 #include "columns/ObserverTable.hpp"
 #include "layers/HyPerLayer.hpp"
-#include "connections/BaseConnection.hpp"
 #include "io/PVParams.hpp"
 #include "include/pv_types.h"
 #include "columns/PV_Init.hpp"
@@ -36,6 +35,8 @@
 #include <vector>
 
 namespace PV {
+
+class BaseConnection;
 
 enum CheckpointWriteTriggerMode {
    CPWRITE_TRIGGER_STEP,
@@ -449,10 +450,10 @@ public:
    unsigned int seedRandomFromWallClock();
 
    // A hack to allow test_cocirc, test_gauss2d, and test_post_weights to send a CommunicateInitInfoMessage.
-   std::map<std::string, Observer*> * copyObjectMap() {
-      auto objectMap = new std::map<std::string, Observer*>;
-      *objectMap = mObjectHierarchy.getObjectMap();
-      return objectMap;
+   ObserverTable * copyObjectHierarchy() {
+      auto hierarchyCopy = new ObserverTable;
+      *hierarchyCopy = mObjectHierarchy;
+      return hierarchyCopy;
    }
 private:
    int getAutoGPUDevice();

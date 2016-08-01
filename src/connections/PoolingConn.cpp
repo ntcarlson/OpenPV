@@ -186,7 +186,7 @@ int PoolingConn::initialize(const char * name, HyPerCol * hc, InitWeights * weig
    return status;
 }
 
-int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = HyPerConn::communicateInitInfo(message);
 
    //Check pre/post connections here

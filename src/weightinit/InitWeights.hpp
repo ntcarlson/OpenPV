@@ -57,7 +57,7 @@ protected:
    virtual int setDescription();
 
    virtual int initRNGs(bool isKernel) { return PV_SUCCESS; }
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
    virtual int zeroWeightsOutsideShrunkenPatch(PVPatch *** patches);
    virtual int readListOfArborFiles(PVPatch *** patches, pvwdata_t ** dataStart,int numPatches,
          const char * listOfArborsFilename, double * timef=NULL);

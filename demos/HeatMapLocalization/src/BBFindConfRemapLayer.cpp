@@ -131,7 +131,7 @@ void BBFindConfRemapLayer::ioParam_internalMapHeight(enum PV::ParamsIOFlag ioFla
    parent->ioParamValue(ioFlag, name, "internalMapHeight", &internalMapHeight, internalMapHeight, true/*warnIfAbsent*/);
 }
 
-int BBFindConfRemapLayer::communicateInitInfo(PV::CommunicateInitInfoMessage<PV::Observer*> const * message) {
+int BBFindConfRemapLayer::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
    if (imageLayerName && imageLayerName[0]) {
       imageLayer = parent->getLayerFromName(imageLayerName);
       if (imageLayer==nullptr) {

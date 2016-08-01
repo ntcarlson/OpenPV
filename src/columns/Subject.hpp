@@ -17,6 +17,7 @@ class Subject {
 public:
    Subject() {}
    virtual ~Subject() {}
+   virtual void addObserver(Observer * observer, BaseMessage const& message) { return; }
 protected:
    void notify(ObserverTable const& table, std::vector<std::shared_ptr<BaseMessage> > messages);
    inline void notify(ObserverTable const& table, std::shared_ptr<BaseMessage> message) {

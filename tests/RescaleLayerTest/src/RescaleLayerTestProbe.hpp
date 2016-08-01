@@ -21,7 +21,7 @@ public:
 protected:
    int initRescaleLayerTestProbe(const char * probeName, HyPerCol * hc);
    void ioParam_buffer(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);
    bool colinear(int nx, int ny, int ystrideA, int ystrideB, pvadata_t const * A, pvadata_t const * B, double tolerance, double * cov, double * stdA, double * stdB);
 
 private:

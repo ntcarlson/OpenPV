@@ -133,7 +133,7 @@ void CopyConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
-int CopyConn::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int CopyConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {

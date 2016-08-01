@@ -90,7 +90,7 @@ void MaskLayer::ioParam_featureIdxs(enum ParamsIOFlag ioFlag) {
    }
 }
 
-int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = ANNLayer::communicateInitInfo(message);
    if(strcmp(maskMethod, "layer") == 0 || strcmp(maskMethod, "invertLayer") == 0){
       maskLayer = parent->getLayerFromName(maskLayerName);

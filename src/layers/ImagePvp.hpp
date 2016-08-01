@@ -27,7 +27,7 @@ protected:
     * @}
     */
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
    virtual int getFrame(double timef, double dt);
    virtual int retrieveData(double timef, double dt, int batchIndex);
    virtual int readPvp(const char * filename, int frameNumber);

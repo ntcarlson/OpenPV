@@ -56,12 +56,10 @@ namespace PV {
 
 class InitV;
 class PVParams;
-class BaseConnection;
 
 typedef enum TriggerBehaviorTypeEnum { NO_TRIGGER, UPDATEONLY_TRIGGER, RESETSTATE_TRIGGER } TriggerBehaviorType;
 
-class HyPerLayer : public BaseLayer{
-
+class HyPerLayer : public BaseLayer, public Subject{
 
 protected:
 
@@ -203,6 +201,8 @@ protected:
    int initialize(const char * name, HyPerCol * hc);
    virtual int initClayer();
 
+   void addInputSource(Observer * conn, ChannelType channel, bool gpuFlag);
+
    virtual int allocateClayerBuffers();
    int setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale, int nf, int numBatches);
    virtual int allocateBuffers();
@@ -296,6 +296,7 @@ public:
    virtual bool activityIsSpiking() { return false; }
    PVDataType getDataType()          {return dataType;}
    virtual int respond(std::shared_ptr<BaseMessage> message) override;
+   virtual void addObserver(Observer * observer, BaseMessage const& message) override;
 protected:
 
    /**
@@ -467,7 +468,7 @@ public:
    Publisher * getPublisher() { return publisher; }
 
 protected:
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
    virtual int allocateDataStructures() override;
    virtual int initializeState() final; // Not overridable since all layers should respond to initializeFromCheckpointFlag and (deprecated) restartFlag in the same way.
                           // initializeState calls the virtual methods readStateFromCheckpoint(), and setInitialValues().
@@ -547,7 +548,10 @@ protected:
    double nextTriggerTime; // The timestep when triggerLayer is next expected to trigger.
 
    pvdata_t ** thread_gSyn; //Accumulate buffer for each thread, only used if numThreads > 1
-   std::vector<BaseConnection *> recvConns;
+   std::vector<Observer *> inputSources;
+#ifdef PV_USE_CUDA
+   std::vector<Observer *> inputSourcesGPU; // connections with receiveGpu=true
+#endif // PV_USE_CUDA
 
    // GPU variables
 #ifdef PV_USE_CUDA

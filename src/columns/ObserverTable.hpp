@@ -41,6 +41,21 @@ public:
    void deleteObject(char const * name, bool deallocateFlag) { deleteObject(std::string(name), deallocateFlag); }
    void clear(bool deallocateFlag);
 
+   template <typename S>
+   S * lookup(std::string const& name) const {
+      return lookup<S>(name.c_str());
+   }
+
+   template <typename S>
+   S * lookup(char const * name) const {
+      S * lookupResult = nullptr;
+      auto findResult = mObjectMap.find(name);
+      if (findResult != mObjectMap.end()) {
+         auto observerPtr = findResult->second;
+         lookupResult = dynamic_cast<S*>(observerPtr);
+      }
+      return lookupResult;
+   }
 private:
    std::vector<Observer*> mObjectVector;
    std::map<std::string, Observer*> mObjectMap;

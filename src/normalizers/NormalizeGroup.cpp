@@ -46,7 +46,7 @@ void NormalizeGroup::ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "normalizeGroupName", &normalizeGroupName);
 }
 
-int NormalizeGroup::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int NormalizeGroup::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    groupHead = parent->getNormalizerFromName(normalizeGroupName);
    if (groupHead==nullptr) {
       if (parent->getCommunicator()->commRank()==0) {

@@ -27,7 +27,7 @@ protected:
    int initialize(const char * name, HyPerCol * hc);
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    void ioParam_numImagesToAverage(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
 private:
    int initialize_base();
 

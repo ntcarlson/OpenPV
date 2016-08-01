@@ -67,7 +67,7 @@ void ImagePvp::ioParam_pvpFrameIdx(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "pvpFrameIdx", &pvpFrameIdx, pvpFrameIdx);
 }
 
-int ImagePvp::communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) {
+int ImagePvp::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = BaseInput::communicateInitInfo(message);
    int fileType = getFileType(inputPath);
    if(fileType != PVP_FILE_TYPE){

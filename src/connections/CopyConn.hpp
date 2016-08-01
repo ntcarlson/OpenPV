@@ -112,7 +112,7 @@ protected:
    virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
    /** @} */
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
    virtual int setPatchSize();
 
    virtual int setInitialValues();

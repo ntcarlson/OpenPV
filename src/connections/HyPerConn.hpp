@@ -508,7 +508,7 @@ protected:
 
 protected:
    HyPerConn();
-   virtual int communicateInitInfo(CommunicateInitInfoMessage<Observer*> const * message) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
    virtual int initNumWeightPatches();
    virtual int initNumDataPatches();
 
