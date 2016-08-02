@@ -311,42 +311,42 @@ int LIF::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 }
 
 int LIF::readVthFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_Vth.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "Vth", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 
 int LIF::readG_EFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_G_E.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &G_E, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "G_E", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &G_E, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 
 int LIF::readG_IFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_G_I.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &G_I, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "G_I", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &G_I, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 
 int LIF::readG_IBFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_G_IB.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &G_IB, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "G_IB", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &G_IB, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 
 int LIF::readRandStateFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_rand_state.bin");
-   int status = readRandState(filename, parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), false /*extended*/); // TODO Make a method in Random class
+   auto filename = pathInCheckpoint(cpDir, getName(), "rand_state", "bin");
+   int status = readRandState(filename->c_str(), parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), false /*extended*/); // TODO Make a method in Random class
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 

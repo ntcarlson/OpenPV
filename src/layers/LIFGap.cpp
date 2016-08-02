@@ -214,10 +214,10 @@ int LIFGap::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 }
 
 int LIFGap::readGapStrengthFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_gapStrength.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &gapStrength, 1, /*extended*/false, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "gapStrength", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &gapStrength, 1, /*extended*/false, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    gapStrengthInitialized = true;
    return status;
 }

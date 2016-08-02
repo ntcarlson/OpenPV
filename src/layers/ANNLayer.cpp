@@ -413,7 +413,7 @@ int ANNLayer::setActivity() {
 int ANNLayer::checkpointRead(char const * cpDir, double * timeptr) {
    int status = HyPerLayer::checkpointRead(cpDir, timeptr);
    if (status==PV_SUCCESS) {
-      status = parent->readScalarFromFile(cpDir, getName(), "nextGSynClearTime", &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());
+      status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", parent->getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());
    }
    return status;
 }
@@ -421,7 +421,7 @@ int ANNLayer::checkpointRead(char const * cpDir, double * timeptr) {
 int ANNLayer::checkpointWrite(char const * cpDir) {
    int status = HyPerLayer::checkpointWrite(cpDir);
    if (status==PV_SUCCESS) {
-      status = parent->writeScalarToFile(cpDir, getName(), "nextGSynClearTime", nextGSynClearTime);
+      status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", parent->getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
    }
    return status;
 }

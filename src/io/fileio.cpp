@@ -8,7 +8,6 @@
 #include "fileio.hpp"
 #include "connections/weight_conversions.hpp"
 #include "utils/conversions.h"
-#include "utils/PVLog.hpp"
 
 #include <assert.h>
 #include <iostream>
@@ -2254,6 +2253,15 @@ int readRandState(const char * filename, Communicator * comm, taus_uint4 * randS
       PV_fclose(pvstream); pvstream = NULL;
    }
    return status;
+}
+
+std::string * pathInCheckpoint(char const * cpDir, char const * objectName, const char * suffix, char const * extension) {
+   auto str = new std::string;
+   (*str).append(cpDir).append("/").append(objectName).append("_").append(suffix);
+   if (extension) {
+      (*str).append(".").append(extension);
+   }
+   return str;
 }
 
 template <typename T> int gatherActivity(PV_Stream * pvstream, Communicator * comm, int rootproc, T * buffer, const PVLayerLoc * layerLoc, bool extended) {

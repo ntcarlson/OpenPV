@@ -234,21 +234,20 @@ int MomentumLCALayer::checkpointWrite(const char * cpDir) {
    // Writes checkpoint files for V, A, and datastore to files in working directory
    Communicator * icComm = parent->getCommunicator();
    double timed = (double) parent->simulationTime();
-   char * filename = NULL;
-   filename = parent->pathInCheckpoint(cpDir, getName(), "_prevDrive.pvp");
-   int status = writeBufferFile(filename, icComm, timed, &prevDrive, /*numbands*/1, /*extended*/false, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "prevDrive", "pvp");
+   int status = writeBufferFile(filename->c_str(), icComm, timed, &prevDrive, /*numbands*/1, /*extended*/false, getLayerLoc());
    assert(status == PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 } /* namespace PV */
 
 int MomentumLCALayer::checkpointRead(const char * cpDir, double * timeptr) {
    HyPerLCALayer::checkpointRead(cpDir, timeptr);
    int status = PV_SUCCESS;
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_prevDrive.pvp");
-   status = readBufferFile(filename, parent->getCommunicator(), timeptr, &prevDrive, 1, /*extended*/false, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "prevDrive", "pvp");
+   status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &prevDrive, 1, /*extended*/false, getLayerLoc());
    assert(status == PV_SUCCESS);
-   free(filename);
+   delete filename;
 
 
 

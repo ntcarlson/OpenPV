@@ -2095,14 +2095,14 @@ int HyPerConn::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int HyPerConn::readWeightsFromCheckpoint(const char * cpDir, double * timeptr) {
    clearWeights(get_wDataStart(), getNumDataPatches(), nxp, nyp, nfp);
-   char * path = parent->pathInCheckpoint(cpDir, getName(), "_W.pvp");
+   auto path = pathInCheckpoint(cpDir, getName(), "W", "pvp");
    PVPatch *** patches_arg = sharedWeights ? NULL : wPatches;
    double filetime=0.0;
-   int status = PV::readWeights(patches_arg, get_wDataStart(), numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path, parent->getCommunicator(), &filetime, pre->getLayerLoc());
+   int status = PV::readWeights(patches_arg, get_wDataStart(), numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path->c_str(), parent->getCommunicator(), &filetime, pre->getLayerLoc());
    if (parent->getCommunicator()->commRank()==0 && timeptr && *timeptr != filetime) {
       pvWarn().printf("\"%s\" checkpoint has timestamp %g instead of the expected value %g.\n", path, filetime, *timeptr);
    }
-   free(path);
+   delete path;
    return status;
 }
 
@@ -2112,10 +2112,10 @@ int HyPerConn::checkpointRead(const char * cpDir, double * timeptr) {
   //}
    int status = readStateFromCheckpoint(cpDir, timeptr);
 
-   status = parent->readScalarFromFile(cpDir, getName(), "lastUpdateTime", &lastUpdateTime, lastUpdateTime);
+   status = readScalarFromFile(cpDir, getName(), "lastUpdateTime", parent->getCommunicator(), &lastUpdateTime, lastUpdateTime);
    pvAssert(status == PV_SUCCESS);
    if (plasticityFlag) {
-      status = parent->readScalarFromFile(cpDir, getName(), "weightUpdateTime", &weightUpdateTime, weightUpdateTime);
+      status = readScalarFromFile(cpDir, getName(), "weightUpdateTime", parent->getCommunicator(), &weightUpdateTime, weightUpdateTime);
       if (!triggerLayerName && weightUpdateTime<parent->simulationTime()) {
          pvAssert(status == PV_SUCCESS);
          while(weightUpdateTime <= parent->simulationTime()) {weightUpdateTime += weightUpdatePeriod;}
@@ -2126,7 +2126,7 @@ int HyPerConn::checkpointRead(const char * cpDir, double * timeptr) {
       }
    }
 
-   status = parent->readScalarFromFile(cpDir, getName(), "nextWrite", &writeTime, writeTime);
+   status = readScalarFromFile(cpDir, getName(), "nextWrite", parent->getCommunicator(), &writeTime, writeTime);
    pvAssert(status == PV_SUCCESS);
 
    return status;
@@ -2144,12 +2144,12 @@ int HyPerConn::checkpointWrite(const char * cpDir) {
    pvAssert(status==PV_SUCCESS);
 
    // TODO: split the writeScalarToFile calls up into virtual methods so that subclasses that don't use these member variables don't have to save them.
-   status = parent->writeScalarToFile(cpDir, getName(), "nextWrite", writeTime);
+   status = writeScalarToFile(cpDir, getName(), "nextWrite", parent->getCommunicator(), writeTime, parent->getVerifyWrites());
    pvAssert(status==PV_SUCCESS);
-   status = parent->writeScalarToFile(cpDir, getName(), "lastUpdateTime", lastUpdateTime);
+   status = writeScalarToFile(cpDir, getName(), "lastUpdateTime", parent->getCommunicator(), lastUpdateTime, parent->getVerifyWrites());
    pvAssert(status==PV_SUCCESS);
    if (plasticityFlag && !triggerLayerName) {
-      status = parent->writeScalarToFile(cpDir, getName(), "weightUpdateTime", weightUpdateTime);
+      status = writeScalarToFile(cpDir, getName(), "weightUpdateTime", parent->getCommunicator(), weightUpdateTime, parent->getVerifyWrites());
    }
    pvAssert(status==PV_SUCCESS);
    return status;

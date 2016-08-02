@@ -52,7 +52,7 @@ int MoviePvp::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int MoviePvp::readFrameNumStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
-   parent->readArrayFromFile(cpDir, getName(), "FrameNumState", frameNumbers, parent->getNBatch());
+   readArrayFromFile(cpDir, getName(), "FrameNumState", parent->getCommunicator(), frameNumbers, parent->getNBatch());
    return status;
 }
 
@@ -62,7 +62,7 @@ int MoviePvp::checkpointRead(const char * cpDir, double * timef){
    // should this be moved to readStateFromCheckpoint?
    if (writeFrameToTimestamp) {
       long timestampFilePos = 0L;
-      parent->readScalarFromFile(cpDir, getName(), "TimestampState", &timestampFilePos, timestampFilePos);
+      readScalarFromFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), &timestampFilePos, timestampFilePos);
       if (timestampFile) {
          assert(parent->getCommunicator()->commRank()==0);
          if (PV_fseek(timestampFile, timestampFilePos, SEEK_SET) != 0) {
@@ -77,12 +77,13 @@ int MoviePvp::checkpointRead(const char * cpDir, double * timef){
 int MoviePvp::checkpointWrite(const char * cpDir){
    int status = ImagePvp::checkpointWrite(cpDir);
 
-   parent->writeArrayToFile(cpDir, getName(), "FrameNumState", frameNumbers, parent->getNBatch());
+   writeArrayToFile(cpDir, getName(), "FrameNumbers", parent->getCommunicator(),
+         frameNumbers, parent->getNBatch(), parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file
    if (timestampFile) {
       long timestampFilePos = getPV_StreamFilepos(timestampFile);
-      parent->writeScalarToFile(cpDir, getName(), "TimestampState", timestampFilePos);
+      writeScalarToFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), timestampFilePos, parent->getVerifyWrites());
    }
 
    return status;

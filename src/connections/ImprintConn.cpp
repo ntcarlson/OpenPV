@@ -269,8 +269,8 @@ int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
    int status = HyPerConn::checkpointRead(cpDir, timeptr);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
    if( parent->getCommunicator()->commRank() == 0 ) {
-      char * filename = parent->pathInCheckpoint(cpDir, getName(), "_ImprintState.bin");
-      PV_Stream * pvstream = PV_fopen(filename, "r", false/*verifyWrites*/);
+      auto filename = pathInCheckpoint(cpDir, getName(), "ImprintState", "bin");
+      PV_Stream * pvstream = PV_fopen(filename->c_str(), "r", false/*verifyWrites*/);
       if( pvstream != NULL ) {
          status = PV_fread(lastActiveTime, sizeof(double), numBuf, pvstream) == 1 ? status : PV_FAILURE;
          PV_fclose(pvstream);
@@ -278,7 +278,7 @@ int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
       else {
          pvError().printf("Unable to read from \"%s\"\n", filename);
       }
-      free(filename);
+      delete filename;
    }
 
    if (parent->getCommunicator()->commSize()>1) {

@@ -324,7 +324,7 @@ public:
 
    BaseConnection* getConnFromName(const char* connectionName);
    BaseProbe* getBaseProbeFromName(const char* probeName);
-   char* pathInCheckpoint(const char* cpDir, const char* objectName, const char* suffix);
+   // pathInCheckpoint was moved to fileio.cpp Aug 1, 2016.
    ColProbe* getColProbeFromName(const char* probeName);
    HyPerLayer* getLayerFromName(const char* layerName);
 
@@ -346,16 +346,12 @@ public:
    int processParams(char const* path);
    int ioParamsFinishGroup(enum ParamsIOFlag);
    int ioParamsStartGroup(enum ParamsIOFlag ioFlag, const char* group_name);
-   template <typename T>
-   int readArrayFromFile(const char* cp_dir, const char* group_name, const char* val_name, T* val, size_t count, T default_value=(T) 0);
-   template <typename T>
-   int readScalarFromFile(const char* cp_dir, const char* group_name, const char* val_name, T* val, T default_value=(T) 0);
+   // readArrayFromFile moved to fileio.hpp Aug 1, 2016
+   // readScalarFromFile moved to fileio.hpp Aug 1, 2016
    int run() { return run(mStartTime, mStopTime, mDeltaTimeBase); }
    int run(double mStartTime, double mStopTime, double dt);
-   template <typename T>
-   int writeArrayToFile(const char* cp_dir, const char* group_name, const char* val_name, T*  val, size_t count);
-   template <typename T>
-   int writeScalarToFile(const char* cp_dir, const char* group_name, const char* val_name, T val);
+   // writeArrayToFile moved to fileio.hpp Aug 1, 2016
+   // writeScalarToFile moved to fileio.hpp Aug 1, 2016
    template <typename T>
    void ioParamValueRequired(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T * val);
    template <typename T>

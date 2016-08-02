@@ -14,7 +14,8 @@
 #include "include/PVLayerLoc.h"
 #include "columns/Communicator.hpp"
 #include "columns/DataStore.hpp"
-#include "FileStream.hpp"
+#include "io/FileStream.hpp"
+#include "utils/PVLog.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -102,6 +103,90 @@ int readRandState(const char * filename, Communicator * comm, taus_uint4 * randS
 
 template <typename T> int gatherActivity(PV_Stream * pvstream, Communicator * comm, int rootproc, T * buffer, const PVLayerLoc * layerLoc, bool extended);
 template <typename T> int scatterActivity(PV_Stream * pvstream, Communicator * comm, int rootproc, T * buffer, const PVLayerLoc * layerLoc, bool extended, const PVLayerLoc * fileLoc=NULL, int offsetX=0, int offsetY=0, int filetype=PVP_NONSPIKING_ACT_FILE_TYPE, int numActive=0);
+
+
+/**
+ * Uses the arguments directory, objectName, and suffix to create a path of the form
+ * [cpDir]/[objectName]_[suffix].[extension]
+ * (the brackets are not in the created path, but the separators "/", "_", and "." are).
+ * cpDir, objectName, and suffix should not be null.
+ * If extension is null, the result does not contain the period.
+ * If extension is the empty string, the result does contain the period as the last character.
+ * The string returned is allocated with new, and the calling routine is responsible
+ * for deleting the string.
+ */
+std::string * pathInCheckpoint(char const * cpDir, char const * objectName, char const * suffix, char const * extension);
+
+template <typename T>
+int readArrayFromFile(const char * directory, const char* groupName, const char* arrayName, Communicator * comm, T * val, size_t count, T defaultValue=(T) 0) {
+   std::string * filename = pathInCheckpoint(directory, groupName, arrayName, "bin");
+   return readArrayFromFile(filename->c_str(), comm, val, count, defaultValue);
+   delete filename;
+}
+
+template <typename T>
+int readArrayFromFile(char const * filename, Communicator * comm, T * val, size_t count, T defaultValue=(T) 0) {
+   if (comm->commRank()==0)  {
+      PV_Stream * pvstream = PV_fopen(filename, "r", false/*verifyWrites not used when reading*/);
+      if (pvstream==nullptr) {
+         pvError() << "readArrayFromFile unable to open path \"" << filename << "\" for reading.\n";
+      }
+      int num_written = PV_fread(val, sizeof(T), count, pvstream);
+      if (num_written != count) {
+         pvError() << "readArrayFromFile unable to read from \"" << filename << "\".\n";
+      }
+      PV_fclose(pvstream);
+   }
+   MPI_Bcast(val, sizeof(T)*count, MPI_CHAR, 0, comm->communicator());
+   return PV_SUCCESS;
+}
+
+template <typename T>
+int readScalarFromFile(char const * directory, char const * groupName, char const * arrayName, Communicator * comm, T * val, T defaultValue=(T) 0) {
+   return readArrayFromFile(directory, groupName, arrayName, comm, val, (size_t) 1, defaultValue);
+}
+
+template <typename T>
+int writeArrayToFile(char const * directory, char const * groupName, char const * arrayName, Communicator * comm, T * val, size_t count, bool verifyWrites) {
+   std::string * filenamebin = pathInCheckpoint(directory, groupName, arrayName, "bin");
+   std::string * filenametxt = pathInCheckpoint(directory, groupName, arrayName, "txt");
+   return writeArrayToFile(filenamebin->c_str(), filenametxt->c_str(), comm, val, count, verifyWrites);
+   delete filenamebin;
+   delete filenametxt;
+}
+
+template <typename T>
+int writeArrayToFile(char const * filenamebin, char const * filenametxt, Communicator * comm, T *  val, size_t count, bool verifyWrites) {
+   if (comm->commRank()==0)  {
+      PV_Stream * pvstream = PV_fopen(filenamebin, "w", verifyWrites);
+      if (pvstream==nullptr) {
+         pvError().printf("writeArrayToFile unable to open path %s for writing.\n", filenamebin);
+      }
+      int num_written = PV_fwrite(val, sizeof(T), count, pvstream);
+      if (num_written != count) {
+         pvError().printf("writeArrayToFile unable to write to %s.\n", filenamebin);
+      }
+      PV_fclose(pvstream);
+
+      if (filenametxt == nullptr) { return PV_SUCCESS; }
+      std::ofstream fs;
+      fs.open(filenametxt);
+      if (!fs) {
+         pvError() << "writeArrayToFile unable to open path \"" << filenametxt << "\" for writing.\n";
+      }
+      for(int i = 0; i < count; i++){
+         fs << val[i] << "\n";
+      }
+      fs.close();
+   }
+   return PV_SUCCESS;
+}
+
+template <typename T>
+int writeScalarToFile(char const * directory, char const * groupName, char const * arrayName, Communicator * comm, T val, bool verifyWrites) {
+   return writeArrayToFile(directory, groupName, arrayName, comm, &val, (size_t) 1, verifyWrites);
+}
+
 } // namespace PV
 
 #endif /* FILEIO_HPP_ */

@@ -105,8 +105,8 @@ int Movie::readFrameNumStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
    int nbatch = parent->getNBatch();
 
-   parent->readArrayFromFile(cpDir, getName(), "FilenamePos", batchPos, nbatch);
-   parent->readArrayFromFile(cpDir, getName(), "FrameNumbers", frameNumbers, parent->getNBatch());
+   readArrayFromFile(cpDir, getName(), "FilenamePos", parent->getCommunicator(), batchPos, nbatch);
+   readArrayFromFile(cpDir, getName(), "FrameNumbers", parent->getCommunicator(), frameNumbers, parent->getNBatch());
 
    return status;
 }
@@ -117,7 +117,7 @@ int Movie::checkpointRead(const char * cpDir, double * timef){
    // should this be moved to readStateFromCheckpoint?
    if (writeFrameToTimestamp) {
       long timestampFilePos = 0L;
-      parent->readScalarFromFile(cpDir, getName(), "TimestampState", &timestampFilePos, timestampFilePos);
+      readScalarFromFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), &timestampFilePos, timestampFilePos);
       if (timestampFile) {
          assert(parent->getCommunicator()->commRank()==0);
          if (PV_fseek(timestampFile, timestampFilePos, SEEK_SET) != 0) {
@@ -132,13 +132,15 @@ int Movie::checkpointRead(const char * cpDir, double * timef){
 int Movie::checkpointWrite(const char * cpDir){
    int status = Image::checkpointWrite(cpDir);
 
-   parent->writeArrayToFile(cpDir, getName(), "FilenamePos", batchPos, parent->getNBatch());
-   parent->writeArrayToFile(cpDir, getName(), "FrameNumbers", frameNumbers, parent->getNBatch());
+   writeArrayToFile(cpDir, getName(), "FilenamePos", parent->getCommunicator(),
+         batchPos, parent->getNBatch(), parent->getVerifyWrites());
+   writeArrayToFile(cpDir, getName(), "FrameNumbers", parent->getCommunicator(),
+         frameNumbers, parent->getNBatch(), parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file
    if (timestampFile) {
       long timestampFilePos = getPV_StreamFilepos(timestampFile);
-      parent->writeScalarToFile(cpDir, getName(), "TimestampState", timestampFilePos);
+      writeScalarToFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), timestampFilePos, parent->getVerifyWrites());
    }
 
    return status;

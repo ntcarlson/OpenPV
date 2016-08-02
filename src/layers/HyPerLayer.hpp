@@ -240,7 +240,6 @@ protected:
 #ifdef PV_USE_CUDA
    virtual int copyInitialStateToGPU();
 #endif // PV_USE_CUDA
-   char * pathInCheckpoint(const char * cpDir, const char * suffix);
    int readDataStoreFromFile(const char * filename, Communicator * comm, double * timed);
    int incrementNBands(int * numCalls);
    int writeDataStoreToFile(const char * filename, Communicator * comm, double dtime);

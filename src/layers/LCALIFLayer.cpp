@@ -197,18 +197,18 @@ int LCALIFLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 }
 
 int LCALIFLayer::read_integratedSpikeCountFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_integratedSpikeCount.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "integratedSpikeCount", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 
 int LCALIFLayer::readVadptFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_Vadpt.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "Vadpt", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 

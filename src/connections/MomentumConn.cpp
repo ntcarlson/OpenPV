@@ -424,14 +424,14 @@ int MomentumConn::checkpointRead(const char * cpDir, double * timeptr) {
    HyPerConn::checkpointRead(cpDir, timeptr);
    if (!plasticityFlag) return PV_SUCCESS;
    clearWeights(prev_dwDataStart, getNumDataPatches(), nxp, nyp, nfp);
-   char * path = parent->pathInCheckpoint(cpDir, getName(), "_prev_dW.pvp");
+   auto path = pathInCheckpoint(cpDir, getName(), "prev_dW", "pvp");
    PVPatch *** patches_arg = sharedWeights ? NULL : get_wPatches();
    double filetime=0.0;
-   int status = PV::readWeights(patches_arg, prev_dwDataStart, numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path, parent->getCommunicator(), &filetime, pre->getLayerLoc());
+   int status = PV::readWeights(patches_arg, prev_dwDataStart, numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path->c_str(), parent->getCommunicator(), &filetime, pre->getLayerLoc());
    if (parent->getCommunicator()->commRank()==0 && timeptr && *timeptr != filetime) {
       pvWarn().printf("\"%s\" checkpoint has timestamp %g instead of the expected value %g.\n", path, filetime, *timeptr);
    }
-   free(path);
+   delete path;
    return status;
 }
 

@@ -1054,8 +1054,8 @@ int Patterns::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
    if( parent->getCommunicator()->commRank() == 0 ) {
-      char * filename = parent->pathInCheckpoint(cpDir, getName(), "_PatternState.bin");
-      PV_Stream * pvstream = PV_fopen(filename, "r", false/*verifyWrites*/);
+      auto filename = pathInCheckpoint(cpDir, getName(), "PatternState", "bin");
+      PV_Stream * pvstream = PV_fopen(filename->c_str(), "r", false/*verifyWrites*/);
       if( pvstream != NULL ) {
          status = PV_fread(&type, sizeof(PatternType), 1, pvstream) == 1 ? status : PV_FAILURE;
          status = PV_fread(&patternRandState, sizeof(taus_uint4), 1, pvstream) == 1 ? status : PV_FAILURE;
@@ -1079,8 +1079,9 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
          PV_fclose(pvstream);
       }
       else {
-         pvErrorNoExit().printf("Unable to read from \"%s\"\n", filename);
+         pvErrorNoExit().printf("Unable to read from \"%s\"\n", filename->c_str());
       }
+      delete filename;
    }
 
    // TODO improve and polish the way the code handles file I/O and the MPI data buffer.

@@ -285,9 +285,9 @@ int Retina::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 int Retina::readRandStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
    if (spikingFlag) {
-      char * filename = parent->pathInCheckpoint(cpDir, getName(), "_rand_state.bin");
-      status = readRandState(filename, parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), true /*isExtended*/);
-      free(filename);
+      auto filename = pathInCheckpoint(cpDir, getName(), "rand_state", "bin");
+      status = readRandState(filename->c_str(), parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), true /*isExtended*/);
+      delete filename;
    }
    return status;
 }

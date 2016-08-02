@@ -2016,10 +2016,10 @@ int HyPerLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 }
 
 int HyPerLayer::readActivityFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_A.pvp");
-   int status = readBufferFile(filename, parent->getCommunicator(), timeptr, &clayer->activity->data, 1, /*extended*/true, getLayerLoc());
+   auto filename = pathInCheckpoint(cpDir, getName(), "A", "pvp");
+   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &clayer->activity->data, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
-   free(filename);
+   delete filename;
    assert(status==PV_SUCCESS);
    return status;
 }
@@ -2027,20 +2027,20 @@ int HyPerLayer::readActivityFromCheckpoint(const char * cpDir, double * timeptr)
 int HyPerLayer::readVFromCheckpoint(const char * cpDir, double * timeptr) {
    int status = PV_SUCCESS;
    if (getV() != NULL) {
-      char * filename = parent->pathInCheckpoint(cpDir, getName(), "_V.pvp");
+      auto filename = pathInCheckpoint(cpDir, getName(), "V", "pvp");
       pvdata_t * V = getV();
-      status = readBufferFile(filename, parent->getCommunicator(), timeptr, &V, 1, /*extended*/false, getLayerLoc());
+      status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &V, 1, /*extended*/false, getLayerLoc());
       assert(status == PV_SUCCESS);
-      free(filename);
+      delete filename;
    }
    return status;
 }
 
 int HyPerLayer::readDelaysFromCheckpoint(const char * cpDir, double * timeptr) {
-   char * filename = parent->pathInCheckpoint(cpDir, getName(), "_Delays.pvp");
-   int status = readDataStoreFromFile(filename, parent->getCommunicator(), timeptr);
+   auto filename = pathInCheckpoint(cpDir, getName(), "Delays", "pvp");
+   int status = readDataStoreFromFile(filename->c_str(), parent->getCommunicator(), timeptr);
    assert(status == PV_SUCCESS);
-   free(filename);
+   delete filename;
    return status;
 }
 
@@ -2050,13 +2050,13 @@ int HyPerLayer::checkpointRead(const char * cpDir, double * timeptr) {
       pvError().printf("%s: rank %d process failed to read state from checkpoint directory \"%s\"\n", getDescription_c(), parent->getCommunicator()->commRank(), cpDir);
    }
    Communicator * icComm = parent->getCommunicator();
-   parent->readScalarFromFile(cpDir, getName(), "lastUpdateTime", &lastUpdateTime, parent->simulationTime()-parent->getDeltaTime());
-   parent->readScalarFromFile(cpDir, getName(), "nextUpdateTime", &nextUpdateTime, parent->simulationTime()+parent->getDeltaTime());
-   parent->readScalarFromFile(cpDir, getName(), "nextWrite", &writeTime, writeTime);
+   readScalarFromFile(cpDir, getName(), "lastUpdateTime", parent->getCommunicator(), &lastUpdateTime, parent->simulationTime()-parent->getDeltaTime());
+   readScalarFromFile(cpDir, getName(), "nextUpdateTime", parent->getCommunicator(), &nextUpdateTime, parent->simulationTime()+parent->getDeltaTime());
+   readScalarFromFile(cpDir, getName(), "nextWrite", parent->getCommunicator(), &writeTime, writeTime);
 
    if (ioAppend) {
       long activityfilepos = 0L;
-      parent->readScalarFromFile(cpDir, getName(), "filepos", &activityfilepos);
+      readScalarFromFile(cpDir, getName(), "filepos", parent->getCommunicator(), &activityfilepos);
       if (parent->getCommunicator()->commRank()==0 && outputStateStream) {
          if (PV_fseek(outputStateStream, activityfilepos, SEEK_SET) != 0) {
             pvErrorNoExit().printf("HyPerLayer::checkpointRead: unable to recover initial file position in activity file for layer %s\n", name);
@@ -2073,7 +2073,7 @@ int HyPerLayer::checkpointRead(const char * cpDir, double * timeptr) {
          nfname = "numframes";
          num_calls_ptr = &writeActivityCalls;
       }
-      parent->readScalarFromFile(cpDir, getName(), nfname, num_calls_ptr, 0);
+      readScalarFromFile(cpDir, getName(), nfname, parent->getCommunicator(), num_calls_ptr, 0);
    }
    //Need to exchange border information since lastUpdateTime is being read from checkpoint, so no guarentee that publish will call exchange
    status = publisher->exchangeBorders(getLayerLoc());
@@ -2206,38 +2206,38 @@ int HyPerLayer::checkpointWrite(const char * cpDir) {
    Communicator * icComm = parent->getCommunicator();
    double timed = (double) parent->simulationTime();
 
-   char * filename = NULL;
-   filename = parent->pathInCheckpoint(cpDir, getName(), "_A.pvp");
+   std::string * filename = nullptr;
+   filename = pathInCheckpoint(cpDir, getName(), "A", "pvp");
    pvdata_t * A = getActivity();
-   writeBufferFile(filename, icComm, timed, &A, 1, /*extended*/true, getLayerLoc());
+   writeBufferFile(filename->c_str(), icComm, timed, &A, 1, /*extended*/true, getLayerLoc());
    if( getV() != NULL ) {
-      free(filename);
-      filename = parent->pathInCheckpoint(cpDir, getName(), "_V.pvp");
+      delete filename;
+      filename = pathInCheckpoint(cpDir, getName(), "V", "pvp");
       pvdata_t * V = getV();
-      writeBufferFile(filename, icComm, timed, &V, /*numbands*/1, /*extended*/false, getLayerLoc());
+      writeBufferFile(filename->c_str(), icComm, timed, &V, /*numbands*/1, /*extended*/false, getLayerLoc());
    }
-   free(filename);
-   filename = parent->pathInCheckpoint(cpDir, getName(), "_Delays.pvp");
-   writeDataStoreToFile(filename, icComm, timed);
-   free(filename);
+   delete filename;
+   filename = pathInCheckpoint(cpDir, getName(), "Delays", "pvp");
+   writeDataStoreToFile(filename->c_str(), icComm, timed);
+   delete filename;
 
-   parent->writeScalarToFile(cpDir, getName(), "lastUpdateTime", lastUpdateTime);
-   parent->writeScalarToFile(cpDir, getName(), "nextUpdateTime", nextUpdateTime);
-   parent->writeScalarToFile(cpDir, getName(), "nextWrite", writeTime);
+   writeScalarToFile(cpDir, getName(), "lastUpdateTime", parent->getCommunicator(), lastUpdateTime, parent->getVerifyWrites());
+   writeScalarToFile(cpDir, getName(), "nextUpdateTime", parent->getCommunicator(), nextUpdateTime, parent->getVerifyWrites());
+   writeScalarToFile(cpDir, getName(), "nextWrite", parent->getCommunicator(), writeTime, parent->getVerifyWrites());
 
    if (parent->getCommunicator()->commRank()==0) {
       if (outputStateStream) {
          long activityfilepos = getPV_StreamFilepos(outputStateStream);
-         parent->writeScalarToFile(cpDir, getName(), "filepos", activityfilepos);
+         writeScalarToFile(cpDir, getName(), "filepos", parent->getCommunicator(), activityfilepos, parent->getVerifyWrites());
       }
    }
 
    if (writeStep>=0.0f) {
       if (sparseLayer) {
-         parent->writeScalarToFile(cpDir, getName(), "numframes_sparse", writeActivitySparseCalls);
+         writeScalarToFile(cpDir, getName(), "numframes_sparse", parent->getCommunicator(), writeActivitySparseCalls, parent->getVerifyWrites());
       }
       else {
-         parent->writeScalarToFile(cpDir, getName(), "numframes", writeActivityCalls);
+         writeScalarToFile(cpDir, getName(), "numframes", parent->getCommunicator(), writeActivityCalls, parent->getVerifyWrites());
       }
    }
 
