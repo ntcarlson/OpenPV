@@ -136,16 +136,16 @@ void CudaRecvPost::setArgs(
    params.dt_factor = dt_factor;
    params.sharedWeights = sharedWeights;
 
-   params.startSourceExtBuf = (long*)startSourceExtBuf->getPointer();
-   params.preData = (float*)preData->getPointer();
-   params.weights = (float*)weights->getPointer();
-   params.postGsyn = (float*)postGsyn->getPointer();
+   params.startSourceExtBuf = (long*)startSourceExtBuf->getDevicePointer();
+   params.preData = (float*)preData->getDevicePointer();
+   params.weights = (float*)weights->getDevicePointer();
+   params.postGsyn = (float*)postGsyn->getDevicePointer();
 #ifdef PV_USE_CUDNN
-   params.cudnn_weights = (float*)cudnn_weights->getPointer();
-   params.cudnn_preData = (float*)cudnn_preData->getPointer();
-   params.cudnn_gSyn = (float*)cudnn_gSyn->getPointer();
+   params.cudnn_weights = (float*)cudnn_weights->getDevicePointer();
+   params.cudnn_preData = (float*)cudnn_preData->getDevicePointer();
+   params.cudnn_gSyn = (float*)cudnn_gSyn->getDevicePointer();
 #endif // PV_USE_CUDNN
-   params.patch2datalookuptable = (int*)patch2datalookuptable->getPointer();
+   params.patch2datalookuptable = (int*)patch2datalookuptable->getDevicePointer();
 
    params.warpSize = device->get_warp_size();
 
@@ -155,7 +155,7 @@ void CudaRecvPost::setArgs(
    //CUDNN code
    //Calculate how much space is left on the gpu for the workspace memory
    //Do not add to device's count since there might be more than one kernel that needs workspace memory
-   size_t workspaceMem = device->getMemory()/device->getNumConvKernels();
+   size_t workspaceMem = device->getDeviceMemory()/device->getNumConvKernels();
 
    int strideX, strideY;
    int actualXBorder, actualYBorder;

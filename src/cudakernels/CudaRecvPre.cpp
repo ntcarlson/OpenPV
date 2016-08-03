@@ -50,18 +50,18 @@ void CudaRecvPre::setArgs(
    params.dt_factor = dt_factor;
    params.sharedWeights = sharedWeights;
 
-   params.patches = (PVPatch*)patches->getPointer();
-   params.gSynPatchStart = (size_t*)gSynPatchStart->getPointer();
+   params.patches = (PVPatch*)patches->getDevicePointer();
+   params.gSynPatchStart = (size_t*)gSynPatchStart->getDevicePointer();
 
-   params.preData = (float*)preData->getPointer();
-   params.weights = (float*)weights->getPointer();
-   params.postGSyn = (float*)postGSyn->getPointer();
-   params.patch2datalookuptable = (int*)patch2datalookuptable->getPointer();
+   params.preData = (float*)preData->getDevicePointer();
+   params.weights = (float*)weights->getDevicePointer();
+   params.postGSyn = (float*)postGSyn->getDevicePointer();
+   params.patch2datalookuptable = (int*)patch2datalookuptable->getDevicePointer();
 
    params.isSparse = isSparse;
    if(activeIndices){
-      params.numActive = (long*)numActive->getPointer();
-      params.activeIndices = (unsigned int*)activeIndices->getPointer();
+      params.numActive = (long*)numActive->getDevicePointer();
+      params.activeIndices = (unsigned int*)activeIndices->getDevicePointer();
    }
    else{
       params.activeIndices = NULL;

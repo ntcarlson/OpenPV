@@ -60,18 +60,18 @@ void CudaUpdateHyPerLCALayer::setArgs(
    params.up = up;
    params.numChannels = numChannels;
 
-   params.V = (float*) V->getPointer();
+   params.V = (float*) V->getDevicePointer();
 
    params.numVertices = numVertices;
-   params.verticesV = (float*) verticesV->getPointer();
-   params.verticesA = (float*) verticesA->getPointer();
-   params.slopes = (float*) slopes->getPointer();
+   params.verticesV = (float*) verticesV->getDevicePointer();
+   params.verticesA = (float*) verticesA->getDevicePointer();
+   params.slopes = (float*) slopes->getDevicePointer();
    params.selfInteract = selfInteract;
-   params.dtAdapt = (double*) dtAdapt->getPointer();
+   params.dtAdapt = (double*) dtAdapt->getDevicePointer();
    params.tau = tau;
 
-   params.GSynHead = (float*) GSynHead->getPointer();
-   params.activity = (float*) activity->getPointer();
+   params.GSynHead = (float*) GSynHead->getDevicePointer();
+   params.activity = (float*) activity->getDevicePointer();
 
    setArgsFlag();
 }
@@ -115,20 +115,20 @@ void CudaUpdateMomentumLCALayer::setArgs(
    params.up = up;
    params.numChannels = numChannels;
 
-   params.V = (float*) V->getPointer();
-   params.prevDrive = (float*) prevDrive->getPointer();
+   params.V = (float*) V->getDevicePointer();
+   params.prevDrive = (float*) prevDrive->getDevicePointer();
 
    params.numVertices = numVertices;
-   params.verticesV = (float*) verticesV->getPointer();
-   params.verticesA = (float*) verticesA->getPointer();
-   params.slopes = (float*) slopes->getPointer();
+   params.verticesV = (float*) verticesV->getDevicePointer();
+   params.verticesA = (float*) verticesA->getDevicePointer();
+   params.slopes = (float*) slopes->getDevicePointer();
    params.selfInteract = selfInteract;
-   params.dtAdapt = (double*) dtAdapt->getPointer();
+   params.dtAdapt = (double*) dtAdapt->getDevicePointer();
    params.tau = tau;
    params.LCAMomentumRate = LCAMomentumRate;
    
-   params.GSynHead = (float*) GSynHead->getPointer();
-   params.activity = (float*) activity->getPointer();
+   params.GSynHead = (float*) GSynHead->getDevicePointer();
+   params.activity = (float*) activity->getDevicePointer();
    
    setArgsFlag();
 }
@@ -166,14 +166,14 @@ void CudaUpdateISTALayer::setArgs(
   params.up = up;
   params.numChannels = numChannels;
   
-  params.V = (float*) V->getPointer();
+  params.V = (float*) V->getDevicePointer();
   
   params.Vth = Vth;
-  params.dtAdapt = (double*) dtAdapt->getPointer();
+  params.dtAdapt = (double*) dtAdapt->getDevicePointer();
   params.tau = tau;
   
-  params.GSynHead = (float*) GSynHead->getPointer();
-  params.activity = (float*) activity->getPointer();
+  params.GSynHead = (float*) GSynHead->getDevicePointer();
+  params.activity = (float*) activity->getDevicePointer();
     
   setArgsFlag();
 }

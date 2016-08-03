@@ -18,15 +18,13 @@ namespace PVCuda{
  * A class to handle initialization of cuda devices
  */
 class CudaDevice {
-protected:
-   int device_id;                         // device id (normally 0 for GPU, 1 for CPU)
 
 public:
 
    long reserveMem(size_t size);
    void incrementConvKernels();
-   size_t getMemory(){return deviceMem;}
-   size_t getNumConvKernels(){return numConvKernels;}
+   size_t getDeviceMemory(){return mDeviceMemory;}
+   size_t getNumConvKernels(){return mNumConvKernels;}
 
    static int getNumDevices();
 
@@ -47,7 +45,7 @@ public:
     * A getter function to return what device is being used
     * @return The device number of the device being used
     */
-   int id()  { return device_id; }
+   int id()  { return mDeviceId; }
 
 // createBuffer removed Aug 3, 2016.  Instead, CudaBuffer's constuctor calls CudaDevice's reserveMem().
 
@@ -55,7 +53,7 @@ public:
     * A function to return the cuda stream the device is using
     * @return The stream the device is using
     */
-   cudaStream_t getStream(){return stream;}
+   cudaStream_t getStream(){return mStream;}
    
    /**
     * A synchronization barrier to block the cpu from running until the gpu stream has finished
@@ -105,18 +103,18 @@ public:
    size_t get_local_mem();
 
 #ifdef PV_USE_CUDNN
-   void* getCudnnHandle(){return handle;}
+   void* getCudnnHandle(){return mCudnnHandle;}
 #endif
 
-
 protected:
-   int num_devices;                  // number of computing devices
-   struct cudaDeviceProp device_props;
-   cudaStream_t stream;
-   long deviceMem;
-   size_t numConvKernels;
+   int mDeviceId;                    // device id (normally 0 for GPU, 1 for CPU)
+   int mNumDevices;                  // number of computing devices
+   struct cudaDeviceProp mDeviceProperties;
+   cudaStream_t mStream;
+   long mDeviceMemory;
+   size_t mNumConvKernels;
 
-   void* handle;
+   void* mCudnnHandle;
 };
 
 } // namespace PV

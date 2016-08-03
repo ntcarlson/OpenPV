@@ -16,32 +16,32 @@ namespace PVCuda{
 
 CudaDevice::CudaDevice(int device)
 {
-   this->device_id = device;
-   this->handle = NULL;
-   initialize(device_id);
+   mDeviceId = device;
+   mCudnnHandle = NULL;
+   initialize(mDeviceId);
    //Set amount of device memory to global memory
-   this->deviceMem = device_props.totalGlobalMem;
+   mDeviceMemory = mDeviceProperties.totalGlobalMem;
 }
 
 CudaDevice::~CudaDevice()
 {
-   handleError(cudaStreamDestroy(stream), "Cuda Device Destructor");
+   handleError(cudaStreamDestroy(mStream), "Cuda Device Destructor");
    //TODO set handleError to take care of this
 
 #ifdef PV_USE_CUDNN
-   if(handle){
-      cudnnDestroy((cudnnHandle_t)handle);
+   if(mCudnnHandle){
+      cudnnDestroy((cudnnHandle_t)mCudnnHandle);
    }
 #endif
 }
 
 void CudaDevice::incrementConvKernels(){
-   numConvKernels++;
+   mNumConvKernels++;
 }
 
 long CudaDevice::reserveMem(size_t size){
-   deviceMem -= size;
-   return deviceMem;
+   mDeviceMemory -= size;
+   return mDeviceMemory;
 }
 
 
@@ -58,12 +58,12 @@ int CudaDevice::initialize(int device)
 #ifdef PV_USE_CUDA
    handleError(cudaThreadExit(), "Thread exiting in initialize");
 
-   handleError(cudaGetDeviceCount(&num_devices), "Getting device count");
+   handleError(cudaGetDeviceCount(&mNumDevices), "Getting device count");
    handleError(cudaSetDevice(device), "Setting device");
 
-   handleError(cudaStreamCreate(&stream), "Creating stream");
+   handleError(cudaStreamCreate(&mStream), "Creating stream");
 
-   handleError(cudaGetDeviceProperties(&device_props, device), "Getting device properties");
+   handleError(cudaGetDeviceProperties(&mDeviceProperties, device), "Getting device properties");
 
    status = 0;
 #endif // PV_USE_CUDA
@@ -87,12 +87,12 @@ int CudaDevice::initialize(int device)
       }
       exit(EXIT_FAILURE);
    }
-   cudnnStatus = cudnnSetStream(tmpHandle, stream);
+   cudnnStatus = cudnnSetStream(tmpHandle, mStream);
    if(cudnnStatus != CUDNN_STATUS_SUCCESS){
       pvError().printf("cudnnSetStream error: %s\n", cudnnGetErrorString(cudnnStatus));
    }
 
-   this->handle = (void*) tmpHandle;
+   this->mCudnnHandle = (void*) tmpHandle;
 #endif
 
    return status;
@@ -107,10 +107,10 @@ int CudaDevice::query_device_info()
    // query and print information about the devices found
    //
    pvInfo().printf("\n");
-   pvInfo().printf("Number of Cuda devices found: %d\n", num_devices);
+   pvInfo().printf("Number of Cuda devices found: %d\n", mNumDevices);
    pvInfo().printf("\n");
 
-   for (unsigned int i = 0; i < num_devices; i++) {
+   for (unsigned int i = 0; i < mNumDevices; i++) {
       query_device(i);
    }
    return 0;
@@ -120,8 +120,8 @@ void CudaDevice::query_device(int id)
 {
    struct cudaDeviceProp props;
    //Use own props if current device
-   if(id == device_id){
-      props = device_props;
+   if(id == mDeviceId){
+      props = mDeviceProperties;
    }
    //Otherwise, generate props
    else{
@@ -158,25 +158,25 @@ void CudaDevice::query_device(int id)
 }
 
 int CudaDevice::get_max_threads(){
-   return device_props.maxThreadsPerBlock;
+   return mDeviceProperties.maxThreadsPerBlock;
 }
 
 int CudaDevice::get_max_block_size_dimension(int dimension){
    if(dimension < 0 || dimension >= 3) return 0;
-   return device_props.maxThreadsDim[dimension];
+   return mDeviceProperties.maxThreadsDim[dimension];
 }
 
 int CudaDevice::get_max_grid_size_dimension(int dimension){
    if(dimension < 0 || dimension >= 3) return 0;
-   return device_props.maxGridSize[dimension];
+   return mDeviceProperties.maxGridSize[dimension];
 }
 
 int CudaDevice::get_warp_size(){
-   return device_props.warpSize;
+   return mDeviceProperties.warpSize;
 }
 
 size_t CudaDevice::get_local_mem(){
-   return device_props.sharedMemPerBlock;
+   return mDeviceProperties.sharedMemPerBlock;
 }
 
 }

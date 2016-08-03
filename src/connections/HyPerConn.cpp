@@ -3302,7 +3302,7 @@ void HyPerConn::updateDeviceWeights(){
    //float preToPostScaleY = (float)preLoc->ny/((float)postLoc->ny);
 
    pvAssert(cudnn_WData);
-   cudnn_WData->permuteWeightsPVToCudnn(d_weights->getPointer(), numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp);
+   cudnn_WData->permuteWeightsPVToCudnn(d_weights->getDevicePointer(), numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp);
 # endif
 }
 

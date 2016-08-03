@@ -36,8 +36,8 @@ void CudaPermuteWeightsPVToCudnn(float* dest, float* src, int numArbors, int out
 
 namespace PVCuda {
 
-void CudaBuffer::callCudaPermuteWeightsPVToCudnn(int gridSize, int blockSize, void* d_inPtr, int numArbors, int outFeatures, int ny, int nx, int inFeatures) {
-   CudaPermuteWeightsPVToCudnn<<<gridSize, blockSize, 0, device->getStream()>>>((float*)d_ptr, (float*)d_inPtr, numArbors, outFeatures, ny, nx, inFeatures);
+void CudaBuffer::callCudaPermuteWeightsPVToCudnn(int gridSize, int blockSize, void* deviceInPointer, int numArbors, int outFeatures, int ny, int nx, int inFeatures) {
+   CudaPermuteWeightsPVToCudnn<<<gridSize, blockSize, 0, mDevice->getStream()>>>((float*)mDevicePointer, (float*)deviceInPointer, numArbors, outFeatures, ny, nx, inFeatures);
 }
 
 
