@@ -15,17 +15,13 @@ namespace PVCuda {
 
 CudaBuffer::CudaBuffer(size_t inSize, CudaDevice * inDevice)
 {
-   long memLeft = inDevice->reserveMem(inSize);
-   if(memLeft < 0){
-      pvError().printf("CudaDevice createBuffer: out of memory\n");
-   }
-   handleError(cudaMalloc(&mDevicePointer, inSize), "CudaBuffer constructor");
+   this->mSize = inSize;
+   this->mDevice = inDevice;
+   handleError(cudaMalloc(&mDevicePointer, mSize), "CudaBuffer constructor");
    if(!mDevicePointer){
       pvError().printf("Cuda Buffer allocation error\n");
    }
    // Do we need all three of these error checks?
-   this->mSize = inSize;
-   this->mDevice = inDevice;
 }
 
 CudaBuffer::~CudaBuffer()

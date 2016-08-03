@@ -1310,7 +1310,7 @@ int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
       if(updateGSynFromPostPerspective){
          setAllocPostDeviceWeights();
          //Increment number of postKernels for workspace memory
-         parent->getDevice()->incrementConvKernels();
+         PVCuda::CudaDevice::instance()->incrementConvKernels();
       }
       else{
          setAllocDeviceWeights();
@@ -1598,7 +1598,7 @@ int HyPerConn::allocatePostDeviceWeights(){
 }
 
 int HyPerConn::allocateDeviceWeights(){
-   PVCuda::CudaDevice * device = parent->getDevice();
+   PVCuda::CudaDevice * device = PVCuda::CudaDevice::instance();
    const size_t size = numberOfAxonalArborLists() * getNumDataPatches() * xPatchSize() * yPatchSize() * fPatchSize() * sizeof(pvwdata_t);
    d_WData = new PVCuda::CudaBuffer(size, device);
    pvAssert(d_WData);
@@ -1612,7 +1612,7 @@ int HyPerConn::allocateDeviceBuffers()
 {
    int status = 0;
 
-   PVCuda::CudaDevice * device = parent->getDevice();
+   PVCuda::CudaDevice * device = PVCuda::CudaDevice::instance();
 
    bool needAlloc = true;
    if(allocDeviceWeights || allocPostDeviceWeights){
@@ -1729,7 +1729,7 @@ int HyPerConn::allocateDeviceBuffers()
 int HyPerConn::allocateReceivePreKernel()
 {
    int status = 0;
-   PVCuda::CudaDevice * device = parent->getDevice();
+   PVCuda::CudaDevice * device = PVCuda::CudaDevice::instance();
    krRecvPre = new PVCuda::CudaRecvPre(device);
 
    const PVLayerLoc * preLoc = pre->getLayerLoc();
@@ -1813,7 +1813,7 @@ int HyPerConn::allocateReceivePostKernel()
 {
    pvInfo() << name << " setting up post kernel\n";
    int status = 0;
-   PVCuda::CudaDevice * device = parent->getDevice();
+   PVCuda::CudaDevice * device = PVCuda::CudaDevice::instance();
    krRecvPost = new PVCuda::CudaRecvPost(device);
 
    const PVLayerLoc * preLoc = pre->getLayerLoc();
@@ -3290,7 +3290,7 @@ void HyPerConn::updateDeviceWeights(){
    d_weights->copyToDevice(h_weights);
 
    //Need barrier here?
-   parent->getDevice()->syncDevice();
+   PVCuda::CudaDevice::instance()->syncDevice();
 
 # ifdef PV_USE_CUDNN
    //Set local sizes here
@@ -3399,7 +3399,7 @@ int HyPerConn::deliverPresynapticPerspectiveGPU(PVLayerCube const * activity, in
 
    //krRecvPre->set_numActive(totActiveNeuron);
 
-   int maxThreads = parent->getDevice()->get_max_threads();
+   int maxThreads = PVCuda::CudaDevice::instance()->get_max_threads();
    int numLocalThreads = totPatchSize < maxThreads ? totPatchSize : maxThreads;
 
    krRecvPre->run_nocheck(totThreads, numLocalThreads);

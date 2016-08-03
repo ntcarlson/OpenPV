@@ -231,6 +231,7 @@ macro(pv_config_project)
       
       find_package(CUDA)
       find_package(CUDNN)
+      set(CUDA_LIBRARIES ${CUDA_LIBRARIES} ${CUDA_CUDA_LIBRARY})
       
       # Set cuda compile flags
       if(CUDA_FOUND AND CUDNN_FOUND)

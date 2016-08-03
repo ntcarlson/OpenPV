@@ -452,7 +452,6 @@ private:
 #ifdef PV_USE_CUDA
 public:
    BaseConnection* getGpuGroupConn(int gpuGroupIdx) { return mGpuGroupConns.at(gpuGroupIdx); }
-   PVCuda::CudaDevice * getDevice() { return mCudaDevice; }
 #endif
 
    // Private functions
@@ -487,6 +486,10 @@ private:
     */
    int setNumThreads(bool printMessagesFlag);
    void initDtAdaptControlProbe();
+#ifdef PV_USE_CUDA
+public:
+   PVCuda::CudaDevice * cudaDevice() { return PVCuda::CudaDevice::instance(); }
+#endif
 
    // Private variables
 
@@ -600,7 +603,6 @@ private:
    //The list of GPU group showing which connection's buffer to use
    std::vector<BaseConnection*> mGpuGroupConns; //BaseConnection** mGpuGroupConns;
    int mNumGpuGroup;
-   PVCuda::CudaDevice * mCudaDevice;    // object for running kernels on OpenCL device
 #endif
 
 }; // class HyPerCol

@@ -162,16 +162,6 @@ int HyPerCol::initialize_base() {
    mNumYGlobal = 0;
    mNumBatch = 1;
    mNumBatchGlobal = 1;
-   mOrigStdOut = -1;
-   mOrigStdErr = -1;
-   mConnectionStatus = NULL;
-   mOutputPath = NULL;
-   mPrintParamsFilename = NULL;
-   mNumXGlobal = 0;
-   mNumYGlobal = 0;
-   mNumBatch = 1;
-   mNumBatchGlobal = 1;
-   //mOwnsParams = true;
    mOwnsCommunicator = true;
    mParams = nullptr;
    mCommunicator = nullptr;
@@ -183,15 +173,12 @@ int HyPerCol::initialize_base() {
    mFilenamesContainLayerNames = 0;
    mFilenamesContainConnectionNames = 0;
    mRandomSeed = 0U;
-   //mRandomSeedObj = 0U;
    mWriteTimescales = true; //Defaults to true
    mErrorOnNotANumber = false;
    mNumThreads = 1;
    mRecvLayerBuffer.clear();
    mVerifyWrites = true; // Default for reading back and verifying when calling PV_fwrite
 #ifdef PV_USE_CUDA
-   mCudaDevice = nullptr;
-   //mGpuGroupConns = nullptr;
    mGpuGroupConns.clear();
 #endif
    return PV_SUCCESS;
@@ -403,7 +390,7 @@ int HyPerCol::initialize(const char * name, PV_Init* initObj)
    //Only print rank for comm rank 0
    if(globalRank() == 0){
 #ifdef PV_USE_CUDA
-      mCudaDevice->query_device_info();
+      cudaDevice()->query_device_info();
 #endif
    }
 
@@ -1799,12 +1786,12 @@ int HyPerCol::advanceTime(double sim_time)
 
       });
 
-      getDevice()->syncDevice();
+      cudaDevice()->syncDevice();
 
       //Update for receiving on cpu and updating on gpu
       notify(std::make_shared<LayerUpdateStateMessage>(phase, false/*recvOnGpuFlag*/, true/*updateOnGpuFlag*/, mSimTime, mDeltaTimeBase));
 
-      getDevice()->syncDevice();
+      cudaDevice()->syncDevice();
       notify(std::make_shared<LayerCopyFromGpuMessage>(phase, mPhaseRecvTimers.at(phase)));
 
       //Update for gpu recv and non gpu update
@@ -2526,7 +2513,7 @@ int HyPerCol::initializeThreads(char const * in_device)
    }
 
 #ifdef PV_USE_CUDA
-   mCudaDevice = new PVCuda::CudaDevice(device);
+   cudaDevice()->initialize(device);
 #endif
    return 0;
 }
@@ -2534,15 +2521,7 @@ int HyPerCol::initializeThreads(char const * in_device)
 #ifdef PV_USE_CUDA
 int HyPerCol::finalizeThreads()
 {
-   delete mCudaDevice;
-   //if(mGpuGroupConns){
-   //   free(mGpuGroupConns);
-   //}
-   for(auto iterator = mGpuGroupConns.begin(); iterator != mGpuGroupConns.end();)
-   {
-      delete *iterator;
-      iterator = mGpuGroupConns.erase(iterator);
-   }
+   for(auto& g : mGpuGroupConns) { delete g; } mGpuGroupConns.clear();
    return 0;
 }
 

@@ -5,6 +5,7 @@
 #include "conversions.hcu"
 #include "utils/PVLog.hpp"
 #include "utils/PVAssert.hpp"
+#include <cuda.h>
 
 namespace PVCuda{
 
@@ -155,7 +156,12 @@ void CudaRecvPost::setArgs(
    //CUDNN code
    //Calculate how much space is left on the gpu for the workspace memory
    //Do not add to device's count since there might be more than one kernel that needs workspace memory
-   size_t workspaceMem = device->getDeviceMemory()/device->getNumConvKernels();
+   size_t free;
+   size_t total;
+   CUresult cudaStatus = cuMemGetInfo(&free, &total);
+   pvErrorIf(cudaStatus!=CUDA_SUCCESS, "cuMemGetInfo failed with error code %d\n", cudaStatus);
+   // Is there a cudaError_t-based interface for getting free memory, so that we can use handleError?
+   size_t workspaceMem = free/device->getNumConvKernels();
 
    int strideX, strideY;
    int actualXBorder, actualYBorder;

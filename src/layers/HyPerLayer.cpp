@@ -159,17 +159,10 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
 
 #ifdef PV_USE_CUDA
    this->gpu_recvsyn_timer = new PVCuda::CudaTimer(getName(), "layer", "gpurecvsyn");
-   this->gpu_recvsyn_timer->setStream(hc->getDevice()->getStream());
+   auto stream = PVCuda::CudaDevice::instance()->getStream();
+   this->gpu_recvsyn_timer->setStream(stream);
    this->gpu_update_timer = new PVCuda::CudaTimer(getName(), "layer", "gpuupdate");
-   this->gpu_update_timer->setStream(hc->getDevice()->getStream());
-#ifdef PV_USE_CUDNN
-   //this->permute_weights_timer = new PVCuda::CudaTimer(getName(), "layer", "gpuWeightsPermutate");
-   //this->permute_weights_timer->setStream(hc->getDevice()->getStream());
-   //this->permute_preData_timer = new PVCuda::CudaTimer(getName(), "layer", "gpuPreDataPermutate");
-   //this->permute_preData_timer->setStream(hc->getDevice()->getStream());
-   //this->permute_postGSyn_timer = new PVCuda::CudaTimer(getName(), "layer", "gpuPostGSynPermutate");
-   //this->permute_postGSyn_timer->setStream(hc->getDevice()->getStream());
-#endif
+   this->gpu_update_timer->setStream(stream);
 #endif
 
    PVParams * params = getParams();
@@ -1002,7 +995,7 @@ int HyPerLayer::allocateDeviceBuffers()
    const size_t size    = getNumNeuronsAllBatches()  * sizeof(float);
    const size_t size_ex = getNumExtendedAllBatches() * sizeof(float);
    
-   PVCuda::CudaDevice * device = parent->getDevice();
+   PVCuda::CudaDevice * device = PVCuda::CudaDevice::instance();
 
    //Allocate based on which flags are set
    if(allocDeviceV){
@@ -1842,7 +1835,7 @@ float HyPerLayer::addGpuTimers(){
 
 void HyPerLayer::syncGpu(){
    if(recvGpu || updateGpu){
-      parent->getDevice()->syncDevice();
+      PVCuda::CudaDevice::instance()->syncDevice();
    }
 }
 

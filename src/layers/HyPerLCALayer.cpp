@@ -123,7 +123,7 @@ int HyPerLCALayer::requireChannel(int channelNeeded, int * numChannelsResult) {
 
 #ifdef PV_USE_CUDA
 int HyPerLCALayer::allocateUpdateKernel(){
-   PVCuda::CudaDevice * device = parent->getDevice();
+   PVCuda::CudaDevice * device = PVCuda::CudaDevice::instance();
    //Set to temp pointer of the subclass
    PVCuda::CudaUpdateHyPerLCALayer * updateKernel = new PVCuda::CudaUpdateHyPerLCALayer(device);
    //Set arguments

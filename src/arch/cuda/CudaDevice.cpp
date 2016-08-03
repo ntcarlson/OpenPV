@@ -14,13 +14,17 @@
 
 namespace PVCuda{
 
-CudaDevice::CudaDevice(int device)
-{
-   mDeviceId = device;
-   mCudnnHandle = NULL;
-   initialize(mDeviceId);
-   //Set amount of device memory to global memory
-   mDeviceMemory = mDeviceProperties.totalGlobalMem;
+CudaDevice* CudaDevice::instance() {
+   static CudaDevice * singleton = new CudaDevice();
+   return singleton;
+}
+
+CudaDevice::CudaDevice() {
+   mDeviceId = -1;
+   mNumDevices = 0;
+   mStream = nullptr;
+   mNumConvKernels = (size_t) 0;
+   mCudnnHandle = nullptr;
 }
 
 CudaDevice::~CudaDevice()
@@ -35,37 +39,24 @@ CudaDevice::~CudaDevice()
 #endif
 }
 
-void CudaDevice::incrementConvKernels(){
-   mNumConvKernels++;
-}
-
-long CudaDevice::reserveMem(size_t size){
-   mDeviceMemory -= size;
-   return mDeviceMemory;
-}
-
-
-int CudaDevice::getNumDevices(){
-   int returnVal;
-   handleError(cudaGetDeviceCount(&returnVal), "Static getting device count");
-   return returnVal;
-}
-
-int CudaDevice::initialize(int device)
+void CudaDevice::initialize(int deviceId)
 {
-   int status = 0;
+   if (mDeviceId>=0 && deviceId!=mDeviceId) {
+      pvError() << "CudaDevice has already been initialized to device " << mDeviceId << ".\n";
+   }
+   mDeviceId = deviceId;
+   mCudnnHandle = nullptr;
 
 #ifdef PV_USE_CUDA
    handleError(cudaThreadExit(), "Thread exiting in initialize");
 
    handleError(cudaGetDeviceCount(&mNumDevices), "Getting device count");
-   handleError(cudaSetDevice(device), "Setting device");
+   handleError(cudaSetDevice(deviceId), "Setting device");
 
    handleError(cudaStreamCreate(&mStream), "Creating stream");
 
-   handleError(cudaGetDeviceProperties(&mDeviceProperties, device), "Getting device properties");
+   handleError(cudaGetDeviceProperties(&mDeviceProperties, deviceId), "Getting device properties");
 
-   status = 0;
 #endif // PV_USE_CUDA
    
 #ifdef PV_USE_CUDNN
@@ -94,8 +85,16 @@ int CudaDevice::initialize(int device)
 
    this->mCudnnHandle = (void*) tmpHandle;
 #endif
+}
 
-   return status;
+void CudaDevice::incrementConvKernels(){
+   mNumConvKernels++;
+}
+
+int CudaDevice::getNumDevices(){
+   int returnVal;
+   handleError(cudaGetDeviceCount(&returnVal), "Static getting device count");
+   return returnVal;
 }
 
 void CudaDevice::syncDevice(){

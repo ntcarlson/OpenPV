@@ -19,27 +19,25 @@ namespace PVCuda{
  */
 class CudaDevice {
 
+private:
+   CudaDevice();
+   virtual ~CudaDevice();
+
 public:
+   static CudaDevice * instance();
 
    long reserveMem(size_t size);
+   long releaseMem(size_t size);
    void incrementConvKernels();
-   size_t getDeviceMemory(){return mDeviceMemory;}
    size_t getNumConvKernels(){return mNumConvKernels;}
 
    static int getNumDevices();
 
    /**
-    * A constructor to create the device object
-    * @param device The device number to use
-    */
-   CudaDevice(int device);
-   virtual ~CudaDevice();
-
-   /**
     * A function to initialize the device
     * @param device The device number to initialize
     */
-   int initialize(int device);
+   void initialize(int deviceId);
 
    /**
     * A getter function to return what device is being used
@@ -111,7 +109,6 @@ protected:
    int mNumDevices;                  // number of computing devices
    struct cudaDeviceProp mDeviceProperties;
    cudaStream_t mStream;
-   long mDeviceMemory;
    size_t mNumConvKernels;
 
    void* mCudnnHandle;
