@@ -50,7 +50,7 @@ int main(int argc, char * argv[])
    PV::HyPerConn * cCocirc2to1 = new HyPerConn("test_cocirc cocircconn 2 to 1", hc);
    assert(cCocirc2to1);
 
-   hc->ensureDirExists(hc->getOutputPath());
+   ensureDirExists(hc->getCommunicator(), hc->getOutputPath());
    
    auto objectHierarchy = hc->copyObjectHierarchy();
    auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(*objectHierarchy);

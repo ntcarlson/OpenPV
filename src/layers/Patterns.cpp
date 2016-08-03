@@ -470,7 +470,7 @@ void Patterns::ioParam_patternsOutputPath(enum ParamsIOFlag ioFlag) {
    if (writeImages) {
       parent->ioParamString(ioFlag, name, "patternsOutputPath", &patternsOutputPath, parent->getOutputPath());
       if (ioFlag == PARAMS_IO_READ) {
-         parent->ensureDirExists(patternsOutputPath);
+         ensureDirExists(getCommunicator(), patternsOutputPath);
       }
    }
 }

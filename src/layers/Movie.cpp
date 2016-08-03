@@ -172,13 +172,13 @@ int Movie::initialize(const char * name, HyPerCol * hc) {
 
    // set output path for movie frames
    if(writeImages){
-      status = parent->ensureDirExists(movieOutputPath);
+      status = ensureDirExists(getCommunicator(), movieOutputPath);
    }
 
    if(writeFrameToTimestamp){
       std::string timestampFilename = std::string(parent->getOutputPath());
       timestampFilename += "/timestamps/";
-      parent->ensureDirExists(timestampFilename.c_str());
+      ensureDirExists(getCommunicator(), timestampFilename.c_str());
       timestampFilename += name;
       timestampFilename += ".txt";
       if(getCommunicator()->commRank()==0){

@@ -415,13 +415,13 @@ int LocalizationProbe::communicateInitInfo(PV::CommunicateInitInfoMessage const 
    }
 
    // If drawing montages, create montage directory and label files.
-   // Under MPI, all process must call HyPerCol::ensureDirExists() even though
+   // Under MPI, all process must call ensureDirExists() even though
    // only the root process interacts with the filesystem.
    if (drawMontage) {
       featurefieldwidth = (int) ceilf(log10f((float) (nf+1)));
 
       // Make the heat map montage directory if it doesn't already exist
-      status = parent->ensureDirExists(heatMapMontageDir);
+      status = ensureDirExists(getCommunicator(), heatMapMontageDir);
       if (status!=PV_SUCCESS) {
          pvError().printf("Error: Unable to make heat map montage directory \"%s\": %s\n", heatMapMontageDir, strerror(errno));
       }
@@ -431,7 +431,7 @@ int LocalizationProbe::communicateInitInfo(PV::CommunicateInitInfoMessage const 
       labelsdirss << heatMapMontageDir << "/labels";
       // It seems ensureDirExists(labelsdirss.str().c_str()) should work, but it didn't
       char * labelsDir = strdup(labelsdirss.str().c_str());
-      status = parent->ensureDirExists(labelsDir);
+      status = ensureDirExists(getCommunicator(), labelsDir);
       if (status!=PV_SUCCESS) {
          pvError().printf("Error: Unable to make heat map montage labels directory: %s\n", strerror(errno));
       }
