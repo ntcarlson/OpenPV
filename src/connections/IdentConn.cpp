@@ -33,7 +33,7 @@ int IdentConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = HyPerConn::ioParamsFillGroup(ioFlag);
 
    // April 15, 2016: Scale moved from IdentConn to RescaleConn.
-   if (!strcmp(getKeyword(), "IdentConn") && parent->parameters()->present(name, "scale")) {
+   if (!strcmp(getKeyword(), "IdentConn") && getParams()->present(name, "scale")) {
       pvErrorNoExit().printf("IdentConn \"%s\": IdentConn does not take a scale parameter.  Use RescaleConn instead.\n", name);
    }
 
@@ -45,7 +45,7 @@ void IdentConn::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
    //Never receive from gpu
    receiveGpu = false;
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "receiveGpu", false/*correctValue*/);
+      getParams()->handleUnnecessaryParameter(name, "receiveGpu", false/*correctValue*/);
    }
 }
 #endif // PV_USE_CUDA
@@ -56,21 +56,21 @@ void IdentConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    sharedWeights = true;
    if (ioFlag == PARAMS_IO_READ) {
       fileType = PVP_KERNEL_FILE_TYPE;
-      parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights", true/*correctValue*/);
+      getParams()->handleUnnecessaryParameter(name, "sharedWeights", true/*correctValue*/);
    }
 }
 
 void IdentConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights");
+      getParams()->handleUnnecessaryParameter(name, "sharedWeights");
    }
 }
 
 void IdentConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       weightInitializer = new InitIdentWeights(name, parent);
-      parent->parameters()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
+      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
    }
 }
 
@@ -81,14 +81,14 @@ void IdentConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
 void IdentConn::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       numAxonalArborLists = 1;
-      parent->parameters()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
+      getParams()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
    }
 }
 
 void IdentConn::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       plasticityFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
+      getParams()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
    }
 }
 
@@ -97,24 +97,24 @@ void IdentConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       pvpatchAccumulateTypeString = strdup("convolve");
       pvpatchAccumulateType = CONVOLVE;
-      parent->parameters()->handleUnnecessaryStringParameter(name, "pvpatchAccumulateType", "convolve", true/*case insensitive*/);
+      getParams()->handleUnnecessaryStringParameter(name, "pvpatchAccumulateType", "convolve", true/*case insensitive*/);
    }
 }
 void IdentConn::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      if (parent->parameters()->present(name, "writeStep")) {
+      if (getParams()->present(name, "writeStep")) {
          parent->ioParamValue(ioFlag, name, "writeStep", &writeStep, -1.0/*default*/, false/*warnIfAbsent*/);
          if (writeStep>=0) {
-            if (parent->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("%s does not use writeStep, but the parameters file sets it to %f.\n", getDescription_c(), writeStep);
             }
-            MPI_Barrier(parent->getCommunicator()->communicator());
+            MPI_Barrier(getCommunicator()->communicator());
             exit(EXIT_FAILURE);
          }
       }
       else {
          writeStep = -1.0;
-         parent->parameters()->handleUnnecessaryParameter(name, "writeStep");
+         getParams()->handleUnnecessaryParameter(name, "writeStep");
       }
    }
 }
@@ -122,27 +122,27 @@ void IdentConn::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
 void IdentConn::ioParam_convertRateToSpikeCount(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       this->convertRateToSpikeCount = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "convertRateToSpikeCount", this->convertRateToSpikeCount);
+      getParams()->handleUnnecessaryParameter(name, "convertRateToSpikeCount", this->convertRateToSpikeCount);
    }
 }
 
 void IdentConn::ioParam_writeCompressedWeights(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       writeCompressedWeights = true;
-      parent->parameters()->handleUnnecessaryParameter(name, "writeCompressedWeights", writeCompressedWeights);
+      getParams()->handleUnnecessaryParameter(name, "writeCompressedWeights", writeCompressedWeights);
    }
 }
 void IdentConn::ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       writeCompressedCheckpoints = true;
-      parent->parameters()->handleUnnecessaryParameter(name, "writeCompressedCheckpoints", writeCompressedCheckpoints);
+      getParams()->handleUnnecessaryParameter(name, "writeCompressedCheckpoints", writeCompressedCheckpoints);
    }
 }
 
 void IdentConn::ioParam_selfFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       selfFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "selfFlag", selfFlag);
+      getParams()->handleUnnecessaryParameter(name, "selfFlag", selfFlag);
    }
 }
 
@@ -150,7 +150,7 @@ void IdentConn::ioParam_combine_dW_with_W_flag(enum ParamsIOFlag ioFlag) {
    assert(plasticityFlag==false);
    // readCombine_dW_with_W_flag only used if when plasticityFlag is true, which it never is for IdentConn
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "combine_dW_with_W_flag", combine_dW_with_W_flag);
+      getParams()->handleUnnecessaryParameter(name, "combine_dW_with_W_flag", combine_dW_with_W_flag);
    }
    return;
 }
@@ -158,21 +158,21 @@ void IdentConn::ioParam_combine_dW_with_W_flag(enum ParamsIOFlag ioFlag) {
 void IdentConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       keepKernelsSynchronized_flag = true;
-      parent->parameters()->handleUnnecessaryParameter(name, "keepKernelsSynchronized", keepKernelsSynchronized_flag);
+      getParams()->handleUnnecessaryParameter(name, "keepKernelsSynchronized", keepKernelsSynchronized_flag);
    }
 }
 
 void IdentConn::ioParam_weightUpdatePeriod(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       weightUpdatePeriod = 1.0f;
-      parent->parameters()->handleUnnecessaryParameter(name, "weightUpdatePeriod", weightUpdatePeriod);
+      getParams()->handleUnnecessaryParameter(name, "weightUpdatePeriod", weightUpdatePeriod);
    }
 }
 
 void IdentConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initialWeightUpdateTime = 0.0f;
-      parent->parameters()->handleUnnecessaryParameter(name, "initialWeightUpdateTime", initialWeightUpdateTime);
+      getParams()->handleUnnecessaryParameter(name, "initialWeightUpdateTime", initialWeightUpdateTime);
       weightUpdateTime = initialWeightUpdateTime;
    }
 }
@@ -180,41 +180,41 @@ void IdentConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag) {
 void IdentConn::ioParam_nxp(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       nxp = 1;
-      parent->parameters()->handleUnnecessaryParameter(name, "nxp", 1);
+      getParams()->handleUnnecessaryParameter(name, "nxp", 1);
    }
 }
 
 void IdentConn::ioParam_nyp(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       nyp = 1;
-      parent->parameters()->handleUnnecessaryParameter(name, "nyp", 1);
+      getParams()->handleUnnecessaryParameter(name, "nyp", 1);
    }
 }
 
 void IdentConn::ioParam_nfp(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "nfp", -1);
+      getParams()->handleUnnecessaryParameter(name, "nfp", -1);
    }
 }
 
 void IdentConn::ioParam_shrinkPatches(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       shrinkPatches_flag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "shrinkPatches", shrinkPatches_flag);
+      getParams()->handleUnnecessaryParameter(name, "shrinkPatches", shrinkPatches_flag);
    }
 }
 
 void IdentConn::ioParam_updateGSynFromPostPerspective(enum ParamsIOFlag ioFlag){
    if (ioFlag == PARAMS_IO_READ) {
       updateGSynFromPostPerspective = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "updateGSynFromPostPerspective", updateGSynFromPostPerspective);
+      getParams()->handleUnnecessaryParameter(name, "updateGSynFromPostPerspective", updateGSynFromPostPerspective);
    }
 }
 
 int IdentConn::setWeightInitializer() {
    weightInitializer = (InitWeights *) new InitIdentWeights(name, parent);
    if( weightInitializer == NULL ) {
-      pvError().printf("IdentConn \"%s\": Rank %d process unable to create InitIdentWeights object.  Exiting.\n", name, parent->getCommunicator()->commRank());
+      pvError().printf("IdentConn \"%s\": Rank %d process unable to create InitIdentWeights object.  Exiting.\n", name, getCommunicator()->commRank());
    }
    return PV_SUCCESS;
 }
@@ -225,13 +225,13 @@ int IdentConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    const PVLayerLoc * preLoc = pre->getLayerLoc();
    const PVLayerLoc * postLoc = post->getLayerLoc();
    if( preLoc->nx != postLoc->nx || preLoc->ny != postLoc->ny || preLoc->nf != postLoc->nf ) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("IdentConn \"%s\" Error: %s and %s do not have the same dimensions.\n Dims: %dx%dx%d vs. %dx%dx%d\n",
                   name, preLayerName,postLayerName,preLoc->nx,preLoc->ny,preLoc->nf,postLoc->nx,postLoc->ny,postLoc->nf);
       }
       exit(EXIT_FAILURE);
    }
-   parent->parameters()->handleUnnecessaryParameter(name, "nfp", nfp); // nfp is set during call to HyPerConn::communicateInitInfo, so don't check for unnecessary int parameter until after that.
+   getParams()->handleUnnecessaryParameter(name, "nfp", nfp); // nfp is set during call to HyPerConn::communicateInitInfo, so don't check for unnecessary int parameter until after that.
    return status;
 }
 
@@ -258,7 +258,7 @@ int IdentConn::deliverPresynapticPerspective(PVLayerCube const * activity, int a
 
 #ifdef DEBUG_OUTPUT
    int rank;
-   MPI_Comm_rank(parent->getCommunicator()->communicator(), &rank);
+   MPI_Comm_rank(getCommunicator()->communicator(), &rank);
    pvDebug(debugMessage);
    debugMessage.printf("[%d]: HyPerLayr::recvSyn: neighbor=%d num=%d actv=%p this=%p conn=%p\n", rank, 0, numExtended, activity, this, conn);
    debugMessage.flush();

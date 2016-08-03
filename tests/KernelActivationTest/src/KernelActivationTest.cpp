@@ -74,7 +74,7 @@ int dumpweights(HyPerCol * hc, int argc, char * argv[]) {
 int dumponeweight(HyPerConn * conn) {
    int status = PV_SUCCESS;
    bool errorfound = false;
-   int rank = conn->getParent()->getCommunicator()->commRank();
+   int rank = conn->getCommunicator()->commRank();
    int nxp = conn->xPatchSize();
    int nyp = conn->yPatchSize();
    int nfp = conn->fPatchSize();

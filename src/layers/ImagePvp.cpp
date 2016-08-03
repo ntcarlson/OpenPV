@@ -38,12 +38,12 @@ int ImagePvp::initialize(const char * name, HyPerCol * hc) {
    int status = BaseInput::initialize(name, hc);
 
    PV_Stream * pvstream = NULL;
-   if (getParent()->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       pvstream = PV::PV_fopen(inputPath, "rb", false/*verifyWrites*/);
    }
    int numParams = NUM_PAR_BYTE_PARAMS;
    int params[numParams];
-   pvp_read_header(pvstream, getParent()->getCommunicator(), params, &numParams);
+   pvp_read_header(pvstream, getCommunicator(), params, &numParams);
    PV::PV_fclose(pvstream); pvstream = NULL;
    if (numParams != NUM_BIN_PARAMS || params[INDEX_HEADER_SIZE] != NUM_BIN_PARAMS*sizeof(int) || params[INDEX_NUM_PARAMS] != NUM_BIN_PARAMS) {
       pvError() << "ImagePvp:: inputPath \"" << inputPath << "\" is not a .pvp file.\n";
@@ -117,8 +117,8 @@ int ImagePvp::readPvp(const char * filename, int frameNumber) {
 
    int status = PV_SUCCESS;
    int rootproc = 0;
-   int rank = parent->getCommunicator()->commRank();
-   Communicator * comm = parent->getCommunicator();
+   int rank = getCommunicator()->commRank();
+   Communicator * comm = getCommunicator();
    PV_Stream * pvstream = PV::pvp_open_read_file(filename, comm);
    int numParams = NUM_BIN_PARAMS;
    int params[numParams];

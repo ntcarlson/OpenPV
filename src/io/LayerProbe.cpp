@@ -67,11 +67,11 @@ int LayerProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) 
 int LayerProbe::setTargetLayer(const char * layerName) {
    targetLayer = parent->getLayerFromName(layerName);
    if (targetLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: targetLayer \"%s\" is not a layer in the column.\n",
                getDescription_c(), layerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return PV_SUCCESS;

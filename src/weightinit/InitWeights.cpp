@@ -49,7 +49,7 @@ int InitWeights::initialize(char const * name, HyPerCol * hc) {
 
 int InitWeights::setDescription() {
    description.clear();
-   char const * initType = parent->parameters()->stringValue(name, "weightInitType", false/*do not warn if absent*/);
+   char const * initType = getParams()->stringValue(name, "weightInitType", false/*do not warn if absent*/);
    if (initType==nullptr) {
       description.append("weight initializer ");
    }
@@ -87,7 +87,7 @@ int InitWeights::communicateInitInfo(CommunicateInitInfoMessage const * message)
       BaseConnection * baseCallingConn = parent->getConnFromName(name);
       if (baseCallingConn==NULL) {
          status = PV_FAILURE;
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("InitWeights error: \"%s\" is not a connection in the column.\n", name);
          }
       }
@@ -95,13 +95,13 @@ int InitWeights::communicateInitInfo(CommunicateInitInfoMessage const * message)
          callingConn = dynamic_cast<HyPerConn *>(baseCallingConn);
          if (callingConn==NULL) {
             status = PV_FAILURE;
-            if (parent->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("InitWeights error: \"%s\" is not a HyPerConn.\n", name);
             }
          }
       }
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    if (status == PV_FAILURE) {
       exit(EXIT_FAILURE);
    }
@@ -116,17 +116,17 @@ int InitWeights::communicateInitInfo(CommunicateInitInfoMessage const * message)
  */
 int InitWeights::initializeWeights(PVPatch *** patches, pvwdata_t ** dataStart,
       double * timef /*default NULL*/) {
-   PVParams * inputParams = callingConn->getParent()->parameters();
+   PVParams * inputParams = callingConn->getParams();
    int numPatches = callingConn->getNumDataPatches();
    if (inputParams->present(callingConn->getName(), "initFromLastFlag")) {
-      if (callingConn->getParent()->getCommunicator()->commRank()==0) {
+      if (callingConn->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: initFromLastFlag is obsolete.\n", callingConn->getDescription_c());
       }
       if (inputParams->value(callingConn->getName(), "initFromLastFlag")) {
-         if (callingConn->getParent()->getCommunicator()->commRank()==0) {
+         if (callingConn->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("Instead, use weightInitType=\"FileWeight\" or set HyPerCol initializeFromCheckpointDir and set initializeFromCheckpointFlag to true\n");
          }
-         MPI_Barrier(callingConn->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(callingConn->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -268,7 +268,7 @@ int InitWeights::readWeights(PVPatch *** patches, pvwdata_t ** dataStart, int nu
    if (callingConn==NULL) {
       callingConn = dynamic_cast<HyPerConn *>(parent->getConnFromName(name));
    }
-   Communicator *icComm = callingConn->getParent()->getCommunicator();
+   Communicator *icComm = callingConn->getCommunicator();
    int numArbors = callingConn->numberOfAxonalArborLists();
    const PVLayerLoc *preLoc = callingConn->preSynapticLayer()->getLayerLoc();
    double timed;
@@ -294,7 +294,7 @@ int InitWeights::readWeights(PVPatch *** patches, pvwdata_t ** dataStart, int nu
 
 int InitWeights::readListOfArborFiles(PVPatch *** patches, pvwdata_t ** dataStart, int numPatches, const char * listOfArborsFilename, double * timef) {
    int arbor=0;
-   Communicator *icComm = callingConn->getParent()->getCommunicator();
+   Communicator *icComm = callingConn->getCommunicator();
    int numArbors = callingConn->numberOfAxonalArborLists();
    const PVLayerLoc *preLoc = callingConn->preSynapticLayer()->getLayerLoc();
    double timed;
@@ -347,7 +347,7 @@ int InitWeights::readListOfArborFiles(PVPatch *** patches, pvwdata_t ** dataStar
 }
 
 int InitWeights::readCombinedWeightFiles(PVPatch *** patches, pvwdata_t ** dataStart,int numPatches, const char * fileOfWeightFiles, double * timef) {
-   Communicator *icComm = callingConn->getParent()->getCommunicator();
+   Communicator *icComm = callingConn->getCommunicator();
    int numArbors = callingConn->numberOfAxonalArborLists();
    const PVLayerLoc *preLoc = callingConn->preSynapticLayer()->getLayerLoc();
    double timed;

@@ -57,7 +57,7 @@ void ImprintConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    sharedWeights = true;
    if (ioFlag == PARAMS_IO_READ) {
       fileType = PVP_KERNEL_FILE_TYPE;
-      parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights", true/*correctValue*/);
+      getParams()->handleUnnecessaryParameter(name, "sharedWeights", true/*correctValue*/);
    }
 }
 
@@ -67,7 +67,7 @@ void ImprintConn::ioParam_imprintTimeThresh(enum ParamsIOFlag ioFlag) {
       if (imprintTimeThresh==-1) {
          imprintTimeThresh = weightUpdateTime * 100; //Default value of 100 weight updates
       }
-      else if(imprintTimeThresh <= weightUpdateTime && parent->getCommunicator()->commRank()==0){
+      else if(imprintTimeThresh <= weightUpdateTime && getCommunicator()->commRank()==0){
          pvWarn().printf("ImprintConn's imprintTimeThresh is smaller than weightUpdateTime. The algorithm will imprint on every weight update\n");
       }
    }
@@ -79,7 +79,7 @@ void ImprintConn::ioParam_imprintTimeThresh(enum ParamsIOFlag ioFlag) {
 //      if (imprintTimeThresh==-1) {
 //         imprintTimeThresh = weightUpdateTime * 100; //Default value of 100 weight updates
 //      }
-//      else if(imprintTimeThresh <= weightUpdateTime && parent->getCommunicator()->commRank()==0){
+//      else if(imprintTimeThresh <= weightUpdateTime && getCommunicator()->commRank()==0){
 //         pvWarn().printf("ImprintConn's imprintTimeThresh is smaller than weightUpdateTime. The algorithm will imprint on every weight update\n");
 //      }
 //   }
@@ -237,7 +237,7 @@ int ImprintConn::update_dW(int arbor_ID){
 
    }
    //Do mpi to update lastActiveTime
-   int ierr = MPI_Allreduce(MPI_IN_PLACE, lastActiveTime, numKernelIndices * numberOfAxonalArborLists(), MPI_DOUBLE, MPI_MAX, parent->getCommunicator()->communicator());
+   int ierr = MPI_Allreduce(MPI_IN_PLACE, lastActiveTime, numKernelIndices * numberOfAxonalArborLists(), MPI_DOUBLE, MPI_MAX, getCommunicator()->communicator());
 
    return PV_SUCCESS;
 }
@@ -268,7 +268,7 @@ int ImprintConn::updateWeights(int arbor_ID){
 int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
    int status = HyPerConn::checkpointRead(cpDir, timeptr);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
-   if( parent->getCommunicator()->commRank() == 0 ) {
+   if( getCommunicator()->commRank() == 0 ) {
       auto filename = pathInCheckpoint(cpDir, getName(), "ImprintState", "bin");
       PV_Stream * pvstream = PV_fopen(filename->c_str(), "r", false/*verifyWrites*/);
       if( pvstream != NULL ) {
@@ -281,9 +281,9 @@ int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
       delete filename;
    }
 
-   if (parent->getCommunicator()->commSize()>1) {
+   if (getCommunicator()->commSize()>1) {
       //Communicate buffer size to rest of processes
-      MPI_Bcast(lastActiveTime, numBuf, MPI_DOUBLE, 0, parent->getCommunicator()->communicator());
+      MPI_Bcast(lastActiveTime, numBuf, MPI_DOUBLE, 0, getCommunicator()->communicator());
    }
    return status;
 }
@@ -291,7 +291,7 @@ int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
 int ImprintConn::checkpointWrite(const char * cpDir) {
    int status = HyPerConn::checkpointWrite(cpDir);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
-   if( parent->getCommunicator()->commRank() == 0 ) {
+   if( getCommunicator()->commRank() == 0 ) {
       int filenamesize = strlen(cpDir)+1+strlen(name)+18;
       // The +1 is for the slash between cpDir and name; the +18 needs to be large enough to hold the suffix _PatternState.{bin,txt} plus the null terminator
       char * filename = (char *) malloc( filenamesize*sizeof(char) );

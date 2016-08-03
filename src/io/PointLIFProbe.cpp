@@ -104,23 +104,23 @@ int PointLIFProbe::calcValues(double timevalue) {
       const int kex = kIndexExtended(k, nx, ny, nf, loc->halo.lt, loc->halo.rt, loc->halo.dn, loc->halo.up);
       valuesBuffer[5] = activity[kex + nbatchLocal * getTargetLayer()->getNumExtended()];
       //If not in root process, send to root process
-      if(parent->getCommunicator()->commRank()!=0){
-         MPI_Send(valuesBuffer, NUMBER_OF_VALUES, MPI_DOUBLE, 0, 0, parent->getCommunicator()->communicator());
+      if(getCommunicator()->commRank()!=0){
+         MPI_Send(valuesBuffer, NUMBER_OF_VALUES, MPI_DOUBLE, 0, 0, getCommunicator()->communicator());
       }
    }
 
    //Root process
-   if(parent->getCommunicator()->commRank()==0){
+   if(getCommunicator()->commRank()==0){
       //Calculate which rank target neuron is
       //TODO we need to calculate rank from batch as well
       int xRank = xLoc/nx;
       int yRank = yLoc/ny;
 
-      int srcRank = rankFromRowAndColumn(yRank, xRank, parent->getCommunicator()->numCommRows(), parent->getCommunicator()->numCommColumns());
+      int srcRank = rankFromRowAndColumn(yRank, xRank, getCommunicator()->numCommRows(), getCommunicator()->numCommColumns());
 
       //If srcRank is not root process, MPI_Recv from that rank
       if(srcRank != 0){
-         MPI_Recv(valuesBuffer, NUMBER_OF_VALUES, MPI_DOUBLE, srcRank, 0, parent->getCommunicator()->communicator(), MPI_STATUS_IGNORE);
+         MPI_Recv(valuesBuffer, NUMBER_OF_VALUES, MPI_DOUBLE, srcRank, 0, getCommunicator()->communicator(), MPI_STATUS_IGNORE);
       }
    }
    return PV_SUCCESS;
@@ -139,7 +139,7 @@ int PointLIFProbe::calcValues(double timevalue) {
  */
 int PointLIFProbe::writeState(double timed)
 {
-   if (parent->getCommunicator()->commRank()==0 && timed >= writeTime) {
+   if (getCommunicator()->commRank()==0 && timed >= writeTime) {
       pvAssert(outputStream);
       writeTime += writeStep;
       PVLayerLoc const * loc = getTargetLayer()->getLayerLoc();

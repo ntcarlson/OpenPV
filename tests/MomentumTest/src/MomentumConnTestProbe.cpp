@@ -41,7 +41,7 @@ void MomentumConnTestProbe::ioParam_isViscosity(enum ParamsIOFlag ioFlag) {
  */
 int MomentumConnTestProbe::outputState(double timed) {
    HyPerConn * c = getTargetHyPerConn();
-   Communicator * icComm = c->getParent()->getCommunicator();
+   Communicator * icComm = c->getCommunicator();
    const int rcvProc = 0;
    if( icComm->commRank() != rcvProc ) {
       return PV_SUCCESS;

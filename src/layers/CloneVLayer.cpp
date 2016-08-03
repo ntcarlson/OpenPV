@@ -43,7 +43,7 @@ void CloneVLayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
 
 void CloneVLayer::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "InitVType");
+      getParams()->handleUnnecessaryParameter(name, "InitVType");
    }
 }
 
@@ -51,11 +51,11 @@ int CloneVLayer::communicateInitInfo(CommunicateInitInfoMessage const * message)
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    //originalLayer->synchronizeMarginWidth(this);
@@ -63,14 +63,14 @@ int CloneVLayer::communicateInitInfo(CommunicateInitInfoMessage const * message)
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);
    if (srcLoc->nxGlobal != loc->nxGlobal || srcLoc->nyGlobal != loc->nyGlobal || srcLoc->nf != loc->nf) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayerName \"%s\" does not have the same dimensions.\n",
                getDescription_c(), originalLayerName);
          errorMessage.printf("    original (nx=%d, ny=%d, nf=%d) versus (nx=%d, ny=%d, nf=%d)\n",
                  srcLoc->nxGlobal, srcLoc->nyGlobal, srcLoc->nf, loc->nxGlobal, loc->nyGlobal, loc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    assert(srcLoc->nx==loc->nx && srcLoc->ny==loc->ny);
@@ -104,13 +104,13 @@ int CloneVLayer::allocateV() {
    clayer->V = originalLayer->getV();
    if (getV()==NULL) {
       pvError().printf("%s: originalLayer \"%s\" has a null V buffer in rank %d process.\n",
-            getDescription_c(), originalLayerName, parent->getCommunicator()->commRank());
+            getDescription_c(), originalLayerName, getCommunicator()->commRank());
    }
    return PV_SUCCESS;
 }
 
 int CloneVLayer::requireChannel(int channelNeeded, int * numChannelsResult) {
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       pvErrorNoExit().printf("%s: layers derived from CloneVLayer do not have GSyn channels (requireChannel called with channel %d)\n", getDescription_c(), channelNeeded);
    }
    return PV_FAILURE;

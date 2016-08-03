@@ -65,6 +65,7 @@ protected:
    char * name; //this is actually the Connection name
    HyPerLayer     * pre;
    HyPerLayer     * post;
+   PVParams       * mParams = nullptr;
    HyPerCol       * parent;
    HyPerConn      * parentConn;
    ChannelType channel;    // which channel of the post to update (e.g. inhibit)

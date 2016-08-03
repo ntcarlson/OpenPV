@@ -41,11 +41,11 @@ int BackgroundLayer::communicateInitInfo(CommunicateInitInfoMessage const * mess
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    //originalLayer->synchronizeMarginWidth(this);
@@ -53,25 +53,25 @@ int BackgroundLayer::communicateInitInfo(CommunicateInitInfoMessage const * mess
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);
    if (srcLoc->nxGlobal != loc->nxGlobal || srcLoc->nyGlobal != loc->nyGlobal) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayerName \"%s\" does not have the same X/Y dimensions.\n",
                getDescription_c(), originalLayerName);
          errorMessage.printf("    original (nx=%d, ny=%d, nf=%d) versus (nx=%d, ny=%d, nf=%d)\n",
                  srcLoc->nxGlobal, srcLoc->nyGlobal, srcLoc->nf, loc->nxGlobal, loc->nyGlobal, loc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if ((srcLoc->nf + 1)*repFeatureNum != loc->nf) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: nf must have (n+1)*repFeatureNum (%d) features in BackgroundLayer \"%s\", where n is the orig layer number of features.\n",
                getDescription_c(), (srcLoc->nf+1)*repFeatureNum, originalLayerName);
          errorMessage.printf("    original (nx=%d, ny=%d, nf=%d) versus (nx=%d, ny=%d, nf=%d)\n",
                  srcLoc->nxGlobal, srcLoc->nyGlobal, srcLoc->nf, loc->nxGlobal, loc->nyGlobal, loc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    assert(srcLoc->nx==loc->nx && srcLoc->ny==loc->ny);

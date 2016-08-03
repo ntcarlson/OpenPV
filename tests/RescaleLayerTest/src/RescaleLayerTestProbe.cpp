@@ -36,10 +36,10 @@ int RescaleLayerTestProbe::communicateInitInfo(CommunicateInitInfoMessage const 
    assert(getTargetLayer());
    RescaleLayer * targetRescaleLayer = dynamic_cast<RescaleLayer *>(getTargetLayer());
    if (targetRescaleLayer==NULL) {
-      if (getParent()->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("RescaleLayerTestProbe: targetLayer \"%s\" is not a RescaleLayer.\n", this->getTargetName());
       }
-      MPI_Barrier(getParent()->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return status;
@@ -50,7 +50,7 @@ int RescaleLayerTestProbe::outputState(double timed)
    int status = StatsProbe::outputState(timed);
    if (timed==getParent()->getStartTime()) { return PV_SUCCESS; }
    float tolerance = 2.0e-5f;
-   Communicator * icComm = getTargetLayer()->getParent()->getCommunicator();
+   Communicator * icComm = getTargetLayer()->getCommunicator();
    bool isRoot = icComm->commRank() == 0;
 
    RescaleLayer * targetRescaleLayer = dynamic_cast<RescaleLayer *>(getTargetLayer());
@@ -170,18 +170,18 @@ int RescaleLayerTestProbe::outputState(double timed)
             pointstd = sqrt(pointstd);
             if (fabs(pointmean-targetMean)>tolerance) {
                pvErrorNoExit().printf("RescaleLayerTestProbe \"%s\": RescaleLayer \"%s\", location in rank %d, starting at restricted neuron %d, has mean %f instead of target mean %f\n",
-                     getName(), targetRescaleLayer->getName(), getParent()->getCommunicator()->commRank(), k, pointmean, targetMean);
+                     getName(), targetRescaleLayer->getName(), getCommunicator()->commRank(), k, pointmean, targetMean);
                status = PV_FAILURE;
             }
             if (pointstd>tolerance && fabs(pointstd-targetStd)>tolerance) {
                pvErrorNoExit().printf("RescaleLayerTestProbe \"%s\": RescaleLayer \"%s\", location in rank %d, starting at restricted neuron %d, has std.dev. %f instead of target std.dev. %f\n",
-                     getName(), targetRescaleLayer->getName(), getParent()->getCommunicator()->commRank(), k, pointstd, targetStd);
+                     getName(), targetRescaleLayer->getName(), getCommunicator()->commRank(), k, pointstd, targetStd);
                status = PV_FAILURE;
             }
             bool iscolinear = colinear(nf, 1, 0, 0, &originalData[k], &rescaledData[kExtended], tolerance, NULL, NULL, NULL);
             if (!iscolinear) {
                pvErrorNoExit().printf("RescaleLayerTestProbe \"%s\": RescaleLayer \"%s\", location in rank %d, starting at restricted neuron %d, is not a linear rescaling.\n",
-                     getName(), targetRescaleLayer->getName(), parent->getCommunicator()->commRank(), k);
+                     getName(), targetRescaleLayer->getName(), getCommunicator()->commRank(), k);
                status = PV_FAILURE;
             }
          }
@@ -208,7 +208,7 @@ int RescaleLayerTestProbe::outputState(double timed)
             pvpotentialdata_t correctval = originalData[orig_kExtended] ? observedval : -1.0;
             if (observedval != correctval) {
                pvErrorNoExit().printf("RescaleLayerTestProbe \"%s\": RescaleLayer \"%s\", rank %d, restricted neuron %d has value %f instead of expected %f\n.",
-                     this->getName(), targetRescaleLayer->getName(), parent->getCommunicator()->commRank(), k, observedval, correctval);
+                     this->getName(), targetRescaleLayer->getName(), getCommunicator()->commRank(), k, observedval, correctval);
                status = PV_FAILURE;
             }
          }

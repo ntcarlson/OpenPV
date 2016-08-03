@@ -38,16 +38,16 @@ int SigmoidLayer::initialize_base() {
 int SigmoidLayer::initialize(const char * name, HyPerCol * hc) {
    int status_init = CloneVLayer::initialize(name, hc);
 
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       if(InverseFlag)   pvInfo().printf("SigmoidLayer: Inverse flag is set\n");
       if(SigmoidFlag)   pvInfo().printf("SigmoidLayer: True Sigmoid flag is set\n");
    }
 
    if (SigmoidAlpha < 0.0f || SigmoidAlpha > 1.0f) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: SigmoidAlpha cannot be negative or greater than 1.\n", getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 

@@ -172,7 +172,7 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
 #endif
 #endif
 
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    status = ioParams(PARAMS_IO_READ);
    assert(status == PV_SUCCESS);
@@ -200,7 +200,7 @@ int HyPerLayer::initClayer() {
    clayer = (PVLayer *) calloc(1UL, sizeof(PVLayer));
    int status = PV_SUCCESS;
    if (clayer==NULL) {
-      pvError().printf("HyPerLayer \"%s\" error in rank %d process: unable to allocate memory for Clayer.\n", name, parent->getCommunicator()->commRank());
+      pvError().printf("HyPerLayer \"%s\" error in rank %d process: unable to allocate memory for Clayer.\n", name, getCommunicator()->commRank());
    }
 
    PVLayerLoc * loc = &clayer->loc;
@@ -239,7 +239,7 @@ HyPerLayer::~HyPerLayer()
    delete gpu_update_timer; gpu_update_timer = NULL;
 #endif
 
-   if (outputStateStream) { pvp_close_file(outputStateStream, parent->getCommunicator()); }
+   if (outputStateStream) { pvp_close_file(outputStateStream, getCommunicator()); }
 
    delete initVObject; initVObject = NULL;
    freeClayer();
@@ -375,7 +375,7 @@ int HyPerLayer::allocateBuffer(T ** buf, int bufsize, const char * bufname) {
    int status = PV_SUCCESS;
    *buf = (T *) calloc(bufsize, sizeof(T));
    if(*buf == NULL) {
-      pvErrorNoExit().printf("%s: rank %d process unable to allocate memory for %s: %s.\n", getDescription_c(), parent->getCommunicator()->commRank(), bufname, strerror(errno));
+      pvErrorNoExit().printf("%s: rank %d process unable to allocate memory for %s: %s.\n", getDescription_c(), getCommunicator()->commRank(), bufname, strerror(errno));
       status = PV_FAILURE;
    }
    return status;
@@ -409,12 +409,12 @@ int HyPerLayer::setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale,
 {
    int status = PV_SUCCESS;
 
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
 
    float nxglobalfloat = nxScale * parent->getNxGlobal();
    layerLoc->nxGlobal = (int) nearbyintf(nxglobalfloat);
    if (fabs(nxglobalfloat-layerLoc->nxGlobal)>0.0001) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("nxScale of layer \"%s\" is incompatible with size of column.\n", getName());
          errorMessage.printf("Column nx %d multiplied by nxScale %f must be an integer.\n", parent->getNxGlobal(), nxScale);
@@ -425,7 +425,7 @@ int HyPerLayer::setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale,
    float nyglobalfloat = nyScale * parent->getNyGlobal();
    layerLoc->nyGlobal = (int) nearbyintf(nyglobalfloat);
    if (fabs(nyglobalfloat-layerLoc->nyGlobal)>0.0001) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("nyScale of layer \"%s\" is incompatible with size of column.\n", getName());
          errorMessage.printf("Column ny %d multiplied by nyScale %f must be an integer.\n", parent->getNyGlobal(), nyScale);
@@ -438,7 +438,7 @@ int HyPerLayer::setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale,
    //
 
    if (layerLoc->nxGlobal % icComm->numCommColumns() != 0) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("Size of HyPerLayer \"%s\" is not  compatible with the mpi configuration.\n", name);
          errorMessage.printf("The layer has %d pixels horizontally, and there are %d mpi processes in a row, but %d does not divide %d.\n",
@@ -447,7 +447,7 @@ int HyPerLayer::setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale,
       status = PV_FAILURE;
    }
    if (layerLoc->nyGlobal % icComm->numCommRows() != 0) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("Size of HyPerLayer \"%s\" is not  compatible with the mpi configuration.\n", name);
          errorMessage.printf("The layer has %d pixels vertically, and there are %d mpi processes in a column, but %d does not divide %d.\n",
@@ -457,7 +457,7 @@ int HyPerLayer::setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale,
    }
    MPI_Barrier(icComm->communicator()); // If there is an error, make sure that MPI doesn't kill the run before process 0 reports the error.
    if (status != PV_SUCCESS) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("setLayerLoc failed for %s.\n", getDescription_c());
       }
       exit(EXIT_FAILURE);
@@ -474,8 +474,8 @@ int HyPerLayer::setLayerLoc(PVLayerLoc * layerLoc, float nxScale, float nyScale,
 
    layerLoc->nbatch = numBatches;
 
-   layerLoc->kb0 = parent->getCommunicator()->commBatch() * numBatches;
-   layerLoc->nbatchGlobal = parent->getCommunicator()->numCommBatches() * numBatches;
+   layerLoc->kb0 = getCommunicator()->commBatch() * numBatches;
+   layerLoc->nbatchGlobal = getCommunicator()->numCommBatches() * numBatches;
 
    // halo is set in calls to updateClayerMargin
    layerLoc->halo.lt = 0; // margin;
@@ -528,13 +528,13 @@ int HyPerLayer::allocateGSyn() {
 }
 
 void HyPerLayer::addPublisher() {
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    publisher = new Publisher(icComm, getNumExtended(), clayer->loc, getNumDelayLevels(), getSparseFlag());
 }
 
 int HyPerLayer::initializeState() {
    int status = PV_SUCCESS;
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    if (parent->getCheckpointReadFlag()) {
       double checkTime = parent->simulationTime();
@@ -662,11 +662,11 @@ void HyPerLayer::ioParam_updateGpu(enum ParamsIOFlag ioFlag) {
    bool updateGpu = false;
    parent->ioParamValue(ioFlag, name, "updateGpu", &updateGpu, updateGpu, false/*warnIfAbsent*/);
    if (ioFlag==PARAMS_IO_READ && updateGpu) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: updateGpu is set to true, but PetaVision was compiled without GPU acceleration.\n",
                getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 #endif //PV_USE_CUDA
@@ -687,7 +687,7 @@ void HyPerLayer::ioParam_nf(enum ParamsIOFlag ioFlag) {
 void HyPerLayer::ioParam_phase(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "phase", &phase, phase);
    if (ioFlag == PARAMS_IO_READ && phase<0) {
-      if (parent->getCommunicator()->commRank()==0) pvError().printf("%s: phase must be >= 0 (given value was %d).\n", getDescription_c(), phase);
+      if (getCommunicator()->commRank()==0) pvError().printf("%s: phase must be >= 0 (given value was %d).\n", getDescription_c(), phase);
    }
 }
 
@@ -696,7 +696,7 @@ void HyPerLayer::ioParam_mirrorBCflag(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLayer::ioParam_valueBC(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "mirrorBCflag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "mirrorBCflag"));
    if (!mirrorBCflag) {
       parent->ioParamValue(ioFlag, name, "valueBC", &valueBC, (pvdata_t) 0);
    }
@@ -726,11 +726,11 @@ void HyPerLayer::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
    if (ioFlag==PARAMS_IO_READ) {
       if (triggerLayerName && !strcmp(name, triggerLayerName)) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: triggerLayerName cannot be the same as the name of the layer itself.\n",
                   getDescription_c());
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       triggerFlag = (triggerLayerName!=NULL && triggerLayerName[0]!='\0');
@@ -743,16 +743,16 @@ void HyPerLayer::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
 // While triggerFlag is being deprecated, it is an error for triggerFlag to be false
 // and triggerLayerName to be a nonempty string.
 void HyPerLayer::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
-   pvAssert(!parent->parameters()->presentAndNotBeenRead(name, "triggerLayerName"));
-   if (ioFlag == PARAMS_IO_READ && parent->parameters()->present(name, "triggerFlag")) {
+   pvAssert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
+   if (ioFlag == PARAMS_IO_READ && getParams()->present(name, "triggerFlag")) {
       bool flagFromParams = false;
       parent->ioParamValue(ioFlag, name, "triggerFlag", &flagFromParams, flagFromParams);
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn(triggerFlagMessage);
          triggerFlagMessage.printf("%s: triggerFlag has been deprecated.\n", getDescription_c());
          triggerFlagMessage.printf("   If triggerLayerName is a nonempty string, triggering will be on;\n");
          triggerFlagMessage.printf("   if triggerLayerName is empty or null, triggering will be off.\n");
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             if (flagFromParams != triggerFlag) {
                pvErrorNoExit(errorMessage);
                errorMessage.printf("triggerLayerName=", name);
@@ -764,25 +764,25 @@ void HyPerLayer::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
          }
       }
       if (flagFromParams != triggerFlag) {
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
 }
 
 void HyPerLayer::ioParam_triggerOffset(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "triggerLayerName"));
+   assert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
    if (triggerFlag) {
       parent->ioParamValue(ioFlag, name, "triggerOffset", &triggerOffset, triggerOffset);
       if(triggerOffset < 0){
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvError().printf("%s: TriggerOffset (%f) must be positive\n", getDescription_c(), triggerOffset);
          }
       }
    }
 }
 void HyPerLayer::ioParam_triggerBehavior(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "triggerLayerName"));
+   assert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
    if (triggerFlag) {
       parent->ioParamString(ioFlag, name, "triggerBehavior", &triggerBehavior, "updateOnlyOnTrigger", true/*warnIfAbsent*/);
       if (triggerBehavior==NULL || !strcmp(triggerBehavior, "")) {
@@ -800,11 +800,11 @@ void HyPerLayer::ioParam_triggerBehavior(enum ParamsIOFlag ioFlag) {
          triggerBehaviorType = NO_TRIGGER;
       }
       else {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: triggerBehavior=\"%s\" is unrecognized.\n",
                   getDescription_c(), triggerBehavior);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -812,9 +812,9 @@ void HyPerLayer::ioParam_triggerBehavior(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLayer::ioParam_triggerResetLayerName(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "triggerLayerName"));
+   assert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
    if (triggerFlag) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "triggerBehavior"));
+      assert(!getParams()->presentAndNotBeenRead(name, "triggerBehavior"));
       if (!strcmp(triggerBehavior, "resetStateOnTrigger")) {
          parent->ioParamStringRequired(ioFlag, name, "triggerResetLayerName", &triggerResetLayerName);
       }
@@ -826,7 +826,7 @@ void HyPerLayer::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLayer::ioParam_initialWriteTime(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "writeStep"));
+   assert(!getParams()->presentAndNotBeenRead(name, "writeStep"));
    if (writeStep>=0.0) {
       double start_time = parent->getStartTime();
       parent->ioParamValue(ioFlag, name, "initialWriteTime", &initialWriteTime, start_time);
@@ -835,7 +835,7 @@ void HyPerLayer::ioParam_initialWriteTime(enum ParamsIOFlag ioFlag) {
          while (initialWriteTime < start_time) {
             initialWriteTime += writeStep;
          }
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvWarn(warningMessage);
             warningMessage.printf("%s: initialWriteTime %f is earlier than start time %f.  Adjusting initialWriteTime:\n",
                   getDescription_c(), initialWriteTime, start_time);
@@ -846,9 +846,9 @@ void HyPerLayer::ioParam_initialWriteTime(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLayer::ioParam_sparseLayer(enum ParamsIOFlag ioFlag) {
-   if (ioFlag==PARAMS_IO_READ && !parent->parameters()->present(name, "sparseLayer") && parent->parameters()->present(name, "writeSparseActivity")){
+   if (ioFlag==PARAMS_IO_READ && !getParams()->present(name, "sparseLayer") && getParams()->present(name, "writeSparseActivity")){
       parent->ioParamValue(ioFlag, name, "writeSparseActivity", &sparseLayer, false);
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn().printf("writeSparseActivity is deprecated.  Use sparseLayer instead.\n");
       }
       return;
@@ -860,11 +860,11 @@ void HyPerLayer::ioParam_sparseLayer(enum ParamsIOFlag ioFlag) {
 
 void HyPerLayer::ioParam_writeSparseValues(enum ParamsIOFlag ioFlag) {
    // writeSparseActivity was deprecated Nov 4, 2014
-   if(!parent->parameters()->present(name, "sparseLayer")){
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "writeSparseActivity"));
+   if(!getParams()->present(name, "sparseLayer")){
+      assert(!getParams()->presentAndNotBeenRead(name, "writeSparseActivity"));
    }
    else{
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "sparseLayer"));
+      assert(!getParams()->presentAndNotBeenRead(name, "sparseLayer"));
    }
    if (sparseLayer)
       parent->ioParamValue(ioFlag, name, "writeSparseValues", &writeSparseValues, true/*default value*/);
@@ -945,7 +945,7 @@ int HyPerLayer::respondLayerPublish(LayerPublishMessage const * message) {
    int status = PV_SUCCESS;
    if (message->mPhase != getPhase()) { return status; }
    publisher->increaseTimeLevel();
-   publish(getParent()->getCommunicator(), message->mTime);
+   publish(getCommunicator(), message->mTime);
    return status;
 }
 
@@ -961,10 +961,10 @@ int HyPerLayer::respondLayerCheckNotANumber(LayerCheckNotANumberMessage const * 
       }
    }
    if (status != PV_SUCCESS) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit() << getDescription() << " has not-a-number values in the activity buffer.  Exiting.\n";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return status;
@@ -973,7 +973,7 @@ int HyPerLayer::respondLayerCheckNotANumber(LayerCheckNotANumberMessage const * 
 int HyPerLayer::respondLayerUpdateActiveIndices(LayerUpdateActiveIndicesMessage const * message) {
    int status = PV_SUCCESS;
    if (message->mPhase != getPhase()) { return status; }
-   waitOnPublish(getParent()->getCommunicator());
+   waitOnPublish(getCommunicator());
    status = updateActiveIndices();
    return status;
 }
@@ -1071,11 +1071,11 @@ int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage const * message)
       auto hierarchy = message->mTable;
       triggerLayer = hierarchy->lookup<HyPerLayer>(triggerLayerName);
       if (triggerLayer==nullptr) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: triggerLayerName \"%s\" is not a layer in the HyPerCol.\n",
                   getDescription_c(), triggerLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       nextTriggerTime = triggerLayer->getNextUpdateTime();
@@ -1089,11 +1089,11 @@ int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage const * message)
             resetLayerName = triggerResetLayerName;
             triggerResetLayer = hierarchy->lookup<HyPerLayer>(triggerResetLayerName);
             if (triggerResetLayer==nullptr) {
-               if (parent->getCommunicator()->commRank()==0) {
+               if (getCommunicator()->commRank()==0) {
                   pvErrorNoExit().printf("%s: triggerResetLayerName \"%s\" is not a layer in the HyPerCol.\n",
                         getDescription_c(), triggerResetLayerName);
                }
-               MPI_Barrier(parent->getCommunicator()->communicator());
+               MPI_Barrier(getCommunicator()->communicator());
                exit(EXIT_FAILURE);
             }
          }
@@ -1102,7 +1102,7 @@ int HyPerLayer::communicateInitInfo(CommunicateInitInfoMessage const * message)
          PVLayerLoc const * triggerLoc = triggerResetLayer->getLayerLoc();
          PVLayerLoc const * localLoc = this->getLayerLoc();
          if (triggerLoc->nxGlobal != localLoc->nxGlobal || triggerLoc->nyGlobal != localLoc->nyGlobal || triggerLoc->nf != localLoc->nf) {
-            if (parent->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvError(errorMessage);
                errorMessage.printf("%s: triggerResetLayer \"%s\" has incompatible dimensions.\n",
                      getDescription_c(), resetLayerName);
@@ -1168,12 +1168,12 @@ int HyPerLayer::openOutputStateFile() {
    // To prevent filename collisions, the global rank is inserted into the filename, just before the ".pvp" extension.
    // If the batchwidth is one, however, there is no need to insert the global rank.
    char appendCommBatchIdx[32];
-   int numCommBatches = parent->getCommunicator()->numCommBatches();
+   int numCommBatches = getCommunicator()->numCommBatches();
    if (numCommBatches != 1) {
-      int sz = snprintf(appendCommBatchIdx, 32, "_%d", parent->getCommunicator()->commBatch());
+      int sz = snprintf(appendCommBatchIdx, 32, "_%d", getCommunicator()->commBatch());
       if (sz >= 32) {
          pvError().printf("%s: Unable to create file name for outputState file: comm batch index %d is too long.\n",
-               getDescription_c(), parent->getCommunicator()->commBatch());
+               getDescription_c(), getCommunicator()->commBatch());
       }
    }
    else { // numCommBatches is one; insert the empty string instead.
@@ -1198,13 +1198,13 @@ int HyPerLayer::openOutputStateFile() {
    }
    if (sz >= PV_PATH_MAX) {
       pvError().printf("%s: Unable to create file name for outputState file: file name with comm batch index %d is too long.\n",
-            getDescription_c(), parent->getCommunicator()->commBatch());
+            getDescription_c(), getCommunicator()->commBatch());
    }
 
    // initialize writeActivityCalls and writeSparseActivityCalls
    // only the root process needs these member variables so we don't need to do any MPI.
    int rootproc = 0;
-   if (ioAppend && parent->getCommunicator()->commRank()==rootproc) {
+   if (ioAppend && getCommunicator()->commRank()==rootproc) {
       struct stat statbuffer;
       int filestatus = stat(filename, &statbuffer);
       if (filestatus == 0) {
@@ -1223,7 +1223,7 @@ int HyPerLayer::openOutputStateFile() {
          }
       }
    }
-   if (ioAppend && parent->getCommunicator()->commRank()==rootproc) {
+   if (ioAppend && getCommunicator()->commRank()==rootproc) {
       PV_Stream * pvstream = PV_fopen(filename,"r",false/*verifyWrites*/);
       if (pvstream) {
          int params[NUM_BIN_PARAMS];
@@ -1242,7 +1242,7 @@ int HyPerLayer::openOutputStateFile() {
          ioAppend = false;
       }
    }
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    MPI_Bcast(&ioAppend, 1, MPI_INT, 0/*root*/, icComm->communicator());
    outputStateStream = pvp_open_write_file(filename, icComm, ioAppend);
    return PV_SUCCESS;
@@ -1283,7 +1283,7 @@ int HyPerLayer::equalizeMargins(HyPerLayer * layer1, HyPerLayer * layer2) {
    layer2->requireMarginWidth(maxborder, &result, 'x');
    if (result != maxborder) { status = PV_FAILURE; }
    if (status != PV_SUCCESS) {
-      pvError().printf("Error in rank %d process: unable to synchronize x-margin widths of layers \"%s\" and \"%s\" to %d\n", layer1->getParent()->getCommunicator()->commRank(), layer1->getName(), layer2->getName(), maxborder);;
+      pvError().printf("Error in rank %d process: unable to synchronize x-margin widths of layers \"%s\" and \"%s\" to %d\n", layer1->getCommunicator()->commRank(), layer1->getName(), layer2->getName(), maxborder);;
    }
    assert(layer1->getLayerLoc()->halo.lt == layer2->getLayerLoc()->halo.lt &&
           layer1->getLayerLoc()->halo.rt == layer2->getLayerLoc()->halo.rt &&
@@ -1298,7 +1298,7 @@ int HyPerLayer::equalizeMargins(HyPerLayer * layer1, HyPerLayer * layer2) {
    layer2->requireMarginWidth(maxborder, &result, 'y');
    if (result != maxborder) { status = PV_FAILURE; }
    if (status != PV_SUCCESS) {
-      pvError().printf("Error in rank %d process: unable to synchronize y-margin widths of layers \"%s\" and \"%s\" to %d\n", layer1->getParent()->getCommunicator()->commRank(), layer1->getName(), layer2->getName(), maxborder);;
+      pvError().printf("Error in rank %d process: unable to synchronize y-margin widths of layers \"%s\" and \"%s\" to %d\n", layer1->getCommunicator()->commRank(), layer1->getName(), layer2->getName(), maxborder);;
    }
    assert(layer1->getLayerLoc()->halo.dn == layer2->getLayerLoc()->halo.dn &&
           layer1->getLayerLoc()->halo.up == layer2->getLayerLoc()->halo.up &&
@@ -1319,7 +1319,7 @@ int HyPerLayer::allocateDataStructures()
    if(triggerFlag){
       double deltaUpdateTime = getDeltaUpdateTime();
       if(deltaUpdateTime != -1 && triggerOffset >= deltaUpdateTime){ 
-         pvError().printf("%s error in rank %d process: TriggerOffset (%f) must be lower than the change in update time (%f) \n", getDescription_c(), parent->getCommunicator()->commRank(), triggerOffset, deltaUpdateTime);
+         pvError().printf("%s error in rank %d process: TriggerOffset (%f) must be lower than the change in update time (%f) \n", getDescription_c(), getCommunicator()->commRank(), triggerOffset, deltaUpdateTime);
       }
    }
 
@@ -1370,7 +1370,7 @@ int HyPerLayer::allocateDataStructures()
    //// labels are not extended
    //labels = (int *) calloc(getNumNeurons(), sizeof(int));
    //if (labels==NULL) {
-   //   pvErrorNoExit().printf("HyPerLayer \"%s\": rank %d unable to allocate memory for labels.\n", name, parent->getCommunicator()->commRank());
+   //   pvErrorNoExit().printf("HyPerLayer \"%s\": rank %d unable to allocate memory for labels.\n", name, getCommunicator()->commRank());
    //   exit(EXIT_FAILURE);
    //}
 
@@ -1383,7 +1383,7 @@ int HyPerLayer::allocateDataStructures()
       for(int i = 0; i < parent->getNumThreads(); i++){
          pvdata_t* tempMem = (pvdata_t*) malloc(sizeof(pvdata_t) * getNumNeuronsAllBatches());
          if(!tempMem){
-            pvError().printf("HyPerLayer \"%s\" error: rank %d unable to allocate %zu memory for thread_gSyn: %s\n", name, parent->getCommunicator()->commRank(), sizeof(pvdata_t) * getNumNeuronsAllBatches(), strerror(errno));
+            pvError().printf("HyPerLayer \"%s\" error: rank %d unable to allocate %zu memory for thread_gSyn: %s\n", name, getCommunicator()->commRank(), sizeof(pvdata_t) * getNumNeuronsAllBatches(), strerror(errno));
          }
          thread_gSyn[i] = tempMem;
       }
@@ -1398,7 +1398,7 @@ int HyPerLayer::allocateDataStructures()
       status = PV_SUCCESS;
    }
    else{
-      pvError().printf("%s unable to allocate device memory in rank %d process: %s\n", getDescription_c(), getParent()->getCommunicator()->commRank(), strerror(errno));
+      pvError().printf("%s unable to allocate device memory in rank %d process: %s\n", getDescription_c(), getCommunicator()->commRank(), strerror(errno));
    }
    if(updateGpu){
       //This function needs to be overwritten as needed on a subclass basis
@@ -1443,7 +1443,7 @@ int HyPerLayer::requireMarginWidth(int marginWidthNeeded, int * marginWidthResul
       *marginWidthResult = xmargin;
       if (xmargin < marginWidthNeeded) {
          assert(clayer);
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvInfo().printf("%s: adjusting x-margin width from %d to %d\n", getDescription_c(), xmargin, marginWidthNeeded);
          }
          xmargin = marginWidthNeeded;
@@ -1468,7 +1468,7 @@ int HyPerLayer::requireMarginWidth(int marginWidthNeeded, int * marginWidthResul
       *marginWidthResult = ymargin;
       if (ymargin < marginWidthNeeded) {
          assert(clayer);
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvInfo().printf("%s: adjusting y-margin width from %d to %d\n", getDescription_c(), ymargin, marginWidthNeeded);
          }
          ymargin = marginWidthNeeded;
@@ -1681,11 +1681,11 @@ int HyPerLayer::resetStateOnTrigger() {
    assert(triggerResetLayer != NULL);
    pvpotentialdata_t * V = getV();
    if (V==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: triggerBehavior is \"resetStateOnTrigger\" but layer does not have a membrane potential.\n",
                getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    pvpotentialdata_t const * resetV = triggerResetLayer->getV();
@@ -1998,7 +1998,7 @@ int HyPerLayer::outputState(double timef, bool last)
       }
    }
    if (status!=PV_SUCCESS) {
-      pvError().printf("%s: outputState failed on rank %d process.\n", getDescription_c(), parent->getCommunicator()->commRank());
+      pvError().printf("%s: outputState failed on rank %d process.\n", getDescription_c(), getCommunicator()->commRank());
    }
 
    io_timer->stop();
@@ -2017,7 +2017,7 @@ int HyPerLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int HyPerLayer::readActivityFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "A", "pvp");
-   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &clayer->activity->data, 1, /*extended*/true, getLayerLoc());
+   int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &clayer->activity->data, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
    delete filename;
    assert(status==PV_SUCCESS);
@@ -2029,7 +2029,7 @@ int HyPerLayer::readVFromCheckpoint(const char * cpDir, double * timeptr) {
    if (getV() != NULL) {
       auto filename = pathInCheckpoint(cpDir, getName(), "V", "pvp");
       pvdata_t * V = getV();
-      status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &V, 1, /*extended*/false, getLayerLoc());
+      status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &V, 1, /*extended*/false, getLayerLoc());
       assert(status == PV_SUCCESS);
       delete filename;
    }
@@ -2038,7 +2038,7 @@ int HyPerLayer::readVFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int HyPerLayer::readDelaysFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "Delays", "pvp");
-   int status = readDataStoreFromFile(filename->c_str(), parent->getCommunicator(), timeptr);
+   int status = readDataStoreFromFile(filename->c_str(), getCommunicator(), timeptr);
    assert(status == PV_SUCCESS);
    delete filename;
    return status;
@@ -2047,17 +2047,17 @@ int HyPerLayer::readDelaysFromCheckpoint(const char * cpDir, double * timeptr) {
 int HyPerLayer::checkpointRead(const char * cpDir, double * timeptr) {
    int status = readStateFromCheckpoint(cpDir, timeptr);
    if (status != PV_SUCCESS) {
-      pvError().printf("%s: rank %d process failed to read state from checkpoint directory \"%s\"\n", getDescription_c(), parent->getCommunicator()->commRank(), cpDir);
+      pvError().printf("%s: rank %d process failed to read state from checkpoint directory \"%s\"\n", getDescription_c(), getCommunicator()->commRank(), cpDir);
    }
-   Communicator * icComm = parent->getCommunicator();
-   readScalarFromFile(cpDir, getName(), "lastUpdateTime", parent->getCommunicator(), &lastUpdateTime, parent->simulationTime()-parent->getDeltaTime());
-   readScalarFromFile(cpDir, getName(), "nextUpdateTime", parent->getCommunicator(), &nextUpdateTime, parent->simulationTime()+parent->getDeltaTime());
-   readScalarFromFile(cpDir, getName(), "nextWrite", parent->getCommunicator(), &writeTime, writeTime);
+   Communicator * icComm = getCommunicator();
+   readScalarFromFile(cpDir, getName(), "lastUpdateTime", getCommunicator(), &lastUpdateTime, parent->simulationTime()-parent->getDeltaTime());
+   readScalarFromFile(cpDir, getName(), "nextUpdateTime", getCommunicator(), &nextUpdateTime, parent->simulationTime()+parent->getDeltaTime());
+   readScalarFromFile(cpDir, getName(), "nextWrite", getCommunicator(), &writeTime, writeTime);
 
    if (ioAppend) {
       long activityfilepos = 0L;
-      readScalarFromFile(cpDir, getName(), "filepos", parent->getCommunicator(), &activityfilepos);
-      if (parent->getCommunicator()->commRank()==0 && outputStateStream) {
+      readScalarFromFile(cpDir, getName(), "filepos", getCommunicator(), &activityfilepos);
+      if (getCommunicator()->commRank()==0 && outputStateStream) {
          if (PV_fseek(outputStateStream, activityfilepos, SEEK_SET) != 0) {
             pvErrorNoExit().printf("HyPerLayer::checkpointRead: unable to recover initial file position in activity file for layer %s\n", name);
             abort();
@@ -2073,7 +2073,7 @@ int HyPerLayer::checkpointRead(const char * cpDir, double * timeptr) {
          nfname = "numframes";
          num_calls_ptr = &writeActivityCalls;
       }
-      readScalarFromFile(cpDir, getName(), nfname, parent->getCommunicator(), num_calls_ptr, 0);
+      readScalarFromFile(cpDir, getName(), nfname, getCommunicator(), num_calls_ptr, 0);
    }
    //Need to exchange border information since lastUpdateTime is being read from checkpoint, so no guarentee that publish will call exchange
    status = publisher->exchangeBorders(getLayerLoc());
@@ -2203,7 +2203,7 @@ int HyPerLayer::readDataStoreFromFile(const char * filename, Communicator * comm
 
 int HyPerLayer::checkpointWrite(const char * cpDir) {
    // Writes checkpoint files for V, A, and datastore to files in working directory
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    double timed = (double) parent->simulationTime();
 
    std::string * filename = nullptr;
@@ -2221,23 +2221,23 @@ int HyPerLayer::checkpointWrite(const char * cpDir) {
    writeDataStoreToFile(filename->c_str(), icComm, timed);
    delete filename;
 
-   writeScalarToFile(cpDir, getName(), "lastUpdateTime", parent->getCommunicator(), lastUpdateTime, parent->getVerifyWrites());
-   writeScalarToFile(cpDir, getName(), "nextUpdateTime", parent->getCommunicator(), nextUpdateTime, parent->getVerifyWrites());
-   writeScalarToFile(cpDir, getName(), "nextWrite", parent->getCommunicator(), writeTime, parent->getVerifyWrites());
+   writeScalarToFile(cpDir, getName(), "lastUpdateTime", getCommunicator(), lastUpdateTime, parent->getVerifyWrites());
+   writeScalarToFile(cpDir, getName(), "nextUpdateTime", getCommunicator(), nextUpdateTime, parent->getVerifyWrites());
+   writeScalarToFile(cpDir, getName(), "nextWrite", getCommunicator(), writeTime, parent->getVerifyWrites());
 
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       if (outputStateStream) {
          long activityfilepos = getPV_StreamFilepos(outputStateStream);
-         writeScalarToFile(cpDir, getName(), "filepos", parent->getCommunicator(), activityfilepos, parent->getVerifyWrites());
+         writeScalarToFile(cpDir, getName(), "filepos", getCommunicator(), activityfilepos, parent->getVerifyWrites());
       }
    }
 
    if (writeStep>=0.0f) {
       if (sparseLayer) {
-         writeScalarToFile(cpDir, getName(), "numframes_sparse", parent->getCommunicator(), writeActivitySparseCalls, parent->getVerifyWrites());
+         writeScalarToFile(cpDir, getName(), "numframes_sparse", getCommunicator(), writeActivitySparseCalls, parent->getVerifyWrites());
       }
       else {
-         writeScalarToFile(cpDir, getName(), "numframes", parent->getCommunicator(), writeActivityCalls, parent->getVerifyWrites());
+         writeScalarToFile(cpDir, getName(), "numframes", getCommunicator(), writeActivityCalls, parent->getVerifyWrites());
       }
    }
 
@@ -2320,7 +2320,7 @@ int HyPerLayer::writeDataStoreToFile(const char * filename, Communicator * comm,
 }
 
 int HyPerLayer::writeTimers(std::ostream& stream){
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       recvsyn_timer->fprint_time(stream);
       update_timer->fprint_time(stream);
 #ifdef PV_USE_CUDA
@@ -2340,7 +2340,7 @@ int HyPerLayer::writeTimers(std::ostream& stream){
 int HyPerLayer::writeActivitySparse(double timed, bool includeValues)
 {
    DataStore * store = publisher->dataStore();
-   int status = PV::writeActivitySparse(outputStateStream, parent->getCommunicator(), timed, store, getLayerLoc(), includeValues);
+   int status = PV::writeActivitySparse(outputStateStream, getCommunicator(), timed, store, getLayerLoc(), includeValues);
 
    if (status == PV_SUCCESS) {
       status = incrementNBands(&writeActivitySparseCalls);
@@ -2352,7 +2352,7 @@ int HyPerLayer::writeActivitySparse(double timed, bool includeValues)
 int HyPerLayer::writeActivity(double timed)
 {
    DataStore * store = publisher->dataStore();
-   int status = PV::writeActivity(outputStateStream, parent->getCommunicator(), timed, store, getLayerLoc());
+   int status = PV::writeActivity(outputStateStream, getCommunicator(), timed, store, getLayerLoc());
 
    if (status == PV_SUCCESS) {
       status = incrementNBands(&writeActivityCalls);
@@ -2364,7 +2364,7 @@ int HyPerLayer::incrementNBands(int * numCalls) {
    // Only the root process needs to maintain INDEX_NBANDS, so only the root process modifies numCalls
    // This way, writeActivityCalls does not need to be coordinated across MPI
    int status;
-   if( parent->getCommunicator()->commRank() == 0 ) {
+   if( getCommunicator()->commRank() == 0 ) {
       assert(outputStateStream!=NULL);
       (*numCalls) = (*numCalls) + parent->getNBatch();
       long int fpos = getPV_StreamFilepos(outputStateStream);

@@ -43,7 +43,7 @@ void RequireAllZeroActivityProbe::ioParam_exitOnFailure(enum ParamsIOFlag ioFlag
 }
 
 void RequireAllZeroActivityProbe::ioParam_immediateExitOnFailure(enum ParamsIOFlag ioFlag) {
-   pvAssert(!parent->parameters()->presentAndNotBeenRead(name, "exitOnFailure"));
+   pvAssert(!getParams()->presentAndNotBeenRead(name, "exitOnFailure"));
    if (exitOnFailure) {
       parent->ioParamValue(ioFlag, name, "immediateExitOnFailure", &immediateExitOnFailure, immediateExitOnFailure);
    }
@@ -60,7 +60,7 @@ int RequireAllZeroActivityProbe::outputState(double timed) {
             nonzeroTime = timed;
          }
          nonzeroFound = true;
-         nonzeroFoundMessage(nonzeroTime, parent->getCommunicator()->commRank()==0, immediateExitOnFailure);
+         nonzeroFoundMessage(nonzeroTime, getCommunicator()->commRank()==0, immediateExitOnFailure);
       }
    }
    return status;
@@ -78,7 +78,7 @@ void RequireAllZeroActivityProbe::nonzeroFoundMessage(double badTime, bool isRoo
       }
    }
    if (fatalError) {
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -86,7 +86,7 @@ void RequireAllZeroActivityProbe::nonzeroFoundMessage(double badTime, bool isRoo
 RequireAllZeroActivityProbe::~RequireAllZeroActivityProbe() {
    //We check for exits on failure in destructor
    if(exitOnFailure && getNonzeroFound()) {
-      nonzeroFoundMessage(nonzeroTime, parent->getCommunicator()->commRank()==0, true/*fatalError*/);
+      nonzeroFoundMessage(nonzeroTime, getCommunicator()->commRank()==0, true/*fatalError*/);
    }
 }
 

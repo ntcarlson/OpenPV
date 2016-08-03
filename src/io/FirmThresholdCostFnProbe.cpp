@@ -57,10 +57,10 @@ int FirmThresholdCostFnProbe::communicateInitInfo(CommunicateInitInfoMessage con
    AbstractNormProbe::communicateInitInfo(message);
    ANNLayer * targetANNLayer = dynamic_cast<ANNLayer *>(getTargetLayer());
    if (targetANNLayer!=NULL) {
-      if (!getParent()->parameters()->present(getName(), "VThresh")) {
+      if (!getParams()->present(getName(), "VThresh")) {
          VThresh=targetANNLayer->getVThresh();
       }
-      if (!getParent()->parameters()->present(getName(), "VWidth")) {
+      if (!getParams()->present(getName(), "VWidth")) {
          VWidth=targetANNLayer->getVWidth();
       }
    }

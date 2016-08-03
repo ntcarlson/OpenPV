@@ -38,7 +38,7 @@ int AverageRateConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 void AverageRateConn::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       plasticityFlag = true;
-      parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
+      getParams()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
    }
 }
 

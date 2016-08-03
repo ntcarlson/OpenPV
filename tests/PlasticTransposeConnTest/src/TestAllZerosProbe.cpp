@@ -21,7 +21,7 @@ int TestAllZerosProbe::outputState(double timed) {
    if (status != PV_SUCCESS) {
       pvError().printf("!!Time %f: TestAllZerosProbe::outputState failed for %s\n", timed, getTargetLayer()->getDescription_c());
    }
-   Communicator * icComm = getTargetLayer()->getParent()->getCommunicator();
+   Communicator * icComm = getTargetLayer()->getCommunicator();
    const int rcvProc = 0;
    if( icComm->commRank() != rcvProc ) {
       return 0;

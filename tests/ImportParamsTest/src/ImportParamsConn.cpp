@@ -16,7 +16,7 @@ int ImportParamsConn::initialize(const char * name, HyPerCol * hc)
 {
    HyPerConn::initialize(name, hc);
 
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
    //Test grabbed array value
    int size;
    const float * delayVals = params->arrayValues(name, "delay", &size);

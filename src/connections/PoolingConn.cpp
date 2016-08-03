@@ -58,18 +58,18 @@ int PoolingConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 void PoolingConn::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       plasticityFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag");
+      getParams()->handleUnnecessaryParameter(name, "plasticityFlag");
    }
 }
 
 void PoolingConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
+      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
    }
 }
 
 void PoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    parent->ioParamStringRequired(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString);
    if (ioFlag==PARAMS_IO_READ) {
@@ -104,7 +104,7 @@ void PoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
 }
 
 void PoolingConn::unsetAccumulateType() {
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       pvErrorNoExit(errorMessage);
       if (pvpatchAccumulateTypeString) {
          errorMessage.printf("%s: pvpatchAccumulateType \"%s\" is unrecognized.",
@@ -116,7 +116,7 @@ void PoolingConn::unsetAccumulateType() {
       }
       errorMessage.printf("  Allowed values are \"maxpooling\", \"sumpooling\", or \"avgpooling\".");
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    exit(EXIT_FAILURE);
 }
 
@@ -132,7 +132,7 @@ void PoolingConn::ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag) {
 
 void PoolingConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "normalizeMethod", "none", false/*case_insensitive*/);
+      getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", "none", false/*case_insensitive*/);
    }
 }
 
@@ -148,7 +148,7 @@ int PoolingConn::initialize(const char * name, HyPerCol * hc, InitWeights * weig
    int status = BaseConnection::initialize(name, hc); // BaseConnection should *NOT* take weightInitializer or weightNormalizer as arguments, as it does not know about InitWeights or NormalizeBase
 
    assert(parent);
-   PVParams * inputParams = parent->parameters();
+   PVParams * inputParams = getParams();
 
    //set accumulateFunctionPointer
    assert(!inputParams->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
@@ -206,27 +206,27 @@ int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage const * message)
    if(needPostIndexLayer){
       BaseLayer * basePostIndexLayer = parent->getLayerFromName(this->postIndexLayerName);
       if (basePostIndexLayer==NULL) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayerName \"%s\" does not refer to any layer in the column.\n", getDescription_c(), this->postIndexLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
 
       postIndexLayer = dynamic_cast<PoolingIndexLayer*>(basePostIndexLayer);
       if (postIndexLayer==NULL) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayerName \"%s\" is not a PoolingIndexLayer.\n", getDescription_c(), this->postIndexLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
 
       if(postIndexLayer->getDataType() != PV_INT){
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayer \"%s\" must have data type of int. Specify parameter dataType in this layer to be \"int\".\n", getDescription_c(), this->postIndexLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
          
       }
@@ -235,10 +235,10 @@ int PoolingConn::communicateInitInfo(CommunicateInitInfoMessage const * message)
       //postIndexLayer must be the same size as the post layer
       //(margins doesnt matter)
       if(idxLoc->nxGlobal != postLoc->nxGlobal || idxLoc->nyGlobal != postLoc->nyGlobal || idxLoc->nf != postLoc->nf){
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayer \"%s\" must have the same dimensions as the post pooling layer \"%s\".", getDescription_c(), this->postIndexLayerName, this->postLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
 
@@ -288,7 +288,7 @@ int PoolingConn::allocateDataStructures(){
             int* thread_buffer = (int*) malloc(sizeof(int) * post->getNumNeurons());
             //float* thread_buffer = (float*) malloc(sizeof(float) * post->getNumNeurons());
             if(!thread_buffer){
-               pvError().printf("HyPerLayer \"%s\" error: rank %d unable to allocate %zu memory for thread_gateIdxBuffer: %s\n", name, parent->getCommunicator()->commRank(), sizeof(int) * post->getNumNeurons(), strerror(errno));
+               pvError().printf("HyPerLayer \"%s\" error: rank %d unable to allocate %zu memory for thread_gateIdxBuffer: %s\n", name, getCommunicator()->commRank(), sizeof(int) * post->getNumNeurons(), strerror(errno));
             }
             thread_gateIdxBuffer[i] = thread_buffer;
          }
@@ -325,7 +325,7 @@ int PoolingConn::constructWeights(){
    int nPatches = getNumDataPatches();
    int status = PV_SUCCESS;
 
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "shrinkPatches"));
+   assert(!getParams()->presentAndNotBeenRead(name, "shrinkPatches"));
    // createArbors() uses the value of shrinkPatches.  It should have already been read in ioParamsFillGroup.
    //allocate the arbor arrays:
    createArbors();

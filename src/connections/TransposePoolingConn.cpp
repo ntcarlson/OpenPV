@@ -57,7 +57,7 @@ int TransposePoolingConn::initialize(const char * name, HyPerCol * hc) {
    int status = BaseConnection::initialize(name, hc); // BaseConnection should *NOT* take weightInitializer or weightNormalizer as arguments, as it does not know about InitWeights or NormalizeBase
 
    assert(parent);
-   PVParams * inputParams = parent->parameters();
+   PVParams * inputParams = getParams();
 
    //set accumulateFunctionPointer
    assert(!inputParams->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
@@ -117,21 +117,21 @@ int TransposePoolingConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 void TransposePoolingConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    // During the communication phase, numAxonalArbors will be copied from originalConn
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "sharedWeights");
+      getParams()->handleUnnecessaryStringParameter(name, "sharedWeights");
    }
 }
 
 void TransposePoolingConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
    // TransposePoolingConn doesn't use a weight initializer
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
+      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
    }
 }
 
 void TransposePoolingConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "initializeFromCheckpointFlag");
+      getParams()->handleUnnecessaryParameter(name, "initializeFromCheckpointFlag");
    }
    // During the setInitialValues phase, the conn will be computed from the original conn, so initializeFromCheckpointFlag is not needed.
 }
@@ -148,15 +148,15 @@ void TransposePoolingConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
       // make sure that TransposePoolingConn always checks if its originalConn has updated
       triggerFlag = false;
       triggerLayerName = NULL;
-      parent->parameters()->handleUnnecessaryParameter(name, "triggerFlag", triggerFlag);
-      parent->parameters()->handleUnnecessaryStringParameter(name, "triggerLayerName", NULL);
+      getParams()->handleUnnecessaryParameter(name, "triggerFlag", triggerFlag);
+      getParams()->handleUnnecessaryStringParameter(name, "triggerLayerName", NULL);
    }
 }
 
 // TODO: ioParam_pvpatchAccumulateType and unsetAccumulateType are copied from PV::PoolingConn.
 // Can we make TransposePoolingConn a derived class of PoolingConn?  (TransposeConn is a derived class of HyPerConn.)
 void TransposePoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    parent->ioParamStringRequired(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString);
    if (ioFlag==PARAMS_IO_READ) {
@@ -191,7 +191,7 @@ void TransposePoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFla
 }
 
 void TransposePoolingConn::unsetAccumulateType() {
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       pvErrorNoExit(errorMessage);
       if (pvpatchAccumulateTypeString) {
          errorMessage.printf("%s: pvpatchAccumulateType \"%s\" is unrecognized.",
@@ -203,14 +203,14 @@ void TransposePoolingConn::unsetAccumulateType() {
       }
       errorMessage.printf("  Allowed values are \"maxpooling\", \"sumpooling\", or \"avgpooling\".");
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    exit(EXIT_FAILURE);
 }
 
 void TransposePoolingConn::ioParam_combine_dW_with_W_flag(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       combine_dW_with_W_flag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "combine_dW_with_W_flag", combine_dW_with_W_flag);
+      getParams()->handleUnnecessaryParameter(name, "combine_dW_with_W_flag", combine_dW_with_W_flag);
    }
 }
 
@@ -229,14 +229,14 @@ void TransposePoolingConn::ioParam_nfp(enum ParamsIOFlag ioFlag) {
 void TransposePoolingConn::ioParam_dWMax(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       dWMax = 1.0;
-      parent->parameters()->handleUnnecessaryParameter(name, "dWMax", dWMax);
+      getParams()->handleUnnecessaryParameter(name, "dWMax", dWMax);
    }
 }
 
 void TransposePoolingConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       keepKernelsSynchronized_flag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "keepKernelsSynchronized", keepKernelsSynchronized_flag);
+      getParams()->handleUnnecessaryParameter(name, "keepKernelsSynchronized", keepKernelsSynchronized_flag);
    }
 }
 
@@ -244,7 +244,7 @@ void TransposePoolingConn::ioParam_weightUpdatePeriod(enum ParamsIOFlag ioFlag) 
    if (ioFlag == PARAMS_IO_READ) {
       weightUpdatePeriod = parent->getDeltaTime();
       // Every timestep needUpdate checks originalConn's lastUpdateTime against transpose's lastUpdateTime, so weightUpdatePeriod and initialWeightUpdateTime aren't needed
-      parent->parameters()->handleUnnecessaryParameter(name, "weightUpdatePeriod");
+      getParams()->handleUnnecessaryParameter(name, "weightUpdatePeriod");
    }
 }
 
@@ -252,7 +252,7 @@ void TransposePoolingConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioF
    if (ioFlag == PARAMS_IO_READ) {
       initialWeightUpdateTime = parent->getStartTime();
       // Every timestep needUpdate checks originalConn's lastUpdateTime against transpose's lastUpdateTime, so weightUpdatePeriod and initialWeightUpdateTime aren't needed
-      parent->parameters()->handleUnnecessaryParameter(name, "initialWeightUpdateTime", initialWeightUpdateTime);
+      getParams()->handleUnnecessaryParameter(name, "initialWeightUpdateTime", initialWeightUpdateTime);
       weightUpdateTime = initialWeightUpdateTime;
    }
 }
@@ -260,7 +260,7 @@ void TransposePoolingConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioF
 void TransposePoolingConn::ioParam_shrinkPatches(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       shrinkPatches_flag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "shrinkPatches", shrinkPatches_flag);
+      getParams()->handleUnnecessaryParameter(name, "shrinkPatches", shrinkPatches_flag);
    }
 }
 
@@ -268,7 +268,7 @@ void TransposePoolingConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       normalizer = NULL;
       normalizeMethod = strdup("none");
-      parent->parameters()->handleUnnecessaryStringParameter(name, "normalizeMethod", "none");
+      getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", "none");
    }
 }
 
@@ -280,15 +280,15 @@ int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage const *
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" does not refer to any connection in the column.\n", getDescription_c(), this->originalConnName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    originalConn = dynamic_cast<PoolingConn *>(originalConnBase);
    if (originalConn == NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a PoolingConn.\n", getDescription_c(), originalConnName);
          status = PV_FAILURE;
       }
@@ -296,7 +296,7 @@ int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage const *
    if (status != PV_SUCCESS) return status;
 
    if (!originalConn->getInitInfoCommunicatedFlag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;
@@ -304,19 +304,19 @@ int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage const *
 
 
    sharedWeights = originalConn->usingSharedWeights();
-   parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
+   getParams()->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
 
    numAxonalArborLists = originalConn->numberOfAxonalArborLists();
-   parent->parameters()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
+   getParams()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
 
    plasticityFlag = originalConn->getPlasticityFlag();
-   parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
+   getParams()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
 
    if(originalConn->getShrinkPatches_flag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("TransposePoolingConn \"%s\": original conn \"%s\" has shrinkPatches set to true.  TransposePoolingConn has not been implemented for that case.\n", name, originalConn->getName());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
@@ -324,7 +324,7 @@ int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage const *
    if (status != PV_SUCCESS) return status;
 
    if(!originalConn->needPostIndex() && poolingType == PoolingConn::MAX){
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("TransposePoolingConn \"%s\": original pooling conn \"%s\" needs to have a postIndexLayer if unmax pooling.\n", name, originalConnName);
          status = PV_FAILURE;
       }
@@ -343,23 +343,23 @@ int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage const *
    const PVLayerLoc * preLoc = pre->getLayerLoc();
    const PVLayerLoc * origPostLoc = originalConn->postSynapticLayer()->getLayerLoc();
    if (preLoc->nx != origPostLoc->nx || preLoc->ny != origPostLoc->ny || preLoc->nf != origPostLoc->nf) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: transpose's pre layer and original connection's post layer must have the same dimensions.\n", getDescription_c());
          errorMessage.printf("    (x=%d, y=%d, f=%d) versus (x=%d, y=%d, f=%d).\n", preLoc->nx, preLoc->ny, preLoc->nf, origPostLoc->nx, origPostLoc->ny, origPostLoc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    const PVLayerLoc * postLoc = pre->getLayerLoc();
    const PVLayerLoc * origPreLoc = originalConn->postSynapticLayer()->getLayerLoc();
    if (postLoc->nx != origPreLoc->nx || postLoc->ny != origPreLoc->ny || postLoc->nf != origPreLoc->nf) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: transpose's post layer and original connection's pre layer must have the same dimensions.\n", getDescription_c());
          errorMessage.printf("    (x=%d, y=%d, f=%d) versus (x=%d, y=%d, f=%d).\n", postLoc->nx, postLoc->ny, postLoc->nf, origPreLoc->nx, origPreLoc->ny, origPreLoc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
@@ -382,7 +382,7 @@ int TransposePoolingConn::communicateInitInfo(CommunicateInitInfoMessage const *
       //Need to tell postIndexLayer the number of delays needed by this connection
       int allowedDelay = originalConn->getPostIndexLayer()->increaseDelayLevels(getDelayArraySize());
       if( allowedDelay < getDelayArraySize()) {
-         if( this->getParent()->getCommunicator()->commRank() == 0 ) {
+         if( this->getCommunicator()->commRank() == 0 ) {
             pvErrorNoExit().printf("%s: attempt to set delay to %d, but the maximum allowed delay is %d.  Exiting\n", this->getDescription_c(), getDelayArraySize(), allowedDelay);
          }
          exit(EXIT_FAILURE);
@@ -428,16 +428,16 @@ int TransposePoolingConn::setPatchSize() {
    // post->getLayerLoc()->nf must be the same as originalConn->preSynapticLayer()->getLayerLoc()->nf.
    // This requirement is checked in communicateInitInfo
 
-   parent->parameters()->handleUnnecessaryParameter(name, "nxp", nxp);
-   parent->parameters()->handleUnnecessaryParameter(name, "nyp", nyp);
-   parent->parameters()->handleUnnecessaryParameter(name, "nfp", nfp);
+   getParams()->handleUnnecessaryParameter(name, "nxp", nxp);
+   getParams()->handleUnnecessaryParameter(name, "nyp", nyp);
+   getParams()->handleUnnecessaryParameter(name, "nfp", nfp);
    return PV_SUCCESS;
 
 }
 
 int TransposePoolingConn::allocateDataStructures() {
    if (!originalConn->getDataStructuresAllocatedFlag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its allocateDataStructures stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;

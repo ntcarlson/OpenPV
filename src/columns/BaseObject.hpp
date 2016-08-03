@@ -25,8 +25,10 @@
 
 #include <observerpattern/Observer.hpp>
 #include "columns/CommunicateInitInfoMessage.hpp"
+#include "columns/Communicator.hpp"
 #include "columns/Messages.hpp"
 #include "include/pv_common.h"
+#include "io/PVParams.hpp"
 #include "utils/PVLog.hpp"
 #include "utils/PVAssert.hpp"
 #include "utils/PVAlloc.hpp"
@@ -39,6 +41,8 @@ class HyPerCol;
 class BaseObject : public Observer {
 public:
    inline char const * getName() const { return name; }
+   inline PVParams * getParams() const { return mParams; }
+   inline Communicator * getCommunicator() const { return mCommunicator; }
    inline HyPerCol * getParent() const { return parent; }
    inline char const * getDescription_c() const { return description.c_str(); }
    char const * getKeyword() const;
@@ -67,6 +71,8 @@ protected:
    BaseObject();
    int initialize(char const * name, HyPerCol * hc);
    int setName(char const * name);
+   void setParams(PVParams * params);
+   void setCommunicator(Communicator * comm);
    int setParent(HyPerCol * hc);
    virtual int setDescription();
 
@@ -96,6 +102,8 @@ protected:
 // Data members
 protected:
    char * name = nullptr;
+   PVParams * mParams = nullptr; // should be able to make const if PVParams is const-correct
+   Communicator * mCommunicator = nullptr;
    HyPerCol * parent = nullptr; // TODO: eliminate HyPerCol argument to constructor in favor of PVParams argument
    bool mInitInfoCommunicatedFlag = false;
    bool mDataStructuresAllocatedFlag = false;

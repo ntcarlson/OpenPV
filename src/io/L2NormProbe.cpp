@@ -43,7 +43,7 @@ void L2NormProbe::ioParam_exponent(enum ParamsIOFlag ioFlag) {
 }
 
 int L2NormProbe::setNormDescription() {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "exponent"));
+   assert(!getParams()->presentAndNotBeenRead(name, "exponent"));
    int status = PV_SUCCESS;
    if (exponent == 1.0) {
       status = setNormDescriptionToString("L2-norm");

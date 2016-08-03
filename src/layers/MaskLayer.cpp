@@ -61,7 +61,7 @@ void MaskLayer::ioParam_maskMethod(enum ParamsIOFlag ioFlag) {
    else if(strcmp(maskMethod, "noMaskFeatures") == 0){
    }
    else{
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: \"%s\" is not a valid maskMethod. Options are \"layer\", \"invertLayer\", \"maskFeatures\", or \"noMaskFeatures\".\n",
                getDescription_c(), maskMethod);
       }
@@ -70,18 +70,18 @@ void MaskLayer::ioParam_maskMethod(enum ParamsIOFlag ioFlag) {
 }
 
 void MaskLayer::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "maskMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "maskMethod"));
    if(strcmp(maskMethod, "layer") == 0 || strcmp(maskMethod, "invertLayer") == 0){
       parent->ioParamStringRequired(ioFlag, name, "maskLayerName", &maskLayerName);
    }
 }
 
 void MaskLayer::ioParam_featureIdxs(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "maskMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "maskMethod"));
    if(strcmp(maskMethod, "maskFeatures") == 0 || strcmp(maskMethod, "noMaskFeatures") == 0){
       parent->ioParamArray(ioFlag, name, "featureIdxs", &features, &numSpecifiedFeatures);
       if(numSpecifiedFeatures == 0){
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: MaskLayer must specify at least one feature for maskMethod \"%s\".\n",
                   getDescription_c(), maskMethod);
          }
@@ -95,11 +95,11 @@ int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    if(strcmp(maskMethod, "layer") == 0 || strcmp(maskMethod, "invertLayer") == 0){
       maskLayer = parent->getLayerFromName(maskLayerName);
       if (maskLayer==NULL) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: maskLayerName \"%s\" is not a layer in the HyPerCol.\n",
                   getDescription_c(), maskLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
 
@@ -107,26 +107,26 @@ int MaskLayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
       const PVLayerLoc * loc = getLayerLoc();
       assert(maskLoc != NULL && loc != NULL);
       if (maskLoc->nxGlobal != loc->nxGlobal || maskLoc->nyGlobal != loc->nyGlobal) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit(errorMessage);
             errorMessage.printf("%s: maskLayerName \"%s\" does not have the same x and y dimensions.\n",
                   getDescription_c(), maskLayerName);
             errorMessage.printf("    original (nx=%d, ny=%d, nf=%d) versus (nx=%d, ny=%d, nf=%d)\n",
                     maskLoc->nxGlobal, maskLoc->nyGlobal, maskLoc->nf, loc->nxGlobal, loc->nyGlobal, loc->nf);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
 
       if(maskLoc->nf != 1 && maskLoc->nf != loc->nf){
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit(errorMessage);
             errorMessage.printf("%s: maskLayerName \"%s\" must either have the same number of features as this layer, or one feature.\n",
                   getDescription_c(), maskLayerName);
             errorMessage.printf("    original (nx=%d, ny=%d, nf=%d) versus (nx=%d, ny=%d, nf=%d)\n",
                     maskLoc->nxGlobal, maskLoc->nyGlobal, maskLoc->nf, loc->nxGlobal, loc->nyGlobal, loc->nf);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
 

@@ -47,7 +47,7 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage con
    int status = ANNLayer::communicateInitInfo(message);
    HyPerLayer * hyperLayer = parent->getLayerFromName(imageLayerName);
    if (hyperLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), imageLayerName);
       }
@@ -56,16 +56,16 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage con
    else {
       imageLayer = dynamic_cast<PV::BaseInput *>(hyperLayer);
       if (imageLayer==NULL) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not an BaseInput-derived layer.\n",
                getDescription_c(), imageLayerName);
          }
          status = PV_FAILURE;
       }
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    if (!imageLayer->getInitInfoCommunicatedFlag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until imageLayer \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), imageLayerName);
       }
       return PV_POSTPONE;
@@ -73,12 +73,12 @@ int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage con
    PVLayerLoc const * imageLayerLoc = imageLayer->getLayerLoc();
    PVLayerLoc const * loc = getLayerLoc();
    if (imageLayerLoc->nx != loc->nx || imageLayerLoc->ny != loc->ny) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: dimensions (%d-by-%d) do not agree with dimensions of image layer \"%s\" (%d-by-%d)n", getDescription_c(), loc->nx, loc->ny, imageLayerName, imageLayerLoc->nx, imageLayerLoc->ny);
       }
       status = PV_FAILURE;
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    if (status==PV_FAILURE) {
       exit(EXIT_FAILURE);
    }

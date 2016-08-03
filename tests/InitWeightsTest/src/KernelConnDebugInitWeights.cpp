@@ -46,7 +46,7 @@ int KernelConnDebugInitWeights::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 void KernelConnDebugInitWeights::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       channel = CHANNEL_INH;
-      parent->parameters()->handleUnnecessaryParameter(name, "channelCode", (int) channel);
+      getParams()->handleUnnecessaryParameter(name, "channelCode", (int) channel);
    }
 }
 
@@ -54,7 +54,7 @@ void KernelConnDebugInitWeights::ioParam_sharedWeights(enum ParamsIOFlag ioFlag)
    sharedWeights = true;
    if (ioFlag == PARAMS_IO_READ) {
       fileType = PVP_KERNEL_FILE_TYPE;
-      parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights", true/*correctValue*/);
+      getParams()->handleUnnecessaryParameter(name, "sharedWeights", true/*correctValue*/);
    }
 }
 
@@ -68,11 +68,11 @@ int KernelConnDebugInitWeights::communicateInitInfo(CommunicateInitInfoMessage c
    otherConn = dynamic_cast<HyPerConn *>(baseConn);
    if (otherConn == NULL) {
       pvError().printf("KernelConnDebugInitWeights \"%s\" error in rank %d process: copiedConn \"%s\" is not a connection in the column.\n",
-            name, parent->getCommunicator()->commRank(), otherConnName);
+            name, getCommunicator()->commRank(), otherConnName);
    }
    if (otherConn->usingSharedWeights() == false) {
       pvError().printf("KernelConnDebugInitWeights \"%s\" error in rank %d process: copiedConn \"%s\" does not use shared weights.\n",
-            name, parent->getCommunicator()->commRank(), otherConnName);
+            name, getCommunicator()->commRank(), otherConnName);
    }
    return PV_SUCCESS;
 }
@@ -82,7 +82,7 @@ PVPatch *** KernelConnDebugInitWeights::initializeWeights(PVPatch *** arbors, pv
    // TODO  Implement InitWeightsMethod class.  The constructor for HyPerConn would take an InitWeightsMethod
    //       instantiation as an argument.  The routines called below would be put into derived classes
    //       of InitWeightsMethod.
-   PVParams * inputParams = parent->parameters();
+   PVParams * inputParams = getParams();
 
    // PVPatch ** kpatches = arbors[0]; // getKernelPatches(0);
    pvdata_t * arborStart = dataStart[0];
@@ -172,7 +172,7 @@ int KernelConnDebugInitWeights::smartWeights(pvdata_t * dataStart, int k)
 
 PVPatch ** KernelConnDebugInitWeights::initializeCocircWeights(PVPatch ** patches, pvdata_t * dataStart, int numPatches)
 {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
    float aspect = 1.0; // circular (not line oriented)
    float sigma = 0.8;
    float rMax = 1.4;
@@ -597,7 +597,7 @@ int KernelConnDebugInitWeights::cocircCalcWeights(pvdata_t * dataStart, int data
 
 PVPatch ** KernelConnDebugInitWeights::initializeGaussian2DWeights(PVPatch ** patches, pvdata_t * dataStart, int numPatches)
 {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    // default values (chosen for center on cell of one pixel)
    int noPost = nfp;
@@ -830,7 +830,7 @@ PVPatch ** KernelConnDebugInitWeights::initializeGaborWeights(PVPatch ** patches
    const int xScale = post->getXScale() - pre->getXScale();
    const int yScale = post->getYScale() - pre->getYScale();
 
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    float aspect = 4.0;
    float sigma  = 2.0;
@@ -858,7 +858,7 @@ PVPatch ** KernelConnDebugInitWeights::initializeGaborWeights(PVPatch ** patches
 int KernelConnDebugInitWeights::gaborWeights(pvdata_t * dataStart, int xScale, int yScale,
                             float aspect, float sigma, float r2Max, float lambda, float strength, float phi)
 {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    float rotate = 1.0;
    float invert = 0.0;

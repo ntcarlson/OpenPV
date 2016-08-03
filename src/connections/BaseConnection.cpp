@@ -64,7 +64,7 @@ void BaseConnection::setPreLayerName(const char * pre_name) {
       this->preLayerName = strdup(pre_name);
       if (this->preLayerName==NULL) {
          pvError().printf("%s: rank %d process unable to allocate memory for name of presynaptic layer \"%s\": %s\n",
-               getDescription_c(), this->getParent()->getCommunicator()->commRank(), pre_name, strerror(errno));
+               getDescription_c(), this->getCommunicator()->commRank(), pre_name, strerror(errno));
       }
    }
 }
@@ -75,7 +75,7 @@ void BaseConnection::setPostLayerName(const char * post_name) {
       this->postLayerName = strdup(post_name);
       if (this->postLayerName==NULL) {
          pvError().printf("%s: rank %d process unable to allocate memory for name of postsynaptic layer \"%s\": %s\n",
-               getDescription_c(), this->getParent()->getCommunicator()->commRank(), post_name, strerror(errno));
+               getDescription_c(), this->getCommunicator()->commRank(), post_name, strerror(errno));
       }
    }
 }
@@ -86,10 +86,10 @@ void BaseConnection::setPreSynapticLayer(HyPerLayer * pre) {
       this->pre = pre;
    }
    else{
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: pre layer \"%s\" does not exist in the params file.\n", this->getDescription_c(), this->preLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -100,10 +100,10 @@ void BaseConnection::setPostSynapticLayer(HyPerLayer * post) {
       this->post = post;
    }
    else{
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: post layer \"%s\" does not exist in the params file.\n", this->getDescription_c(), this->postLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -129,7 +129,7 @@ void BaseConnection::setConvertRateToSpikeCount(bool convertRateToSpikeCountFlag
 }
 
 int BaseConnection::handleMissingPreAndPostLayerNames() {
-   return inferPreAndPostFromConnName(this->getName(), this->getParent()->getCommunicator()->commRank(), &preLayerName, &postLayerName);
+   return inferPreAndPostFromConnName(this->getName(), this->getCommunicator()->commRank(), &preLayerName, &postLayerName);
 }
 
 int BaseConnection::inferPreAndPostFromConnName(const char * name, int rank, char ** preLayerNamePtr, char ** postLayerNamePtr) {
@@ -195,26 +195,26 @@ int BaseConnection::getPreAndPostLayerNames(const char * name, char ** preLayerN
    *preLayerNamePtr = NULL;
    *postLayerNamePtr = NULL;
    if (preLayerName == NULL && postLayerName == NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s: preLayerName and postLayerName will be inferred in the communicateInitInfo stage.\n", getDescription_c());
       }
    }
    else if (preLayerName==NULL && postLayerName!=NULL) {
       status = PV_FAILURE;
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: if postLayerName is specified, preLayerName must be specified as well.\n", getDescription_c());
       }
    }
    else if (preLayerName!=NULL && postLayerName==NULL) {
       status = PV_FAILURE;
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: if preLayerName is specified, postLayerName must be specified as well.\n", getDescription_c());
       }
    }
    else {
       assert(preLayerName!=NULL && postLayerName!=NULL);
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    if (status != PV_SUCCESS) {
       exit(EXIT_FAILURE);
    }
@@ -263,11 +263,11 @@ void BaseConnection::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
       this->getParent()->ioParamValueRequired(ioFlag, this->getName(), "channelCode", &ch);
       int status = decodeChannel(ch, &channel);
       if (status != PV_SUCCESS) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: channelCode %d is not a valid channel.\n",
                   this->getDescription_c(),  ch);
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -293,7 +293,7 @@ void BaseConnection::ioParam_delay(enum ParamsIOFlag ioFlag) {
       }
       *fDelayArray = 0.0f; // Default delay
       delayArraySize = 1;
-      if (this->getParent()->getCommunicator()->commRank()==0) {
+      if (this->getCommunicator()->commRank()==0) {
          pvInfo().printf("%s: Using default value of zero for delay.\n",
                this->getDescription_c());
       }
@@ -305,7 +305,7 @@ void BaseConnection::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
    this->getParent()->ioParamValue(ioFlag, this->getName(), "numAxonalArbors", &numArbors, 1);
    if (ioFlag == PARAMS_IO_READ) {
       this->setNumberOfAxonalArborLists(numArbors);
-      if (ioFlag == PARAMS_IO_READ && this->numberOfAxonalArborLists()==0 && this->getParent()->getCommunicator()->commRank()==0) {
+      if (ioFlag == PARAMS_IO_READ && this->numberOfAxonalArborLists()==0 && this->getCommunicator()->commRank()==0) {
          pvWarn().printf("Connection %s: Variable numAxonalArbors is set to 0. No connections will be made.\n", this->getName());
       }
    }
@@ -325,9 +325,9 @@ void BaseConnection::ioParam_convertRateToSpikeCount(enum ParamsIOFlag ioFlag) {
    // checking for the presence of the parameter in the params file can be eliminated, and this method
    // will consist of the single line calling HyPerCol::ioParamValue with "convertRateToSpikeCount".
    if (ioFlag == PARAMS_IO_READ) {
-      if (this->getParent()->parameters()->present(this->getName(), "preActivityIsNotRate")) {
-         bool preActivityIsNotRateValue = this->getParent()->parameters()->value(this->getName(), "preActivityIsNotRate");
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+      if (this->getParams()->present(this->getName(), "preActivityIsNotRate")) {
+         bool preActivityIsNotRateValue = this->getParams()->value(this->getName(), "preActivityIsNotRate");
+         if (this->getCommunicator()->commRank()==0) {
             std::stringstream errorMessage("");
             errorMessage << getDescription_c() << ": preActivityIsNotRate has been replaced with convertRateToSpikeCount.\n";
             if (preActivityIsNotRateValue) {
@@ -337,7 +337,7 @@ void BaseConnection::ioParam_convertRateToSpikeCount(enum ParamsIOFlag ioFlag) {
                pvWarn() << errorMessage.str();
             }
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          if (preActivityIsNotRateValue) { exit(EXIT_FAILURE); }
       }
    }
@@ -351,11 +351,11 @@ void BaseConnection::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
    bool receiveGpu = false;
    parent->ioParamValue(ioFlag, name, "receiveGpu", &receiveGpu, receiveGpu/*default*/, false/*warn if absent*/);
    if (ioFlag==PARAMS_IO_READ && receiveGpu) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: receiveGpu is set to true, but PetaVision was compiled without GPU acceleration.\n",
                this->getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 #endif // PV_USE_CUDA
@@ -434,10 +434,10 @@ int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * messa
       assert(this->getPostLayerName()==NULL);
       status = handleMissingPreAndPostLayerNames();
    }
-   MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+   MPI_Barrier(this->getCommunicator()->communicator());
    if (status != PV_SUCCESS) {
       assert(this->getPreLayerName()==NULL && this->getPostLayerName()==NULL);
-      if (this->getParent()->getCommunicator()->commRank()==0) {
+      if (this->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: Unable to determine pre- and post-layer names.  Exiting.\n", this->getDescription_c());
       }
       exit(EXIT_FAILURE);
@@ -445,18 +445,18 @@ int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * messa
    this->setPreSynapticLayer(this->getParent()->getLayerFromName(this->getPreLayerName()));
    this->setPostSynapticLayer(this->getParent()->getLayerFromName(this->getPostLayerName()));
    if (this->preSynapticLayer()==NULL) {
-      if (this->getParent()->getCommunicator()->commRank()==0) {
+      if (this->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: preLayerName \"%s\" does not correspond to a layer in the column.\n", getDescription_c(), this->getPreLayerName());
       }
       status = PV_FAILURE;
    }
    if (this->postSynapticLayer()==NULL) {
-      if (this->getParent()->getCommunicator()->commRank()==0) {
+      if (this->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: postLayerName \"%s\" does not correspond to a layer in the column.\n", getDescription_c(), this->getPostLayerName());
       }
       status = PV_FAILURE;
    }
-   MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+   MPI_Barrier(this->getCommunicator()->communicator());
    if (status != PV_SUCCESS) {
       exit(EXIT_FAILURE);
    }
@@ -470,7 +470,7 @@ int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * messa
    }
    int allowedDelay = this->preSynapticLayer()->increaseDelayLevels(maxdelay);
    if( allowedDelay < maxdelay ) {
-      if( this->getParent()->getCommunicator()->commRank() == 0 ) {
+      if( this->getCommunicator()->commRank() == 0 ) {
          pvErrorNoExit().printf("%s: attempt to set delay to %d, but the maximum allowed delay is %d.  Exiting\n", getDescription_c(), maxdelay, allowedDelay);
       }
       exit(EXIT_FAILURE);
@@ -484,7 +484,7 @@ int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * messa
    }
    assert(status != PV_SUCCESS || num_channels_check > (int) this->getChannel()); // if requireChannel passes, layer's numChannels should be large enough for the connection's channel
    if (status != PV_SUCCESS) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: postsynaptic layer \"%s\" failed to add channel %d\n",
                this->getDescription_c(), this->postSynapticLayer()->getName(), (int) this->getChannel());
       }
@@ -499,7 +499,7 @@ int BaseConnection::allocateDataStructures() {
 
 int BaseConnection::initializeDelays(const float * fDelayArray, int size){
    int status = PV_SUCCESS;
-   assert(!this->getParent()->parameters()->presentAndNotBeenRead(this->getName(), "numAxonalArbors"));
+   assert(!this->getParams()->presentAndNotBeenRead(this->getName(), "numAxonalArbors"));
    //Allocate delay data structure
    delays = (int *) calloc(this->numberOfAxonalArborLists(), sizeof(int));
    if( delays == NULL ) {

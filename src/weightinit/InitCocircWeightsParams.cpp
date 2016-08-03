@@ -63,7 +63,6 @@ int InitCocircWeightsParams::initialize_base() {
 int InitCocircWeightsParams::initialize(const char * name, HyPerCol * hc) {
    InitGauss2DWeightsParams::initialize(name, hc);
 
-   PVParams * params = parent->parameters();
    int status = PV_SUCCESS;
 
    return status;
@@ -102,37 +101,15 @@ void InitCocircWeightsParams::ioParam_deltaRadiusCurvature(enum ParamsIOFlag ioF
 }
 
 void InitCocircWeightsParams::ioParam_numOrientationsPre(enum ParamsIOFlag ioFlag) {
-   // noPre and noPost were deprecated as parameter names Feb 25, 2014
-   // and marked obsolete Jun 27, 2014.
+   // noPre and noPost were removed Aug 2, 2016, after long being obsolete.
    assert(post);
-   const char * paramname = "numOrientationsPre";
-   if (ioFlag==PARAMS_IO_READ && parent->parameters()->present(name, "noPre")) {
-      paramname = "noPre";
-      if (parent->getCommunicator()->commRank()==0) {
-         pvError().printf("%s \"%s\": noPre is deprecated.  Use numOrientationsPre instead.\n",
-               parent->parameters()->groupKeywordFromName(name), name);
-      }
-      MPI_Barrier(parent->getCommunicator()->communicator());
-      exit(EXIT_FAILURE);
-   }
-   parent->ioParamValue(ioFlag, name, paramname, &numOrientationsPre, pre->getLayerLoc()->nf);
+   parent->ioParamValue(ioFlag, name, "numOrientationsPre", &numOrientationsPre, pre->getLayerLoc()->nf);
 }
 
 void InitCocircWeightsParams::ioParam_numOrientationsPost(enum ParamsIOFlag ioFlag) {
-   // noPre and noPost were deprecated as parameter names Feb 25, 2014
-   // and marked obsolete Jun 27, 2014.
+   // noPre and noPost were removed Aug 2, 2016, after long being obsolete.
    assert(post);
-   const char * paramname = "numOrientationsPost";
-   if (ioFlag==PARAMS_IO_READ && parent->parameters()->present(name, "noPost")) {
-      paramname = "noPost";
-      if (parent->getCommunicator()->commRank()==0) {
-         pvError().printf("%s \"%s\": noPost is deprecated.  Use numOrientationsPost instead.\n",
-               parent->parameters()->groupKeywordFromName(name), name);
-      }
-      MPI_Barrier(parent->getCommunicator()->communicator());
-      exit(EXIT_FAILURE);
-   }
-   parent->ioParamValue(ioFlag, name, paramname, &numOrientationsPost, post->getLayerLoc()->nf);
+   parent->ioParamValue(ioFlag, name, "numOrientationsPost", &numOrientationsPost, post->getLayerLoc()->nf);
 }
 
 void InitCocircWeightsParams::calcOtherParams(int patchIndex) {

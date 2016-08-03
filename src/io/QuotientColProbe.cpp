@@ -75,7 +75,7 @@ int QuotientColProbe::communicateInitInfo(CommunicateInitInfoMessage const * mes
    denomProbe = findProbe(denominator);
    if (numerProbe==NULL || denomProbe==NULL) {
       status = PV_FAILURE;
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          if (numerProbe==NULL) {
             pvErrorNoExit().printf("%s: numerator probe \"%s\" could not be found.\n", getDescription_c(), numerator);
          }
@@ -88,11 +88,11 @@ int QuotientColProbe::communicateInitInfo(CommunicateInitInfoMessage const * mes
       int nNumValues = numerProbe->getNumValues();
       int dNumValues = denomProbe->getNumValues();
       if (nNumValues != dNumValues) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: numerator probe \"%s\" and denominator probe \"%s\" have differing numbers of values (%d vs. %d)\n",
                   getDescription_c(), numerator, denominator, nNumValues, dNumValues);
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       status = setNumValues(nNumValues);
@@ -103,7 +103,7 @@ int QuotientColProbe::communicateInitInfo(CommunicateInitInfoMessage const * mes
       }
    }
    if (status != PV_SUCCESS) {
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return status;
@@ -143,7 +143,7 @@ double QuotientColProbe::referenceUpdateTime() const {
 
 int QuotientColProbe::outputState(double timevalue) {
    getValues(timevalue);
-   if( this->getParent()->getCommunicator()->commRank() != 0 ) return PV_SUCCESS;
+   if( this->getCommunicator()->commRank() != 0 ) return PV_SUCCESS;
    double * valuesBuffer = getValuesBuffer();
    int numValues = this->getNumValues();
    for(int b = 0; b < numValues; b++){

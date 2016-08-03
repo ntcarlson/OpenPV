@@ -98,35 +98,35 @@ void RescaleLayer::ioParam_rescaleMethod(enum ParamsIOFlag ioFlag){
 }
 
 void RescaleLayer::ioParam_targetMax(enum ParamsIOFlag ioFlag){
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "rescaleMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if (strcmp(rescaleMethod, "maxmin")==0) {
       parent->ioParamValue(ioFlag, name, "targetMax", &targetMax, targetMax);
    }
 }
 
 void RescaleLayer::ioParam_targetMin(enum ParamsIOFlag ioFlag){
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "rescaleMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if (strcmp(rescaleMethod, "maxmin")==0) {
       parent->ioParamValue(ioFlag, name, "targetMin", &targetMin, targetMin);
    }
 }
 
 void RescaleLayer::ioParam_targetMean(enum ParamsIOFlag ioFlag){
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "rescaleMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if ((strcmp(rescaleMethod, "meanstd")==0) || (strcmp(rescaleMethod, "pointmeanstd")==0)) {
       parent->ioParamValue(ioFlag, name, "targetMean", &targetMean, targetMean);
    }
 }
 
 void RescaleLayer::ioParam_targetStd(enum ParamsIOFlag ioFlag){
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "rescaleMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if ((strcmp(rescaleMethod, "meanstd")==0) || (strcmp(rescaleMethod, "pointmeanstd")==0)) {
       parent->ioParamValue(ioFlag, name, "targetStd", &targetStd, targetStd);
    }
 }
 
 void RescaleLayer::ioParam_patchSize(enum ParamsIOFlag ioFlag){
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "rescaleMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if (strcmp(rescaleMethod, "l2")==0 || strcmp(rescaleMethod, "l2NoMean") == 0) {
       parent->ioParamValue(ioFlag, name, "patchSize", &patchSize, patchSize);
    }
@@ -173,8 +173,8 @@ int RescaleLayer::updateState(double timef, double dt) {
              }
           }
 
-          MPI_Allreduce(MPI_IN_PLACE, &maxA, 1, MPI_FLOAT, MPI_MAX, parent->getCommunicator()->communicator());
-          MPI_Allreduce(MPI_IN_PLACE, &minA, 1, MPI_FLOAT, MPI_MIN, parent->getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &maxA, 1, MPI_FLOAT, MPI_MAX, getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &minA, 1, MPI_FLOAT, MPI_MIN, getCommunicator()->communicator());
 
           float rangeA = maxA - minA;
           if (rangeA != 0) {
@@ -211,7 +211,7 @@ int RescaleLayer::updateState(double timef, double dt) {
              sum += originalABatch[kextOriginal];
           }
 
-          MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_FLOAT, MPI_SUM, parent->getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_FLOAT, MPI_SUM, getCommunicator()->communicator());
 
           float mean = sum / originalLayer->getNumGlobalNeurons();
 
@@ -225,7 +225,7 @@ int RescaleLayer::updateState(double timef, double dt) {
              sumsq += (originalABatch[kextOriginal] - mean) * (originalABatch[kextOriginal] - mean);
           }
 
-          MPI_Allreduce(MPI_IN_PLACE, &sumsq, 1, MPI_FLOAT, MPI_SUM, parent->getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &sumsq, 1, MPI_FLOAT, MPI_SUM, getCommunicator()->communicator());
           float std = sqrt(sumsq / originalLayer->getNumGlobalNeurons());
           // The difference between the if and the else clauses is only in the computation of A[kext], but this
           // way the std != 0.0 conditional is only evaluated once, not every time through the for-loop.
@@ -265,7 +265,7 @@ int RescaleLayer::updateState(double timef, double dt) {
              sum += originalABatch[kextOriginal];
           }
 
-          MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_FLOAT, MPI_SUM, parent->getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &sum, 1, MPI_FLOAT, MPI_SUM, getCommunicator()->communicator());
 
           float mean = sum / originalLayer->getNumGlobalNeurons();
 
@@ -279,7 +279,7 @@ int RescaleLayer::updateState(double timef, double dt) {
              sumsq += (originalABatch[kextOriginal] - mean) * (originalABatch[kextOriginal] - mean);
           }
 
-          MPI_Allreduce(MPI_IN_PLACE, &sumsq, 1, MPI_FLOAT, MPI_SUM, parent->getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &sumsq, 1, MPI_FLOAT, MPI_SUM, getCommunicator()->communicator());
           float std = sqrt(sumsq / originalLayer->getNumGlobalNeurons());
           // The difference between the if and the else clauses is only in the computation of A[kext], but this
           // way the std != 0.0 conditional is only evaluated once, not every time through the for-loop.
@@ -319,7 +319,7 @@ int RescaleLayer::updateState(double timef, double dt) {
           }
 
 #ifdef PV_USE_MPI
-          MPI_Allreduce(MPI_IN_PLACE, &sumsq, 1, MPI_FLOAT, MPI_SUM, parent->getCommunicator()->communicator());
+          MPI_Allreduce(MPI_IN_PLACE, &sumsq, 1, MPI_FLOAT, MPI_SUM, getCommunicator()->communicator());
 #endif // PV_USE_MPI
 
           float std = sqrt(sumsq / originalLayer->getNumGlobalNeurons());

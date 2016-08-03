@@ -16,7 +16,7 @@ int ImportParamsLayer::initialize(const char * name, HyPerCol * hc)
 {
    ANNLayer::initialize(name, hc);
 
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
    if(strcmp(name, "orig") == 0){
       //Test grabbed value
       assert(params->value(name, "nxScale") == 1);

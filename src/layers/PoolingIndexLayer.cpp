@@ -41,7 +41,7 @@ int PoolingIndexLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 
 void PoolingIndexLayer::ioParam_dataType(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "dataType");
+      getParams()->handleUnnecessaryParameter(name, "dataType");
       dataType = PV_INT;
    }
 }

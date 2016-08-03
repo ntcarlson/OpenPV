@@ -52,7 +52,7 @@ int MoviePvp::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int MoviePvp::readFrameNumStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
-   readArrayFromFile(cpDir, getName(), "FrameNumState", parent->getCommunicator(), frameNumbers, parent->getNBatch());
+   readArrayFromFile(cpDir, getName(), "FrameNumState", getCommunicator(), frameNumbers, parent->getNBatch());
    return status;
 }
 
@@ -62,9 +62,9 @@ int MoviePvp::checkpointRead(const char * cpDir, double * timef){
    // should this be moved to readStateFromCheckpoint?
    if (writeFrameToTimestamp) {
       long timestampFilePos = 0L;
-      readScalarFromFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), &timestampFilePos, timestampFilePos);
+      readScalarFromFile(cpDir, getName(), "TimestampState", getCommunicator(), &timestampFilePos, timestampFilePos);
       if (timestampFile) {
-         assert(parent->getCommunicator()->commRank()==0);
+         assert(getCommunicator()->commRank()==0);
          if (PV_fseek(timestampFile, timestampFilePos, SEEK_SET) != 0) {
             pvError().printf("MovieLayer::checkpointRead error: unable to recover initial file position in timestamp file for layer %s: %s\n", name, strerror(errno));
          }
@@ -77,13 +77,13 @@ int MoviePvp::checkpointRead(const char * cpDir, double * timef){
 int MoviePvp::checkpointWrite(const char * cpDir){
    int status = ImagePvp::checkpointWrite(cpDir);
 
-   writeArrayToFile(cpDir, getName(), "FrameNumbers", parent->getCommunicator(),
+   writeArrayToFile(cpDir, getName(), "FrameNumbers", getCommunicator(),
          frameNumbers, parent->getNBatch(), parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file
    if (timestampFile) {
       long timestampFilePos = getPV_StreamFilepos(timestampFile);
-      writeScalarToFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), timestampFilePos, parent->getVerifyWrites());
+      writeScalarToFile(cpDir, getName(), "TimestampState", getCommunicator(), timestampFilePos, parent->getVerifyWrites());
    }
 
    return status;
@@ -114,7 +114,7 @@ int MoviePvp::initialize(const char * name, HyPerCol * hc) {
       parent->ensureDirExists(timestampFilename.c_str());
       timestampFilename += name;
       timestampFilename += ".txt";
-      if(getParent()->getCommunicator()->commRank()==0){
+      if(getCommunicator()->commRank()==0){
           //If checkpoint read is set, append, otherwise, clobber
           if(getParent()->getCheckpointReadFlag()){
              struct stat statbuf;
@@ -153,7 +153,7 @@ void MoviePvp::ioParam_pvpFrameIdx(enum ParamsIOFlag ioFlag) {
    // Image uses frameNumber to pick the frame of a pvp file, but
    // Movie uses start_frame_index to pick the starting frame.
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "pvpFrameIdx");
+      getParams()->handleUnnecessaryParameter(name, "pvpFrameIdx");
    }
 }
 
@@ -184,7 +184,7 @@ void MoviePvp::ioParam_skip_frame_index(enum ParamsIOFlag ioFlag) {
 }
 
 void MoviePvp::ioParam_movieOutputPath(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "writeImages"));
+   assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages){
       parent->ioParamString(ioFlag, name, "movieOutputPath", &movieOutputPath, parent->getOutputPath());
    }
@@ -200,7 +200,7 @@ void MoviePvp::ioParam_resetToStartOnLoop(enum ParamsIOFlag ioFlag) {
 
 MoviePvp::~MoviePvp()
 {
-   if (getParent()->getCommunicator()->commRank()==0 && timestampFile != NULL && timestampFile->isfile) {
+   if (getCommunicator()->commRank()==0 && timestampFile != NULL && timestampFile->isfile) {
        PV_fclose(timestampFile);
    }
    free(movieOutputPath);
@@ -215,7 +215,7 @@ MoviePvp::~MoviePvp()
 int MoviePvp::allocateDataStructures() {
 
    //Get file information
-   Communicator* comm = parent->getCommunicator();
+   Communicator* comm = getCommunicator();
 
    startFrameIndex = (int*)calloc(parent->getNBatch(), sizeof(int));
    assert(startFrameIndex);
@@ -284,8 +284,8 @@ int MoviePvp::allocateDataStructures() {
    }
    else if(strcmp(batchMethod, "bySpecified") == 0){
       int nbatchGlobal = parent->getNBatchGlobal();
-      int commBatch = parent->getCommunicator()->commBatch();
-      int numBatchPerProc = parent->getCommunicator()->numCommBatches();
+      int commBatch = getCommunicator()->commBatch();
+      int numBatchPerProc = getCommunicator()->numCommBatches();
 
       if(numStartFrame != nbatchGlobal && numStartFrame != 0){
          pvError() << "Movie layer " << name << " batchMethod of \"bySpecified\" requires 0 or " << nbatchGlobal << " start_frame_index values\n";
@@ -403,7 +403,7 @@ int MoviePvp::retrieveData(double timef, double dt, int batchIndex)
  */
 bool MoviePvp::updateImage(double time, double dt)
 {
-   Communicator * icComm = getParent()->getCommunicator();
+   Communicator * icComm = getCommunicator();
 
             if(fabs(time - (parent->getStartTime() + parent->getDeltaTime())) > (parent->getDeltaTime()/2)){
                int status = getFrame(time, dt);
@@ -461,7 +461,7 @@ int MoviePvp::outputState(double timed, bool last)
 //This function takes care of rewinding for pvp files
 int MoviePvp::updateFrameNum(int n_skip, int batchIdx){
    //assert(readPvpFile);
-   Communicator * icComm = getParent()->getCommunicator();
+   Communicator * icComm = getCommunicator();
    int numskip = n_skip < 1 ? 1 : n_skip;
    for(int i_skip = 0; i_skip < numskip; i_skip++){
       int status = updateFrameNum(batchIdx);
@@ -476,7 +476,7 @@ int MoviePvp::updateFrameNum(int batchIdx) {
    frameNumbers[batchIdx] += 1;
    //numFrames only set if pvp file
    if(frameNumbers[batchIdx] >= fileNumFrames){
-      if(parent->getCommunicator()->commRank()==0){
+      if(getCommunicator()->commRank()==0){
          pvInfo().printf("Movie %s: EOF reached, rewinding file \"%s\"\n", name, inputPath );
       }
       if(resetToStartOnLoop){

@@ -98,7 +98,7 @@ int Retina::initialize_base() {
 int Retina::initialize(const char * name, HyPerCol * hc) {
    int status = HyPerLayer::initialize(name, hc);
 
-   setRetinaParams(parent->parameters());
+   setRetinaParams(getParams());
 
    return status;
 }
@@ -114,7 +114,7 @@ int Retina::communicateInitInfo(CommunicateInitInfoMessage const * message) {
 int Retina::allocateDataStructures() {
    int status = HyPerLayer::allocateDataStructures();
 
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "spikingFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "spikingFlag"));
    if (spikingFlag) {
       // // a random state variable is needed for every neuron/clthread
       const PVLayerLoc * loc = getLayerLoc();
@@ -155,7 +155,7 @@ int Retina::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void Retina::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->handleUnnecessaryParameter(name, "InitVType");
+   getParams()->handleUnnecessaryParameter(name, "InitVType");
    return;
 }
 
@@ -164,22 +164,22 @@ void Retina::ioParam_spikingFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void Retina::ioParam_foregroundRate(enum ParamsIOFlag ioFlag) {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
    if (ioFlag==PARAMS_IO_READ && !params->present(name, "foregroundRate")) {
       if (params->present(name, "noiseOnFreq")) {
          probStimParam = params->value(name, "noiseOnFreq");
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvError().printf("noiseOnFreq is obsolete.  Use foregroundRate instead.\n");
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       if (params->present(name, "poissonEdgeProb")) {
          probStimParam = params->value(name, "poissonEdgeProb");
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvError().printf("poissonEdgeProb is deprecated.  Use foregroundRate instead.\n");
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -189,22 +189,22 @@ void Retina::ioParam_foregroundRate(enum ParamsIOFlag ioFlag) {
 }
 
 void Retina::ioParam_backgroundRate(enum ParamsIOFlag ioFlag) {
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
    if (ioFlag==PARAMS_IO_READ && !params->present(name, "backgroundRate")) {
       if (params->present(name, "noiseOffFreq")) {
          probBaseParam = params->value(name, "noiseOffFreq");
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvWarn().printf("noiseOffFreq is deprecated.  Use backgroundRate instead.\n");
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       if (params->present(name, "poissonBlankProb")) {
          probBaseParam = params->value(name, "poissonBlankProb");
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvWarn().printf("poissonEdgeProb is deprecated.  Use backgroundRate instead.\n");
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -213,7 +213,7 @@ void Retina::ioParam_backgroundRate(enum ParamsIOFlag ioFlag) {
    // and the sanity check following it.
    parent->ioParamValue(ioFlag, name, "backgroundRate", &probBaseParam, 0.0f);
    if (ioFlag==PARAMS_IO_READ) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "foregroundRate"));
+      assert(!getParams()->presentAndNotBeenRead(name, "foregroundRate"));
       if (probBaseParam > probStimParam) {
          pvError().printf("%s: backgroundRate cannot be greater than foregroundRate.\n",
                getDescription_c());
@@ -240,14 +240,14 @@ void Retina::ioParam_burstDuration(enum ParamsIOFlag ioFlag) {
 }
 
 void Retina::ioParam_refractoryPeriod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "spikingFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "spikingFlag"));
    if (spikingFlag){
       parent->ioParamValue(ioFlag, name, "refractoryPeriod", &rParams.refractory_period, (float) REFRACTORY_PERIOD);
    }
 }
 
 void Retina::ioParam_absRefractoryPeriod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "spikingFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "spikingFlag"));
    if (spikingFlag){
       parent->ioParamValue(ioFlag, name, "absRefractoryPeriod", &rParams.abs_refractory_period, (float) ABS_REFRACTORY_PERIOD);
    }
@@ -286,7 +286,7 @@ int Retina::readRandStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
    if (spikingFlag) {
       auto filename = pathInCheckpoint(cpDir, getName(), "rand_state", "bin");
-      status = readRandState(filename->c_str(), parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), true /*isExtended*/);
+      status = readRandState(filename->c_str(), getCommunicator(), randState->getRNG(0), getLayerLoc(), true /*isExtended*/);
       delete filename;
    }
    return status;
@@ -299,13 +299,13 @@ int Retina::checkpointWrite(const char * cpDir) {
    char filename[PV_PATH_MAX];
    int chars_needed = snprintf(filename, PV_PATH_MAX, "%s/%s_rand_state.bin", cpDir, name);
    if(chars_needed >= PV_PATH_MAX) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("HyPerLayer::checkpointWrite for %s:  base pathname \"%s/%s_rand_state.bin\" too long.\n", getDescription_c(), cpDir, name);
       }
       abort();
    }
    if (spikingFlag) {
-      int rand_state_status = writeRandState(filename, parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), true /*isExtended*/, parent->getVerifyWrites());
+      int rand_state_status = writeRandState(filename, getCommunicator(), randState->getRNG(0), getLayerLoc(), true /*isExtended*/, parent->getVerifyWrites());
       if (rand_state_status != PV_SUCCESS) status = rand_state_status;
    }
    return status;

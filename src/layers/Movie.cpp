@@ -29,10 +29,10 @@ Movie::Movie(const char * name, HyPerCol * hc) {
 
 Movie::~Movie()
 {
-   if (getParent()->getCommunicator()->commRank()==0 && filenamestream != NULL && filenamestream->isfile) {
+   if (getCommunicator()->commRank()==0 && filenamestream != NULL && filenamestream->isfile) {
       PV_fclose(filenamestream);
    }
-   if (getParent()->getCommunicator()->commRank()==0 && timestampFile != NULL && timestampFile->isfile) {
+   if (getCommunicator()->commRank()==0 && timestampFile != NULL && timestampFile->isfile) {
        PV_fclose(timestampFile);
    }
    if(movieOutputPath){
@@ -105,8 +105,8 @@ int Movie::readFrameNumStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
    int nbatch = parent->getNBatch();
 
-   readArrayFromFile(cpDir, getName(), "FilenamePos", parent->getCommunicator(), batchPos, nbatch);
-   readArrayFromFile(cpDir, getName(), "FrameNumbers", parent->getCommunicator(), frameNumbers, parent->getNBatch());
+   readArrayFromFile(cpDir, getName(), "FilenamePos", getCommunicator(), batchPos, nbatch);
+   readArrayFromFile(cpDir, getName(), "FrameNumbers", getCommunicator(), frameNumbers, parent->getNBatch());
 
    return status;
 }
@@ -117,9 +117,9 @@ int Movie::checkpointRead(const char * cpDir, double * timef){
    // should this be moved to readStateFromCheckpoint?
    if (writeFrameToTimestamp) {
       long timestampFilePos = 0L;
-      readScalarFromFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), &timestampFilePos, timestampFilePos);
+      readScalarFromFile(cpDir, getName(), "TimestampState", getCommunicator(), &timestampFilePos, timestampFilePos);
       if (timestampFile) {
-         assert(parent->getCommunicator()->commRank()==0);
+         assert(getCommunicator()->commRank()==0);
          if (PV_fseek(timestampFile, timestampFilePos, SEEK_SET) != 0) {
             pvError().printf("MovieLayer::checkpointRead error: unable to recover initial file position in timestamp file for layer %s: %s\n", name, strerror(errno));
          }
@@ -132,15 +132,15 @@ int Movie::checkpointRead(const char * cpDir, double * timef){
 int Movie::checkpointWrite(const char * cpDir){
    int status = Image::checkpointWrite(cpDir);
 
-   writeArrayToFile(cpDir, getName(), "FilenamePos", parent->getCommunicator(),
+   writeArrayToFile(cpDir, getName(), "FilenamePos", getCommunicator(),
          batchPos, parent->getNBatch(), parent->getVerifyWrites());
-   writeArrayToFile(cpDir, getName(), "FrameNumbers", parent->getCommunicator(),
+   writeArrayToFile(cpDir, getName(), "FrameNumbers", getCommunicator(),
          frameNumbers, parent->getNBatch(), parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file
    if (timestampFile) {
       long timestampFilePos = getPV_StreamFilepos(timestampFile);
-      writeScalarToFile(cpDir, getName(), "TimestampState", parent->getCommunicator(), timestampFilePos, parent->getVerifyWrites());
+      writeScalarToFile(cpDir, getName(), "TimestampState", getCommunicator(), timestampFilePos, parent->getVerifyWrites());
    }
 
    return status;
@@ -181,7 +181,7 @@ int Movie::initialize(const char * name, HyPerCol * hc) {
       parent->ensureDirExists(timestampFilename.c_str());
       timestampFilename += name;
       timestampFilename += ".txt";
-      if(getParent()->getCommunicator()->commRank()==0){
+      if(getCommunicator()->commRank()==0){
           //If checkpoint read is set, append, otherwise, clobber
           if(getParent()->getCheckpointReadFlag()){
              struct stat statbuf;
@@ -255,7 +255,7 @@ void Movie::ioParam_skip_frame_index(enum ParamsIOFlag ioFlag) {
 }
 
 void Movie::ioParam_movieOutputPath(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "writeImages"));
+   assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages){
       parent->ioParamString(ioFlag, name, "movieOutputPath", &movieOutputPath, parent->getOutputPath());
    }
@@ -274,7 +274,7 @@ int Movie::allocateDataStructures() {
 
    //Allocate framePaths here before image, since allocate call will call getFrame
 
-   if(parent->getCommunicator()->commRank()==0){
+   if(getCommunicator()->commRank()==0){
       framePath = (char**) malloc(parent->getNBatch() * sizeof(char*));
       assert(framePath);
       for(int b = 0; b < parent->getNBatch(); b++){
@@ -367,8 +367,8 @@ int Movie::allocateDataStructures() {
    }
    else if(strcmp(batchMethod, "bySpecified") == 0){
       int nbatchGlobal = parent->getNBatchGlobal();
-      int commBatch = parent->getCommunicator()->commBatch();
-      int numBatchPerProc = parent->getCommunicator()->numCommBatches();
+      int commBatch = getCommunicator()->commBatch();
+      int numBatchPerProc = getCommunicator()->numCommBatches();
 
       if(numStartFrame != nbatchGlobal && numStartFrame != 0){
          pvError() << "Movie layer " << name << " batchMethod of \"bySpecified\" requires 0 or " << nbatchGlobal << " start_frame_index values\n";
@@ -404,7 +404,7 @@ int Movie::allocateDataStructures() {
       //This should never excute, as this check was done in the reading of this parameter
       assert(0);
    }
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       for (int b=0; b<parent->getNBatch(); b++) {
          frameNumbers[b] = -1;
       }
@@ -491,11 +491,11 @@ bool Movie::updateImage(double time, double dt)
       jitter();
    } // jitterFlag
 
-   Communicator * icComm = getParent()->getCommunicator();
+   Communicator * icComm = getCommunicator();
 
    //TODO: Fix movie layer to take with batches. This is commented out for compile
    //if(!flipOnTimescaleError && (parent->getTimeScale() > 0 && parent->getTimeScale() < parent->getTimeScaleMin())){
-   //   if (parent->getCommunicator()->commRank()==0) {
+   //   if (getCommunicator()->commRank()==0) {
    //      pvWarn() << "timeScale of " << parent->getTimeScale() << " is less than timeScaleMin of " << parent->getTimeScaleMin() << ", Movie is keeping the same frame\n";
    //   }
    //}
@@ -561,7 +561,7 @@ int Movie::outputState(double timed, bool last)
 
 // advance by n_skip lines through file of filenames, always advancing at least one line
 const char * Movie::getNextFileName(int n_skip, int batchIdx) {
-   Communicator * icComm = getParent()->getCommunicator();
+   Communicator * icComm = getCommunicator();
    assert(icComm->commRank() == 0);
    const char* outFilename = NULL;
    int numskip = n_skip < 1 ? 1 : n_skip;
@@ -577,7 +577,7 @@ const char * Movie::getNextFileName(int n_skip, int batchIdx) {
 //This function will reset the file position of the open file
 int Movie::getNumFrames(){
    int count = 0;
-   if(parent->getCommunicator()->commRank()==0){
+   if(getCommunicator()->commRank()==0){
       int c;
       PV_fseek(filenamestream, 0L, SEEK_SET);
       while((c = fgetc(filenamestream->fp)) != EOF) {
@@ -590,14 +590,14 @@ int Movie::getNumFrames(){
       batchPos[0] = 0L;
       frameNumbers[0] = -1;
    }
-   MPI_Bcast(&count, 1, MPI_INT, 0, parent->getCommunicator()->communicator());
+   MPI_Bcast(&count, 1, MPI_INT, 0, getCommunicator()->communicator());
    return count;
 }
 
 //This function takes care of rewinding for frame files
 const char * Movie::advanceFileName(int batchIdx) {
    // IMPORTANT!! This function should only be called by getNextFileName(int), and only by the root process
-   assert(parent->getCommunicator()->commRank()==0);
+   assert(getCommunicator()->commRank()==0);
 
    //Restore position of batch Idx
    PV_fseek(filenamestream, batchPos[batchIdx], SEEK_SET);

@@ -105,7 +105,7 @@ void BaseProbe::ioParam_energyProbe(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseProbe::ioParam_coefficient(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "energyProbe"));
+   assert(!getParams()->presentAndNotBeenRead(name, "energyProbe"));
    if (energyProbe && energyProbe[0]) {
       parent->ioParamValue(ioFlag, name, "coefficient", &coefficient, coefficient, true/*warnIfAbsent*/);
    }
@@ -116,7 +116,7 @@ void BaseProbe::ioParam_textOutputFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseProbe::ioParam_probeOutputFile(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "textOutputFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "textOutputFlag"));
    if (textOutputFlag) {
       parent->ioParamString(ioFlag, name, "probeOutputFile", &probeOutputFilename, NULL, false/*warnIfAbsent*/);
    }
@@ -135,11 +135,11 @@ void BaseProbe::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
 // While triggerFlag is being deprecated, it is an error for triggerFlag to be false
 // and triggerLayerName to be a nonempty string.
 void BaseProbe::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "triggerLayerName"));
-   if (ioFlag == PARAMS_IO_READ && parent->parameters()->present(name, "triggerFlag")) {
+   assert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
+   if (ioFlag == PARAMS_IO_READ && getParams()->present(name, "triggerFlag")) {
       bool flagFromParams = false;
       parent->ioParamValue(ioFlag, name, "triggerFlag", &flagFromParams, flagFromParams);
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn(triggerFlagDeprecated);
          triggerFlagDeprecated.printf("%s: triggerFlag has been deprecated.\n", getDescription_c());
          triggerFlagDeprecated.printf("   If triggerLayerName is a nonempty string, triggering will be on;\n");
@@ -157,17 +157,17 @@ void BaseProbe::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseProbe::ioParam_triggerOffset(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "triggerFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "triggerFlag"));
    if (triggerFlag) {
       parent->ioParamValue(ioFlag, name, "triggerOffset", &triggerOffset, triggerOffset);
       if(triggerOffset < 0){
-         pvError().printf("%s \"%s\" error in rank %d process: TriggerOffset (%f) must be positive\n", parent->parameters()->groupKeywordFromName(name), name, parent->getCommunicator()->commRank(), triggerOffset);
+         pvError().printf("%s \"%s\" error in rank %d process: TriggerOffset (%f) must be positive\n", getParams()->groupKeywordFromName(name), name, getCommunicator()->commRank(), triggerOffset);
       }
    }
 }
 
 int BaseProbe::initOutputStream(const char * filename) {
-   if( parent->getCommunicator()->commRank()==0 ) {
+   if( getCommunicator()->commRank()==0 ) {
       if( filename != NULL ) {
          std::string path("");
          if (filename[0]!='/') {
@@ -226,11 +226,11 @@ int BaseProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    if(triggerFlag){
       triggerLayer = parent->getLayerFromName(triggerLayerName);
       if (triggerLayer==NULL) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": triggerLayer \"%s\" is not a layer in the HyPerCol.\n",
-                  parent->parameters()->groupKeywordFromName(name), name, triggerLayerName);
+                  getParams()->groupKeywordFromName(name), name, triggerLayerName);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -240,11 +240,11 @@ int BaseProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
       BaseProbe * baseprobe = getParent()->getBaseProbeFromName(energyProbe);
       ColumnEnergyProbe * probe = dynamic_cast<ColumnEnergyProbe *>(baseprobe);
       if (probe==NULL) {
-         if (getParent()->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": energyProbe \"%s\" is not a ColumnEnergyProbe in the column.\n",
-                  getParent()->parameters()->groupKeywordFromName(getName()), getName(), energyProbe);
+                  getParams()->groupKeywordFromName(getName()), getName(), energyProbe);
          }
-         MPI_Barrier(getParent()->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       status = probe->addTerm(this);
@@ -281,7 +281,7 @@ int BaseProbe::initMessage(const char * msg) {
    }
    if( !this->msgstring ) {
       pvErrorNoExit().printf("%s \"%s\": Unable to allocate memory for probe's message.\n",
-            parent->parameters()->groupKeywordFromName(name), name);
+            getParams()->groupKeywordFromName(name), name);
       status = PV_FAILURE;
    }
    assert(status == PV_SUCCESS);

@@ -32,11 +32,11 @@ int WTALayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = HyPerLayer::communicateInitInfo(message);
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), originalLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if (originalLayer->getInitInfoCommunicatedFlag()==false) {
@@ -48,14 +48,14 @@ int WTALayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);
    if (srcLoc->nxGlobal != loc->nxGlobal || srcLoc->nyGlobal != loc->nyGlobal) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayerName \"%s\" does not have the same dimensions.\n",
                  getDescription_c(), originalLayerName);
          errorMessage.printf("    original (nx=%d, ny=%d) versus (nx=%d, ny=%d)\n",
                  srcLoc->nxGlobal, srcLoc->nyGlobal, loc->nxGlobal, loc->nyGlobal);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if(getLayerLoc()->nf != 1){
@@ -91,11 +91,11 @@ void WTALayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalLayerName", &originalLayerName);
    assert(originalLayerName);
    if (ioFlag==PARAMS_IO_READ && originalLayerName[0]=='\0') {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName must be set.\n",
                  getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -104,11 +104,11 @@ void WTALayer::ioParam_binMaxMin(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "binMax", &binMax, binMax);
    parent->ioParamValue(ioFlag, name, "binMin", &binMin, binMin);
    if(ioFlag == PARAMS_IO_READ && binMax <= binMin){
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: binMax (%f) must be greater than binMin (%f).\n",
             getDescription_c(), binMax, binMin);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }

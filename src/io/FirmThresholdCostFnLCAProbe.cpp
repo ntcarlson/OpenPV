@@ -24,19 +24,19 @@ int FirmThresholdCostFnLCAProbe::communicateInitInfo(CommunicateInitInfoMessage 
    assert(targetLayer);
    HyPerLCALayer * targetLCALayer = dynamic_cast<HyPerLCALayer *>(targetLayer);
    if (targetLCALayer==nullptr) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: targetLayer \"%s\" is not an LCA layer.\n",
                getDescription_c(), getTargetName());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if (targetLCALayer->layerListsVerticesInParams()==true) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: LCAProbes require targetLayer \"%s\" to use VThresh etc. instead of verticesV/verticesV.\n",
                getDescription_c(), getTargetName());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if (status == PV_SUCCESS) {

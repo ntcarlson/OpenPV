@@ -124,7 +124,7 @@ int ShrunkenPatchTestProbe::outputState(double timed) {
             int y = kyPos(k,loc->nx, loc->ny, loc->nf);
             int f = featureIndex(k,loc->nx,loc->ny,loc->nf);
             pvError().printf("%s: Incorrect value %f (should be %f) in process %d, x=%d, y=%d, f=%d\n",
-                  l->getDescription_c(), buf[kex], correctValues[x], getTargetLayer()->getParent()->getCommunicator()->commRank(), x, y, f);
+                  l->getDescription_c(), buf[kex], correctValues[x], getTargetLayer()->getCommunicator()->commRank(), x, y, f);
          }
       }
    }

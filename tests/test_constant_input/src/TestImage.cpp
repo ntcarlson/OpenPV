@@ -36,7 +36,7 @@ int TestImage::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void TestImage::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->handleUnnecessaryParameter(name, "InitVType");
+   getParams()->handleUnnecessaryParameter(name, "InitVType");
    return;
 }
 

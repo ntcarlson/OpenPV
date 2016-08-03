@@ -86,7 +86,7 @@ void FilenameParsingGroundTruthLayer::ioParam_classes(enum ParamsIOFlag ioFlag) 
 int FilenameParsingGroundTruthLayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    movieLayer = dynamic_cast<Movie *>(parent->getLayerFromName(movieLayerName));
    if(movieLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: movieLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), movieLayerName);
       }
@@ -117,21 +117,21 @@ int FilenameParsingGroundTruthLayer::updateState(double time, double dt)
       char * currentFilename = NULL;
       int filenameLen = 0;
       //TODO depending on speed of this layer, more efficient way would be to preallocate currentFilename buffer
-      if(parent->getCommunicator()->commRank()==0){
+      if(getCommunicator()->commRank()==0){
          currentFilename = strdup(movieLayer->getFilename(b));
          //Get length of currentFilename and broadcast
          int filenameLen = (int) strlen(currentFilename) + 1; //+1 for the null terminator
          //Using local communicator, as each batch MPI will handle it's own run
-         MPI_Bcast(&filenameLen, 1, MPI_INT, 0, parent->getCommunicator()->communicator());
+         MPI_Bcast(&filenameLen, 1, MPI_INT, 0, getCommunicator()->communicator());
          //Braodcast filename to all other local processes
-         MPI_Bcast(currentFilename, filenameLen, MPI_CHAR, 0, parent->getCommunicator()->communicator());
+         MPI_Bcast(currentFilename, filenameLen, MPI_CHAR, 0, getCommunicator()->communicator());
       }
       else{
          //Receive broadcast about length of filename
-         MPI_Bcast(&filenameLen, 1, MPI_INT, 0, parent->getCommunicator()->communicator());
+         MPI_Bcast(&filenameLen, 1, MPI_INT, 0, getCommunicator()->communicator());
          currentFilename = (char*)calloc(sizeof(char), filenameLen);
          //Receive filename
-         MPI_Bcast(currentFilename, filenameLen, MPI_CHAR, 0, parent->getCommunicator()->communicator());
+         MPI_Bcast(currentFilename, filenameLen, MPI_CHAR, 0, getCommunicator()->communicator());
       }
 
       std::string fil = currentFilename;

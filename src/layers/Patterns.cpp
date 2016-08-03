@@ -86,7 +86,7 @@ int Patterns::initialize(const char * name, HyPerCol * hc) {
       //
       snprintf(file_name, PV_PATH_MAX-1, "%s/patterns-pos.txt", patternsOutputPath);
       //int nchars = snprintf(file_name, PV_PATH_MAX-1, "%s/bar-pos.txt", patternsOutputPath);
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("write position to %s\n",file_name);
          patternsFile = PV_fopen(file_name,"a",parent->getVerifyWrites());
          if(patternsFile == NULL) {
@@ -107,7 +107,7 @@ int Patterns::initialize(const char * name, HyPerCol * hc) {
 //void Patterns::ioParam_imagePath(enum ParamsIOFlag ioFlag) {
 //   if (ioFlag == PARAMS_IO_READ) {
 //      filename = NULL;
-//      parent->parameters()->handleUnnecessaryStringParameter(name, "imageList", NULL);
+//      getParams()->handleUnnecessaryStringParameter(name, "imageList", NULL);
 //   }
 //}
 
@@ -173,17 +173,17 @@ void Patterns::ioParam_patternType(enum ParamsIOFlag ioFlag) {
       };
       int match = stringMatch(allowed_pattern_types, "_End_allowedPatternTypes", typeString);
       if( match < 0 ) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("Group \"%s\": Pattern type \"%s\" not recognized.\n", name, typeString);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
 }
 
 void Patterns::ioParam_orientation(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (!(type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV)) {
       return;
    }
@@ -199,10 +199,10 @@ void Patterns::ioParam_orientation(enum ParamsIOFlag ioFlag) {
    };
    int match = stringMatch(allowedOrientationModes, "_End_allowedOrientationTypes", orientationString);
    if (match < 0) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("Group \"%s\": Orientation mode \"%s\" not recognized.\n", name, orientationString);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    setOrientation((OrientationMode) match);
@@ -226,21 +226,21 @@ int Patterns::setOrientation(OrientationMode ormode) {
 }
 
 void Patterns::ioParam_pMove(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       parent->ioParamValue(ioFlag, name, "pMove", &pMove, 0.0f);
    }
 }
 
 void Patterns::ioParam_pSwitch(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       parent->ioParamValue(ioFlag, name, "pSwitch", &pSwitch, 0.0f);
    }
 }
 
 void Patterns::ioParam_movementType(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES) {
       parent->ioParamString(ioFlag, name, "movementType", &movementTypeString, "RANDOMWALK"/*default value*/);
       if (ioFlag!=PARAMS_IO_READ) {
@@ -255,10 +255,10 @@ void Patterns::ioParam_movementType(enum ParamsIOFlag ioFlag) {
       };
       int match = stringMatch(allowedMovementTypes, "_End_allowedMovementTypes", movementTypeString);
       if (match < 0) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("Group \"%s\": movementType \"%s\" not recognized.\n", name, movementTypeString);
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       movementType = (MovementType) match;
@@ -266,14 +266,14 @@ void Patterns::ioParam_movementType(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_movementSpeed(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES) {
       parent->ioParamValue(ioFlag, name, "movementSpeed", &movementSpeed, 1.0f);
    }
 }
 
 void Patterns::ioParam_writePosition(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       parent->ioParamValue(ioFlag, name, "writePosition", &writePosition, 1);
    }
@@ -283,44 +283,44 @@ void Patterns::ioParam_writePosition(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_maxValue(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV || type==DROP) {
       parent->ioParamValue(ioFlag, name, "maxValue", &maxVal, PATTERNS_MAXVAL);
    }
 }
 
 void Patterns::ioParam_width(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       parent->ioParamValue(ioFlag, name, "width", &maxWidth, getLayerLoc()->nx);
    }
 }
 
 void Patterns::ioParam_height(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       parent->ioParamValue(ioFlag, name, "height", &maxHeight, getLayerLoc()->ny);
    }
 }
 
 void Patterns::ioParam_wavelengthVert(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "width"));
+      assert(!getParams()->presentAndNotBeenRead(name, "width"));
       parent->ioParamValue(ioFlag, name, "wavelengthVert", &wavelengthVert, 2*maxWidth);
    }
 }
 
 void Patterns::ioParam_wavelengthHoriz(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "height"));
+      assert(!getParams()->presentAndNotBeenRead(name, "height"));
       parent->ioParamValue(ioFlag, name, "wavelengthHoriz", &wavelengthHoriz, 2*maxHeight);
    }
 }
 
 void Patterns::ioParam_rotation(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       parent->ioParamValue(ioFlag, name, "rotation", &rotation, 0.0f);
    }
@@ -329,16 +329,16 @@ void Patterns::ioParam_rotation(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_dropSpeed(enum ParamsIOFlag ioFlag) {
    //(pixels/dt) Radius expands dropSpeed pixles per timestep
    // -1 for random speed: see dropSpeedRandomMax and dropSpeedRandomMin
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
        parent->ioParamValue(ioFlag, name, "dropSpeed", &dropSpeed, 1.0f);
    }
 }
 
 void Patterns::ioParam_dropSpeedRandomMax(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "dropSpeed"));
+      assert(!getParams()->presentAndNotBeenRead(name, "dropSpeed"));
       if (dropSpeed==-1.0f) {
          parent->ioParamValue(ioFlag, name, "dropSpeedRandomMax", &dropSpeedRandomMax, 3.0f);
       }
@@ -346,9 +346,9 @@ void Patterns::ioParam_dropSpeedRandomMax(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_dropSpeedRandomMin(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "dropSpeed"));
+      assert(!getParams()->presentAndNotBeenRead(name, "dropSpeed"));
       if (dropSpeed==-1.0f) {
          parent->ioParamValue(ioFlag, name, "dropSpeedRandomMin", &dropSpeedRandomMin, 1.0f);
       }
@@ -358,16 +358,16 @@ void Patterns::ioParam_dropSpeedRandomMin(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_dropPeriod(enum ParamsIOFlag ioFlag) {
    //(dt) -1 for random period, otherwise, number of frames in between drops
    //TODO: What does dropPeriod of 0 represent? If nothing - why not have 0 be random?
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
        parent->ioParamValue(ioFlag, name, "dropPeriod", &dropPeriod, 1);
    }
 }
 
 void Patterns::ioParam_dropPeriodRandomMax(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "dropPeriod"));
+      assert(!getParams()->presentAndNotBeenRead(name, "dropPeriod"));
       if (dropPeriod==-1) {
          parent->ioParamValue(ioFlag, name, "dropPeriodRandomMax", &dropPeriodRandomMax, 20);
       }
@@ -375,9 +375,9 @@ void Patterns::ioParam_dropPeriodRandomMax(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_dropPeriodRandomMin(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "dropPeriod"));
+      assert(!getParams()->presentAndNotBeenRead(name, "dropPeriod"));
       if (dropPeriod==-1) {
          parent->ioParamValue(ioFlag, name, "dropPeriodRandomMin", &dropPeriodRandomMin, 5);
       }
@@ -387,16 +387,16 @@ void Patterns::ioParam_dropPeriodRandomMin(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_dropPosition(enum ParamsIOFlag ioFlag) {
    //Random position is -1 for random number of drops from pos, 0 for drop from center, otherwise
    //number of timesteps in which the drop stays at the position
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
        parent->ioParamValue(ioFlag, name, "dropPosition", &dropPosition, 1);
    }
 }
 
 void Patterns::ioParam_dropPositionRandomMax(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "dropPosition"));
+      assert(!getParams()->presentAndNotBeenRead(name, "dropPosition"));
       if (dropPosition==-1) {
          parent->ioParamValue(ioFlag, name, "dropPositionRandomMax", &dropPositionRandomMax, 20);
       }
@@ -404,9 +404,9 @@ void Patterns::ioParam_dropPositionRandomMax(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_dropPositionRandomMin(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "dropPosition"));
+      assert(!getParams()->presentAndNotBeenRead(name, "dropPosition"));
       if (dropPosition==-1) {
          parent->ioParamValue(ioFlag, name, "dropPositionRandomMin", &dropPositionRandomMin, 5);
       }
@@ -414,16 +414,16 @@ void Patterns::ioParam_dropPositionRandomMin(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_halfNeutral(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
       parent->ioParamValue(ioFlag, name, "halfNeutral", &onOffFlag, 0);
    }
 }
 
 void Patterns::ioParam_minValue(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "halfNeutral"));
+      assert(!getParams()->presentAndNotBeenRead(name, "halfNeutral"));
       if(onOffFlag){
          parent->ioParamValue(ioFlag, name, "minValue", &minVal, PATTERNS_MINVAL);
       }
@@ -437,7 +437,7 @@ void Patterns::ioParam_minValue(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_inOut(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
       parent->ioParamValue(ioFlag, name, "inOut", &inOut, 1.0f);
       //inOut must be between -1 and 1
@@ -448,14 +448,14 @@ void Patterns::ioParam_inOut(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_startFrame(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
       parent->ioParamValue(ioFlag, name, "startFrame", &startFrame, 0.0);
    }
 }
 
 void Patterns::ioParam_endFrame(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "patternType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
       parent->ioParamValue(ioFlag, name, "endFrame", &endFrame, -1.0);
       if (ioFlag == PARAMS_IO_READ && endFrame < 0) {
@@ -466,7 +466,7 @@ void Patterns::ioParam_endFrame(enum ParamsIOFlag ioFlag) {
 
 void Patterns::ioParam_patternsOutputPath(enum ParamsIOFlag ioFlag) {
    // set output path for movie frames
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "writeImages"));
+   assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages) {
       parent->ioParamString(ioFlag, name, "patternsOutputPath", &patternsOutputPath, parent->getOutputPath());
       if (ioFlag == PARAMS_IO_READ) {
@@ -488,7 +488,7 @@ int Patterns::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    taus_uint4 * state = patternRandState->getRNG(0);
    taus_uint4 checkState;
    memcpy(&checkState, state, sizeof(taus_uint4));
-   MPI_Bcast(&checkState, sizeof(taus_uint4), MPI_CHAR, 0, parent->getCommunicator()->communicator());
+   MPI_Bcast(&checkState, sizeof(taus_uint4), MPI_CHAR, 0, getCommunicator()->communicator());
    assert(!memcmp(state, &checkState, sizeof(taus_uint4)));
 #endif // NDEBUG
 
@@ -507,7 +507,7 @@ int Patterns::communicateInitInfo(CommunicateInitInfoMessage const * message) {
       xPos = (int)floor(loc->nxGlobal * patternRandState->uniformRandom());
       yPos = (int)floor(loc->nyGlobal * patternRandState->uniformRandom());
    }
-   MPI_Bcast(&nextDropFrame, 1, MPI_DOUBLE, 0, parent->getCommunicator()->communicator());
+   MPI_Bcast(&nextDropFrame, 1, MPI_DOUBLE, 0, getCommunicator()->communicator());
 
    return status;
 }
@@ -575,8 +575,8 @@ int Patterns::drawPattern(float val)
       }
       double image_ave = image_sum / n;
 #ifdef PV_USE_MPI
-      MPI_Allreduce(MPI_IN_PLACE, &image_ave, 1, MPI_DOUBLE, MPI_SUM, parent->getCommunicator()->communicator());
-      image_ave /= parent->getCommunicator()->commSize();
+      MPI_Allreduce(MPI_IN_PLACE, &image_ave, 1, MPI_DOUBLE, MPI_SUM, getCommunicator()->communicator());
+      image_ave /= getCommunicator()->commSize();
 #endif // PV_USE_MPI
       float image_shift = 0.5f - image_ave;
       for (int k=0; k<n; k++) {
@@ -868,8 +868,8 @@ int Patterns::drawDrops() {
       }
 
       //Communicate to rest of processors
-      MPI_Bcast(&nextDropFrame, 1, MPI_DOUBLE, 0, parent->getCommunicator()->communicator());
-      MPI_Bcast(&newDrop, sizeof(Drop), MPI_BYTE, 0, parent->getCommunicator()->communicator());
+      MPI_Bcast(&nextDropFrame, 1, MPI_DOUBLE, 0, getCommunicator()->communicator());
+      MPI_Bcast(&newDrop, sizeof(Drop), MPI_BYTE, 0, getCommunicator()->communicator());
       vDrops.push_back(newDrop);
    }
 
@@ -1038,7 +1038,7 @@ float Patterns::calcPosition(float pos, int step)
       break;
    }
    if (patternsFile != NULL) {
-      assert(parent->getCommunicator()->commRank()==0);
+      assert(getCommunicator()->commRank()==0);
       fprintf(patternsFile->fp, "Time %f, position %f\n", parent->simulationTime(), pos);
    }
 
@@ -1053,7 +1053,7 @@ int Patterns::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
-   if( parent->getCommunicator()->commRank() == 0 ) {
+   if( getCommunicator()->commRank() == 0 ) {
       auto filename = pathInCheckpoint(cpDir, getName(), "PatternState", "bin");
       PV_Stream * pvstream = PV_fopen(filename->c_str(), "r", false/*verifyWrites*/);
       if( pvstream != NULL ) {
@@ -1087,10 +1087,10 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
    // TODO improve and polish the way the code handles file I/O and the MPI data buffer.
    // This will get bad if the number of member variables that need to be saved keeps increasing.
 #ifdef PV_USE_MPI
-   if (parent->getCommunicator()->commSize()>1) {
+   if (getCommunicator()->commSize()>1) {
       int bufsize = (int) (sizeof(PatternType) + sizeof(taus_uint4) + sizeof(OrientationMode) + 1*sizeof(float) + 2*sizeof(double) + 4*sizeof(int) + vDrops.size()*sizeof(Drop));
       //Communicate buffer size to rest of processes
-      MPI_Bcast(&bufsize, 1, MPI_INT, 0, parent->getCommunicator()->communicator());
+      MPI_Bcast(&bufsize, 1, MPI_INT, 0, getCommunicator()->communicator());
       char tempbuf[bufsize];
       PatternType * savedtype = (PatternType *) (tempbuf+0);
       taus_uint4 * rstate = (taus_uint4 *) (tempbuf+sizeof(PatternType));
@@ -1100,7 +1100,7 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
       int * ints = (int *) (tempbuf+sizeof(PatternType)+sizeof(taus_uint4)+sizeof(OrientationMode)+sizeof(float)+3*sizeof(double));
       Drop * drops = (Drop *) (tempbuf+sizeof(PatternType)+sizeof(taus_uint4)+sizeof(OrientationMode)+sizeof(float)+3*sizeof(double)+4*sizeof(int));
       int numdrops;
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          *savedtype = type;
          memcpy(rstate, patternRandState->getRNG(0), sizeof(taus_uint4));
          *om = orientation;
@@ -1116,10 +1116,10 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
          for (int k=0; k<numdrops; k++) {
             memcpy(&(drops[k]), &(vDrops[k]), sizeof(Drop));
          }
-         MPI_Bcast(tempbuf, bufsize, MPI_CHAR, 0, parent->getCommunicator()->communicator());
+         MPI_Bcast(tempbuf, bufsize, MPI_CHAR, 0, getCommunicator()->communicator());
       }
       else {
-         MPI_Bcast(tempbuf, bufsize, MPI_CHAR, 0, parent->getCommunicator()->communicator());
+         MPI_Bcast(tempbuf, bufsize, MPI_CHAR, 0, getCommunicator()->communicator());
          type = *savedtype;
          memcpy(patternRandState->getRNG(0), rstate, sizeof(taus_uint4));
          orientation = *om;
@@ -1146,7 +1146,7 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
 
 int Patterns::checkpointWrite(const char * cpDir) {
    int status = HyPerLayer::checkpointWrite(cpDir);
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    int filenamesize = strlen(cpDir)+1+strlen(name)+18;
    // The +1 is for the slash between cpDir and name; the +18 needs to be large enough to hold the suffix _PatternState.{bin,txt} plus the null terminator
    char * filename = (char *) malloc( filenamesize*sizeof(char) );

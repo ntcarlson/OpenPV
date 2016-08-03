@@ -41,7 +41,7 @@ int NormalizeBase::initialize(const char * name, HyPerCol * hc) {
 
 int NormalizeBase::setDescription() {
    description.clear();
-   char const * method = parent->parameters()->stringValue(name, "normalizeMethod", false/*do not warn if absent*/);
+   char const * method = getParams()->stringValue(name, "normalizeMethod", false/*do not warn if absent*/);
    if (method==nullptr) {
       description.append("weight normalizer ");
    }
@@ -79,10 +79,10 @@ void NormalizeBase::ioParam_normalizeOnWeightUpdate(enum ParamsIOFlag ioFlag) {
 int NormalizeBase::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    targetConn = message->mTable->lookup<HyPerConn>(name);
    if (targetConn==nullptr) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit() << getDescription() << ": " << name << "\" is not a HyPerConn.\n";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return addConnToList(targetConn);
@@ -216,7 +216,7 @@ int NormalizeBase::addConnToList(HyPerConn * newConn) {
    connectionList = newList;
    connectionList[numConnections] = newConn;
    numConnections++;
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       pvInfo().printf("Adding %s to normalizer group \"%s\".\n", newConn->getDescription_c(), this->getName());
    }
    return PV_SUCCESS;

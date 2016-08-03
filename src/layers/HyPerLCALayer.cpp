@@ -92,11 +92,11 @@ int HyPerLCALayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 
 #ifdef OBSOLETE // Marked obsolete Jun 27, 2016.
 void HyPerLCALayer::ioParam_numChannels(enum ParamsIOFlag ioFlag) {
-   if (parent->parameters()->present(name, "numChannels")) {
-      if ( parent->getCommunicator()->commRank()==0) {
+   if (getParams()->present(name, "numChannels")) {
+      if ( getCommunicator()->commRank()==0) {
          pvWarn().printf("HyPerLCALayer \"%s\": the parameter numChannels is no longer used; connections that connect to the layer create channels as needed.\n", name);
       }
-      parent->parameters()->value(name, "numChannels"); // mark the parameter as read
+      getParams()->value(name, "numChannels"); // mark the parameter as read
    }
 }
 #endif // OBSOLETE // Marked obsolete Jun 27, 2016.
@@ -107,14 +107,14 @@ void HyPerLCALayer::ioParam_timeConstantTau(enum ParamsIOFlag ioFlag) {
 
 void HyPerLCALayer::ioParam_selfInteract(enum ParamsIOFlag ioFlag) {
    parent->ioParamValue(ioFlag, name, "selfInteract", &selfInteract, selfInteract);
-   if (ioFlag==PARAMS_IO_READ && parent->getCommunicator()->commRank() == 0) {
+   if (ioFlag==PARAMS_IO_READ && getCommunicator()->commRank() == 0) {
       pvInfo() << getDescription() << ": selfInteract flag is " << (selfInteract ? "true" : "false") << std::endl;
    }   
 }
 
 int HyPerLCALayer::requireChannel(int channelNeeded, int * numChannelsResult) {
    int status = HyPerLayer::requireChannel(channelNeeded, numChannelsResult);
-   if (channelNeeded>=2 && parent->getCommunicator()->commRank()==0) {
+   if (channelNeeded>=2 && getCommunicator()->commRank()==0) {
       pvWarn().printf("HyPerLCALayer \"%s\": connection on channel %d, but HyPerLCA only uses channels 0 and 1.\n", name, channelNeeded);
    }
    return status;

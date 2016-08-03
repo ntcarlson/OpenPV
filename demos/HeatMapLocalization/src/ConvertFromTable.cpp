@@ -49,7 +49,7 @@ int ConvertFromTable::allocateDataStructures() {
 
 int ConvertFromTable::loadConversionTable() {
    int status = PV_SUCCESS;
-   if (parent->getCommunicator()->globalCommRank()==0) {
+   if (getCommunicator()->globalCommRank()==0) {
       FILE * conversionTableFP = fopen(dataFile, "r");
       if (conversionTableFP==NULL) {
          pvError().printf("%s: unable to open dataFile \"%s\": %s\n",
@@ -115,17 +115,17 @@ int ConvertFromTable::loadConversionTable() {
       }
       fclose(conversionTableFP);
    }
-   MPI_Bcast(&convTable, sizeof(convTableStruct), MPI_CHAR, 0, parent->getCommunicator()->communicator());
+   MPI_Bcast(&convTable, sizeof(convTableStruct), MPI_CHAR, 0, getCommunicator()->communicator());
    assert(convTable.numFeatures == getLayerLoc()->nf);
    int numValues = convTable.numPoints * convTable.numFeatures;
-   if (parent->getCommunicator()->globalCommRank()!=0) {
+   if (getCommunicator()->globalCommRank()!=0) {
       convData = (float *) malloc(sizeof(float)*numValues);
       if (convData==NULL) {
          pvError().printf("%s: unable to allocate memory for loading dataFile \"%s\": %s.\n",
                getDescription_c(), dataFile, strerror(errno));
       }
    }
-   MPI_Bcast(convData, numValues, MPI_FLOAT, 0, parent->getCommunicator()->communicator());
+   MPI_Bcast(convData, numValues, MPI_FLOAT, 0, getCommunicator()->communicator());
    return status;
 }
 

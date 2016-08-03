@@ -17,7 +17,7 @@ BaseInput::~BaseInput() {
    free(aspectRatioAdjustment);
 
    if(writePosition){
-      if (getParent()->getCommunicator()->commRank()==0 && fp_pos != NULL && fp_pos->isfile) {
+      if (getCommunicator()->commRank()==0 && fp_pos != NULL && fp_pos->isfile) {
          PV_fclose(fp_pos);
       }
    }
@@ -72,7 +72,7 @@ int BaseInput::initialize(const char * name, HyPerCol * hc) {
 
    this->lastUpdateTime = parent->getStartTime();
 
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    assert(!params->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
@@ -140,10 +140,10 @@ void BaseInput::ioParam_offsetAnchor(enum ParamsIOFlag ioFlag){
    if (ioFlag==PARAMS_IO_READ) {
       int status = checkValidAnchorString();
       if (status != PV_SUCCESS) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: offsetAnchor must be a two-letter string.  The first character must be \"t\", \"c\", or \"b\" (for top, center or bottom); and the second character must be \"l\", \"c\", or \"r\" (for left, center or right).\n", getDescription_c());
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -154,7 +154,7 @@ void BaseInput::ioParam_writeImages(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_writeImagesExtension(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "writeImages"));
+   assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages) {
       parent->ioParamString(ioFlag, name, "writeImagesExtension", &writeImagesExtension, "tif");
    }
@@ -165,7 +165,7 @@ void BaseInput::ioParam_autoResizeFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_aspectRatioAdjustment(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "autoResizeFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "autoResizeFlag"));
    if (autoResizeFlag) {
       parent->ioParamString(ioFlag, name, "aspectRatioAdjustment", &aspectRatioAdjustment, "crop"/*default*/);
       if (ioFlag == PARAMS_IO_READ) {
@@ -173,18 +173,18 @@ void BaseInput::ioParam_aspectRatioAdjustment(enum ParamsIOFlag ioFlag) {
          for (char * c = aspectRatioAdjustment; *c; c++) { *c = tolower(*c); }
       }
       if (strcmp(aspectRatioAdjustment, "crop") && strcmp(aspectRatioAdjustment, "pad")) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: aspectRatioAdjustment must be either \"crop\" or \"pad\".\n",
                   getDescription_c());
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
 }
 
 void BaseInput::ioParam_interpolationMethod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "autoResizeFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "autoResizeFlag"));
    if (autoResizeFlag) {
       char * interpolationMethodString = NULL;
       if (ioFlag == PARAMS_IO_READ) {
@@ -198,11 +198,11 @@ void BaseInput::ioParam_interpolationMethod(enum ParamsIOFlag ioFlag) {
             interpolationMethod = INTERPOLATE_NEARESTNEIGHBOR;
          }
          else {
-            if (parent->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("%s: interpolationMethod must be either \"bicubic\" or \"nearestNeighbor\".\n",
                      getDescription_c());
             }
-            MPI_Barrier(parent->getCommunicator()->communicator());
+            MPI_Barrier(getCommunicator()->communicator());
             exit(EXIT_FAILURE);
          }
       }
@@ -233,7 +233,7 @@ void BaseInput::ioParam_normalizeLuminanceFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_normalizeStdDev(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "normalizeLuminanceFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "normalizeLuminanceFlag"));
    if (normalizeLuminanceFlag) {
      parent->ioParamValue(ioFlag, name, "normalizeStdDev", &normalizeStdDev, normalizeStdDev);
    }
@@ -244,35 +244,35 @@ void BaseInput::ioParam_jitterFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_jitterType(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "jitterType", &jitterType, jitterType);
    }
 }
 
 void BaseInput::ioParam_jitterRefractoryPeriod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "jitterRefractoryPeriod", &jitterRefractoryPeriod, jitterRefractoryPeriod);
    }
 }
 
 void BaseInput::ioParam_stepSize(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "stepSize", &stepSize, stepSize);
    }
 }
 
 void BaseInput::ioParam_persistenceProb(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "persistenceProb", &persistenceProb, persistenceProb);
    }
 }
 
 void BaseInput::ioParam_recurrenceProb(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "recurrenceProb", &recurrenceProb, recurrenceProb);
    }
@@ -283,7 +283,7 @@ void BaseInput::ioParam_padValue(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_biasChangeTime(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "biasChangeTime", &biasChangeTime, biasChangeTime);
       if (ioFlag == PARAMS_IO_READ) {
@@ -296,7 +296,7 @@ void BaseInput::ioParam_biasChangeTime(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_biasConstraintMethod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "biasConstraintMethod", &biasConstraintMethod, biasConstraintMethod);
       if (ioFlag == PARAMS_IO_READ && (biasConstraintMethod <0 || biasConstraintMethod >3)) {
@@ -307,7 +307,7 @@ void BaseInput::ioParam_biasConstraintMethod(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_offsetConstraintMethod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "offsetConstraintMethod", &offsetConstraintMethod, 0/*default*/);
       if (ioFlag == PARAMS_IO_READ && (offsetConstraintMethod <0 || offsetConstraintMethod >3) ) {
@@ -317,7 +317,7 @@ void BaseInput::ioParam_offsetConstraintMethod(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_writePosition(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "jitterFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
       parent->ioParamValue(ioFlag, name, "writePosition", &writePosition, writePosition);
    }
@@ -332,7 +332,7 @@ void BaseInput::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       triggerLayerName = NULL;
       triggerFlag = false;
-      parent->parameters()->handleUnnecessaryStringParameter(name, "triggerLayerName", NULL/*correct value*/);
+      getParams()->handleUnnecessaryStringParameter(name, "triggerLayerName", NULL/*correct value*/);
    }
 }
 
@@ -377,7 +377,7 @@ int BaseInput::allocateDataStructures() {
       // Therefore, the other ranks do not need to have their offsets stored.
       // In fact, it would be reasonable for the nonzero ranks not to compute biases and offsets at all,
       // but I chose not to fill the code with even more if(rank==0) statements.
-      if( parent->getCommunicator()->commRank()==0 ) {
+      if( getCommunicator()->commRank()==0 ) {
          char file_name[PV_PATH_MAX];
 
          int nchars = snprintf(file_name, PV_PATH_MAX, "%s/%s_jitter.txt", parent->getOutputPath(), getName());
@@ -408,7 +408,7 @@ int BaseInput::allocateDataStructures() {
 int BaseInput::getFrame(double timef, double dt) {
    int status = PV_SUCCESS;
    for(int b = 0; b < parent->getNBatch(); b++) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          if (status == PV_SUCCESS) { status = retrieveData(timef, dt, b); }
       }
       if (status == PV_SUCCESS) { status = scatterInput(b); }
@@ -418,8 +418,8 @@ int BaseInput::getFrame(double timef, double dt) {
 }
 
 int BaseInput::scatterInput(int batchIndex) {
-   int const rank = parent->getCommunicator()->commRank();
-   MPI_Comm mpi_comm = parent->getCommunicator()->communicator();
+   int const rank = getCommunicator()->commRank();
+   MPI_Comm mpi_comm = getCommunicator()->communicator();
    int const rootproc = 0;
    pvadata_t * A = data + batchIndex * getNumExtended();
    if (rank == rootproc) {
@@ -447,7 +447,7 @@ int BaseInput::scatterInput(int batchIndex) {
       resizeInput();
       int dims[2] = {imageLoc.nxGlobal, imageLoc.nyGlobal};
       MPI_Bcast(dims, 2, MPI_INT, rootproc, mpi_comm);
-      for (int r=0; r<parent->getCommunicator()->commSize(); r++) {
+      for (int r=0; r<getCommunicator()->commSize(); r++) {
          if (r==rootproc) { continue; } // Do root process last so that we don't clobber root process data by using the data buffer to send.
          for (int n=0; n<getNumExtended(); n++) { A[n] = padValue; }
          int dataLeft, dataTop, imageLeft, imageTop, width, height;
@@ -493,7 +493,7 @@ int BaseInput::scatterInput(int batchIndex) {
 }
 
 int BaseInput::resizeInput() {
-   pvAssert(parent->getCommunicator()->commRank()==0); // Should only be called by root process.
+   pvAssert(getCommunicator()->commRank()==0); // Should only be called by root process.
    if (!autoResizeFlag) {
       resizeFactor = 1.0f;
       return PV_SUCCESS;
@@ -630,7 +630,7 @@ int BaseInput::bicubicInterp(pvadata_t const * bufferIn, int widthIn, int height
 }
 
 int BaseInput::calcLocalBox(int rank, int * dataLeft, int * dataTop, int * imageLeft, int * imageTop, int * width, int * height) {
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    PVLayerLoc const * loc = getLayerLoc();
    PVHalo const * halo = &loc->halo;
    int column = columnFromRank(rank, icComm->numCommRows(), icComm->numCommColumns());
@@ -795,10 +795,10 @@ int BaseInput::postProcess(double timef, double dt){
             double image_ave = image_sum / numExtended;
             double image_ave2 = image_sum2 / numExtended;
 #ifdef PV_USE_MPI
-            MPI_Allreduce(MPI_IN_PLACE, &image_ave, 1, MPI_DOUBLE, MPI_SUM, parent->getCommunicator()->communicator());
-            image_ave /= parent->getCommunicator()->commSize();
-            MPI_Allreduce(MPI_IN_PLACE, &image_ave2, 1, MPI_DOUBLE, MPI_SUM, parent->getCommunicator()->communicator());
-            image_ave2 /= parent->getCommunicator()->commSize();
+            MPI_Allreduce(MPI_IN_PLACE, &image_ave, 1, MPI_DOUBLE, MPI_SUM, getCommunicator()->communicator());
+            image_ave /= getCommunicator()->commSize();
+            MPI_Allreduce(MPI_IN_PLACE, &image_ave2, 1, MPI_DOUBLE, MPI_SUM, getCommunicator()->communicator());
+            image_ave2 /= getCommunicator()->commSize();
 #endif // PV_USE_MPI
             // set mean to zero
             for (int k=0; k<numExtended; k++) {
@@ -824,8 +824,8 @@ int BaseInput::postProcess(double timef, double dt){
                image_max = buf[k] > image_max ? buf[k] : image_max;
                image_min = buf[k] < image_min ? buf[k] : image_min;
             }
-            MPI_Allreduce(MPI_IN_PLACE, &image_max, 1, MPI_FLOAT, MPI_MAX, parent->getCommunicator()->communicator());
-            MPI_Allreduce(MPI_IN_PLACE, &image_min, 1, MPI_FLOAT, MPI_MIN, parent->getCommunicator()->communicator());
+            MPI_Allreduce(MPI_IN_PLACE, &image_max, 1, MPI_FLOAT, MPI_MAX, getCommunicator()->communicator());
+            MPI_Allreduce(MPI_IN_PLACE, &image_min, 1, MPI_FLOAT, MPI_MIN, getCommunicator()->communicator());
             if (image_max > image_min){
                float image_stretch = 1.0f / (image_max - image_min);
                for (int k=0; k<numExtended; k++) {
@@ -853,8 +853,8 @@ int BaseInput::exchange()
 {
    std::vector<MPI_Request> req{};
    for (int b=0; b<getLayerLoc()->nbatch; b++) {
-      parent->getCommunicator()->exchange(data+b*getNumExtended(), mpi_datatypes, getLayerLoc(), req);
-      parent->getCommunicator()->wait(req);
+      getCommunicator()->exchange(data+b*getNumExtended(), mpi_datatypes, getLayerLoc(), req);
+      getCommunicator()->wait(req);
       pvAssert(req.empty());
    }
    return PV_SUCCESS;
@@ -923,7 +923,7 @@ bool BaseInput::jitter() {
    bool needNewImage = calcNewOffsets(stepSize);
    constrainOffsets();
 
-   if(writePosition && parent->getCommunicator()->commRank()==0){
+   if(writePosition && getCommunicator()->commRank()==0){
       fprintf(fp_pos->fp,"t=%f, bias x=%d, y=%d, offset x=%d y=%d\n",timed,biases[0],biases[1],getOffsetX(this->offsetAnchor, offsets[0]), getOffsetY(this->offsetAnchor, offsets[1]));
    }
    lastUpdateTime = timed;
@@ -1129,7 +1129,7 @@ bool BaseInput::constrainOffsets() {
 }
 
 int BaseInput::requireChannel(int channelNeeded, int * numChannelsResult) {
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       pvErrorNoExit().printf("%s cannot be a post-synaptic layer.\n",
             getDescription_c());
    }
@@ -1141,7 +1141,7 @@ int BaseInput::initRandState() {
    assert(randState==NULL);
    randState = new Random(1);
    if (randState==NULL) {
-      pvError().printf("%s: rank %d process unable to create object of class Random.\n", getDescription_c(), parent->getCommunicator()->commRank());
+      pvError().printf("%s: rank %d process unable to create object of class Random.\n", getDescription_c(), getCommunicator()->commRank());
    }
    return PV_SUCCESS;
 }
@@ -1161,8 +1161,8 @@ int BaseInput::initializeActivity() {
 }
 
 int BaseInput::checkpointRead(const char * cpDir, double * timeptr){
-   PVParams * params = parent->parameters();
-   if (parent->getCommunicator()->commRank()==0) {
+   PVParams * params = getParams();
+   if (getCommunicator()->commRank()==0) {
       pvWarn().printf("Initializing image from checkpoint NOT from params file location! \n");
    }
    HyPerLayer::checkpointRead(cpDir, timeptr);
@@ -1194,7 +1194,7 @@ int BaseInput::writeImage(const char * filename, int batchIdx)
    status = copyToInteriorBuffer(buf, batchIdx, 255.0);
 
    // gather the local portions and write the image
-   status = gatherImageFile(filename, parent->getCommunicator(), loc, buf, parent->getVerifyWrites());
+   status = gatherImageFile(filename, getCommunicator(), loc, buf, parent->getVerifyWrites());
 
    delete[] buf;
 

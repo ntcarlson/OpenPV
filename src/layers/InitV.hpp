@@ -84,6 +84,8 @@ private:
    int checkLoc(const PVLayerLoc * loc, int nx, int ny, int nf, int nxGlobal, int nyGlobal);
    int checkLocValue(int fromParams, int fromFile, const char * field);
 
+   PVParams * mParams;
+   Communicator * mCommunicator;
    HyPerCol * parent;
    char * groupName;
    char * initVTypeString;

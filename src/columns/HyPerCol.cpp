@@ -167,8 +167,6 @@ int HyPerCol::initialize_base() {
    mConnectionStatus = NULL;
    mOutputPath = NULL;
    mPrintParamsFilename = NULL;
-   mPrintParamsStream = NULL;
-   mLuaPrintParamsStream = NULL;
    mNumXGlobal = 0;
    mNumYGlobal = 0;
    mNumBatch = 1;

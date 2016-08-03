@@ -118,7 +118,7 @@ void MomentumConn::ioParam_momentumDecay(enum ParamsIOFlag ioFlag){
 }
 
 void MomentumConn::ioParam_batchPeriod(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "plasticityFlag"));
+   assert(!getParams()->presentAndNotBeenRead(name, "plasticityFlag"));
    if(plasticityFlag){
       parent->ioParamValue(ioFlag, name, "batchPeriod", &timeBatchPeriod, timeBatchPeriod);
    }
@@ -133,7 +133,7 @@ void MomentumConn::ioParam_batchPeriod(enum ParamsIOFlag ioFlag) {
 ////No normalize reduction here, just summing up
 //int MomentumConn::sumKernels(const int arborID) {
 //   assert(sharedWeights && plasticityFlag);
-//   Communicator * comm = parent->getCommunicator();
+//   Communicator * comm = getCommunicator();
 //   const MPI_Comm mpi_comm = comm->communicator();
 //   int ierr;
 //   const int nxProcs = comm->numCommColumns();
@@ -409,7 +409,7 @@ int MomentumConn::checkpointWrite(const char * cpDir) {
    char filename[PV_PATH_MAX];
    int chars_needed = snprintf(filename, PV_PATH_MAX, "%s/%s_prev_dW.pvp", cpDir, name);
    if(chars_needed >= PV_PATH_MAX) {
-      if ( parent->getCommunicator()->commRank()==0 ) {
+      if ( getCommunicator()->commRank()==0 ) {
          pvErrorNoExit().printf("HyPerConn::checkpointFilename: path \"%s/%s_W.pvp\" is too long.\n", cpDir, name);
       }
       abort();
@@ -427,8 +427,8 @@ int MomentumConn::checkpointRead(const char * cpDir, double * timeptr) {
    auto path = pathInCheckpoint(cpDir, getName(), "prev_dW", "pvp");
    PVPatch *** patches_arg = sharedWeights ? NULL : get_wPatches();
    double filetime=0.0;
-   int status = PV::readWeights(patches_arg, prev_dwDataStart, numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path->c_str(), parent->getCommunicator(), &filetime, pre->getLayerLoc());
-   if (parent->getCommunicator()->commRank()==0 && timeptr && *timeptr != filetime) {
+   int status = PV::readWeights(patches_arg, prev_dwDataStart, numberOfAxonalArborLists(), getNumDataPatches(), nxp, nyp, nfp, path->c_str(), getCommunicator(), &filetime, pre->getLayerLoc());
+   if (getCommunicator()->commRank()==0 && timeptr && *timeptr != filetime) {
       pvWarn().printf("\"%s\" checkpoint has timestamp %g instead of the expected value %g.\n", path, filetime, *timeptr);
    }
    delete path;

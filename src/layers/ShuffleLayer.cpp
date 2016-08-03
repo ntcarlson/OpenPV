@@ -124,21 +124,21 @@ void ShuffleLayer::ioParam_shuffleMethod(enum ParamsIOFlag ioFlag){
 }
 
 void ShuffleLayer::ioParam_readFreqFromFile(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "shuffleMethod"));
+   assert(!getParams()->presentAndNotBeenRead(name, "shuffleMethod"));
    if (strcmp(shuffleMethod, "rejection") == 0){
       parent->ioParamValue(ioFlag, name, "readFreqFromFile", &readFreqFromFile, readFreqFromFile);
    }
 }
 
 void ShuffleLayer::ioParam_freqFilename(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "readFreqFromFile"));
+   assert(!getParams()->presentAndNotBeenRead(name, "readFreqFromFile"));
    if (readFreqFromFile){
       parent->ioParamString(ioFlag, name, "freqFilename", &freqFilename, freqFilename);
    }
 }
 
 void ShuffleLayer::ioParam_freqCollectTime(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "readFreqFromFile"));
+   assert(!getParams()->presentAndNotBeenRead(name, "readFreqFromFile"));
    if (!readFreqFromFile){
       parent->ioParamValue(ioFlag, name, "freqCollectTime", &freqCollectTime, freqCollectTime);
    }
@@ -208,7 +208,7 @@ void ShuffleLayer::collectFreq(const pvdata_t * sourceData){
       }
 
       //Collect over mpi
-      MPI_Allreduce(MPI_IN_PLACE, currFeatureFreqCount[b], nf, MPI_LONG, MPI_SUM, parent->getCommunicator()->communicator());
+      MPI_Allreduce(MPI_IN_PLACE, currFeatureFreqCount[b], nf, MPI_LONG, MPI_SUM, getCommunicator()->communicator());
       
       for (int kf = 0; kf < nf; kf++){
          featureFreqCount[b][kf] += currFeatureFreqCount[b][kf];

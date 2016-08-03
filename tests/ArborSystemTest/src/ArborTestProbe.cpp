@@ -31,7 +31,7 @@ int ArborTestProbe::initArborTestProbe(const char * probeName, HyPerCol * hc) {
 void ArborTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       type = BufActivity;
-      PVParams * params = parent->parameters();
+      PVParams * params = getParams();
       if (params->present(name, "buffer")) {
          params->handleUnnecessaryStringParameter(name, "buffer");
          char const * buffer = params->stringValue(name, "buffer");
@@ -39,10 +39,10 @@ void ArborTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
          char * bufferlc = strdup(buffer);
          for (int c=0; c<(int) strlen(bufferlc); c++) { bufferlc[c] = tolower(bufferlc[c]); }
          if (strcmp(bufferlc, "a")!=0 && strcmp(bufferlc, "activity")!=0) {
-            if (parent->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("   Value \"%s\" is inconsistent with correct value \"a\" or \"activity\".  Exiting.\n", buffer);
             }
-            MPI_Barrier(parent->getCommunicator()->communicator());
+            MPI_Barrier(getCommunicator()->communicator());
             exit(EXIT_FAILURE);
          }
          free(bufferlc);
@@ -54,7 +54,7 @@ void ArborTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
 int ArborTestProbe::outputState(double timed)
 {
    int status = StatsProbe::outputState(timed);
-   Communicator * icComm = getTargetLayer()->getParent()->getCommunicator();
+   Communicator * icComm = getTargetLayer()->getCommunicator();
    const int rcvProc = 0;
    if( icComm->commRank() != rcvProc ) {
       return 0;

@@ -74,53 +74,53 @@ void BBFindConfRemapProbe::ioParam_drawMontage(enum PV::ParamsIOFlag ioFlag) {
    GDALAllRegister();
 #else // PV_USE_GDAL
    if (ioFlag==PARAMS_IO_READ) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "%s error: PetaVision must be compiled with GDAL to use BBFindConfRemapProbe with drawMontage set.\n",
                getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       return PV_FAILURE;
    }
 #endif // PV_USE_GDAL
 }
 
 void BBFindConfRemapProbe::ioParam_heatMapMontageDir(enum PV::ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(this->getName(), "drawMontage"));
+   assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
       this->getParent()->ioParamStringRequired(ioFlag, this->getName(), "heatMapMontageDir", &heatMapMontageDir);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_heatMapThreshold(enum PV::ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(this->getName(), "drawMontage"));
+   assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
       parent->ioParamArray(ioFlag, name, "heatMapThreshold", &heatMapThreshold, &numHeatMapThresholds);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_heatMapMaximum(enum PV::ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(this->getName(), "drawMontage"));
+   assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
       parent->ioParamArray(ioFlag, name, "heatMapMaximum", &heatMapMaximum, &numHeatMapMaxima);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_imageBlendCoeff(enum PV::ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(this->getName(), "drawMontage"));
+   assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
       this->getParent()->ioParamValue(ioFlag, this->getName(), "imageBlendCoeff", &imageBlendCoeff, imageBlendCoeff/*default value*/, true/*warnIfAbsent*/);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(this->getName(), "drawMontage"));
+   assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
       this->getParent()->ioParamValue(ioFlag, this->getName(), "boundingBoxLineWidth", &boundingBoxLineWidth, boundingBoxLineWidth/*default value*/, true/*warnIfAbsent*/);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_displayCommand(enum PV::ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(this->getName(), "drawMontage"));
+   assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
       this->getParent()->ioParamString(ioFlag, this->getName(), "displayCommand", &displayCommand, NULL, true/*warnIfAbsent*/);
    }
@@ -140,7 +140,7 @@ void BBFindConfRemapProbe::setOutputFilenameBase(char const * fn) {
       fnString.erase(lastDot);
    }
    if (fnString.empty()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "LocalizationProbe::setOutputFilenameBase error: string \"%s\" is empty after removing directory and extension.\n", fn);
       }
       status = PV_FAILURE;
@@ -161,11 +161,11 @@ int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage con
    assert(targetLayer);
    targetBBFindConfRemapLayer = dynamic_cast<BBFindConfRemapLayer*>(targetLayer);
    if (targetBBFindConfRemapLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "%s error: targetLayer \"%s\" must be a BBFindLayer.\n",
                getDescription_c(), this->targetName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
@@ -173,12 +173,12 @@ int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage con
    setLayerFromParam(&reconLayer, "reconLayer", reconLayerName);
    if (status != PV_SUCCESS) {
       // error messages get printed by setLayerFromParam
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
    // Get the names labeling each feature from the class names file.  Only the root process stores these values.
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       int const nf = targetLayer->getLayerLoc()->nf;
       classNames = (char **) malloc(nf * sizeof(char *));
       if (classNames == NULL) {
@@ -225,7 +225,7 @@ int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage con
 void BBFindConfRemapProbe::setLayerFromParam(PV::HyPerLayer ** layer, char const * layerType, char const * layerName) {
    PV::HyPerLayer * l = parent->getLayerFromName(layerName);
    if (l==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "%s error: %s \"%s\" does not refer to a layer in the column.\n",
                getDescription_c(), layerType, layerName);
       }
@@ -234,7 +234,7 @@ void BBFindConfRemapProbe::setLayerFromParam(PV::HyPerLayer ** layer, char const
 
    int const nf = l->getLayerLoc()->nf;
    if (drawMontage && nf != 3) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "%s error: If the drawMontage flag is set, the %s must have exactly three features (\"%s\" has %d).\n",
                getDescription_c(), layerType, layerName, nf);
       }
@@ -289,16 +289,16 @@ int BBFindConfRemapProbe::allocateDataStructures() {
    montageDimX = (nxGlobal + 10) * (numMontageColumns + 2);
    montageDimY = (nyGlobal + 64 + 10) * numMontageRows + 32;
    int const imageMontageSize = montageDimX * montageDimY * 3;
-   if (parent->getCommunicator()->commRank()==0 && drawMontage) {
+   if (getCommunicator()->commRank()==0 && drawMontage) {
       montageImage = (unsigned char *) pvCallocError(imageMontageSize, sizeof(*montageImage),
             "%s allocation for heat map montage image\n", getDescription_c());
       montageImageComm = (unsigned char *) pvCallocError(imageLocalSize, sizeof(*montageImageComm),
             "%s allocation for MPI communication of heat map montage image\n", getDescription_c());
    }
    montageImageLocal = (unsigned char *) pvCallocError(imageLocalSize, sizeof(*montageImageLocal),
-         "%s allocation for heat map image in rank %d\n", getDescription_c(), parent->getCommunicator()->commRank());
+         "%s allocation for heat map image in rank %d\n", getDescription_c(), getCommunicator()->commRank());
    grayScaleImage = (pvadata_t *) pvCallocError(imageLoc->nx*imageLoc->ny, sizeof(pvadata_t),
-         "%s allocation for background image in rank %d\n", getDescription_c(), parent->getCommunicator()->commRank());
+         "%s allocation for background image in rank %d\n", getDescription_c(), getCommunicator()->commRank());
    return PV_SUCCESS;
 }
 
@@ -342,7 +342,7 @@ int BBFindConfRemapProbe::outputStateWrapper(double timef, double dt){
 int BBFindConfRemapProbe::outputState(double timevalue) {
    int status = getValues(timevalue); // all processes must call getValues in parallel.
    if (getTextOutputFlag() && getOutputStream()) {
-      assert(parent->getCommunicator()->commRank()==0);
+      assert(getCommunicator()->commRank()==0);
       int const nbatch = parent->getNBatch();
       for (int b=0; b<nbatch; b++) {
          if (nbatch>1) {
@@ -365,7 +365,7 @@ int BBFindConfRemapProbe::outputState(double timevalue) {
 int BBFindConfRemapProbe::makeMontage(int b) {
    assert(drawMontage);
    assert(numMontageRows > 0 && numMontageColumns > 0);
-   assert((parent->getCommunicator()->commRank()==0) == (montageImage!=NULL));
+   assert((getCommunicator()->commRank()==0) == (montageImage!=NULL));
    PVLayerLoc const * imageLoc = imageLayer->getLayerLoc();
    PVHalo const * halo = &imageLoc->halo;
    int const nx = imageLoc->nx;
@@ -382,7 +382,7 @@ int BBFindConfRemapProbe::makeMontage(int b) {
 
    drawOriginalAndReconstructed();
 
-   if (parent->getCommunicator()->commRank()!=0) { return PV_SUCCESS; }
+   if (getCommunicator()->commRank()!=0) { return PV_SUCCESS; }
 
    // Draw bounding boxes
    if (boundingBoxLineWidth > 0) {
@@ -467,8 +467,8 @@ void BBFindConfRemapProbe::makeGrayScaleImage(int b) {
       if (a < minValue) { minValue = a; }
       if (a > maxValue) { maxValue = a; }
    }
-   MPI_Allreduce(MPI_IN_PLACE, &minValue, 1, MPI_FLOAT, MPI_MIN, parent->getCommunicator()->communicator());
-   MPI_Allreduce(MPI_IN_PLACE, &maxValue, 1, MPI_FLOAT, MPI_MAX, parent->getCommunicator()->communicator());
+   MPI_Allreduce(MPI_IN_PLACE, &minValue, 1, MPI_FLOAT, MPI_MIN, getCommunicator()->communicator());
+   MPI_Allreduce(MPI_IN_PLACE, &maxValue, 1, MPI_FLOAT, MPI_MAX, getCommunicator()->communicator());
    // Scale grayScaleImage to be between 0 and 1.
    // If maxValue==minValue, make grayScaleImage have a constant 0.5.
    if (maxValue==minValue) {
@@ -550,22 +550,22 @@ void BBFindConfRemapProbe::drawHeatMaps(int b) {
             }
          }
       }
-      if (parent->getCommunicator()->commRank()!=0) {
-         MPI_Send(montageImageLocal, nx*ny*3, MPI_UNSIGNED_CHAR, 0, 111, parent->getCommunicator()->communicator());
+      if (getCommunicator()->commRank()!=0) {
+         MPI_Send(montageImageLocal, nx*ny*3, MPI_UNSIGNED_CHAR, 0, 111, getCommunicator()->communicator());
       }
       else {
          int montageCol = idx % numMontageColumns;
          int montageRow = (idx - montageCol) / numMontageColumns; // Integer arithmetic
          int xStartInMontage = (imageLoc->nxGlobal + 10)*montageCol + 5;
          int yStartInMontage = (imageLoc->nyGlobal + 64 + 10)*montageRow + 64 + 5;
-         int const numCommRows = parent->getCommunicator()->numCommRows();
-         int const numCommCols = parent->getCommunicator()->numCommColumns();
-         for (int rank=0; rank<parent->getCommunicator()->commSize(); rank++) {
+         int const numCommRows = getCommunicator()->numCommRows();
+         int const numCommCols = getCommunicator()->numCommColumns();
+         for (int rank=0; rank<getCommunicator()->commSize(); rank++) {
             if (rank==0) {
                memcpy(montageImageComm, montageImageLocal, nx*ny*3);
             }
             else {
-               MPI_Recv(montageImageComm, nx*ny*3, MPI_UNSIGNED_CHAR, rank, 111, parent->getCommunicator()->communicator(), MPI_STATUS_IGNORE);
+               MPI_Recv(montageImageComm, nx*ny*3, MPI_UNSIGNED_CHAR, rank, 111, getCommunicator()->communicator(), MPI_STATUS_IGNORE);
             }
             int const commRow = rowFromRank(rank, numCommRows, numCommCols);
             int const commCol = columnFromRank(rank, numCommRows, numCommCols);
@@ -624,7 +624,7 @@ void BBFindConfRemapProbe::drawProgressInformation() {
 }
 
 void BBFindConfRemapProbe::drawTextOnMontage(char const * backgroundColor, char const * textColor, char const * labelText, int xOffset, int yOffset, int width, int height) {
-   assert(parent->getCommunicator()->commRank()==0);
+   assert(getCommunicator()->commRank()==0);
    char * tempfile = strdup("/tmp/Localization_XXXXXX.tif");
    if (tempfile == NULL) {
       fprintf(stderr, "%s: drawTextOnMontage failed to create temporary file for text\n", getDescription_c());
@@ -651,7 +651,7 @@ void BBFindConfRemapProbe::drawTextOnMontage(char const * backgroundColor, char 
 }
 
 void BBFindConfRemapProbe::drawTextIntoFile(char const * labelFilename, char const * backgroundColor, char const * textColor, char const * labelText, int width, int height) {
-   assert(parent->getCommunicator()->commRank()==0);
+   assert(getCommunicator()->commRank()==0);
    std::stringstream convertCmd("");
    convertCmd << "convert -depth 8 -background \"" << backgroundColor << "\" -fill \"" << textColor << "\" -size " << width << "x" << height << " -pointsize 24 -gravity center label:\"" << labelText << "\" \"" << labelFilename << "\"";
    int status = system(convertCmd.str().c_str());
@@ -663,7 +663,7 @@ void BBFindConfRemapProbe::drawTextIntoFile(char const * labelFilename, char con
 }
 
 void BBFindConfRemapProbe::insertFileIntoMontage(char const * labelFilename, int xOffset, int yOffset, int xExpectedSize, int yExpectedSize) {
-   assert(parent->getCommunicator()->commRank()==0);
+   assert(getCommunicator()->commRank()==0);
    PVLayerLoc const * imageLoc = imageLayer->getLayerLoc();
    int const nx = imageLoc->nx;
    int const ny = imageLoc->ny;
@@ -712,8 +712,8 @@ void BBFindConfRemapProbe::insertImageIntoMontage(int xStart, int yStart, pvadat
          maxValue = a > maxValue ? a : maxValue;
       }
    }
-   MPI_Allreduce(MPI_IN_PLACE, &minValue, 1, MPI_FLOAT, MPI_MIN, parent->getCommunicator()->communicator());
-   MPI_Allreduce(MPI_IN_PLACE, &maxValue, 1, MPI_FLOAT, MPI_MAX, parent->getCommunicator()->communicator());
+   MPI_Allreduce(MPI_IN_PLACE, &minValue, 1, MPI_FLOAT, MPI_MIN, getCommunicator()->communicator());
+   MPI_Allreduce(MPI_IN_PLACE, &maxValue, 1, MPI_FLOAT, MPI_MAX, getCommunicator()->communicator());
    if (minValue==maxValue) {
       for (int y=0; y<ny; y++) {
          int lineStart = kIndex(0, y, 0, nx, ny, nf);
@@ -734,19 +734,19 @@ void BBFindConfRemapProbe::insertImageIntoMontage(int xStart, int yStart, pvadat
          montageImageLocal[k] = aChar;
       }
    }
-   if (parent->getCommunicator()->commRank()!=0) {
-      MPI_Send(montageImageLocal, nx*ny*3, MPI_UNSIGNED_CHAR, 0, 111, parent->getCommunicator()->communicator());
+   if (getCommunicator()->commRank()!=0) {
+      MPI_Send(montageImageLocal, nx*ny*3, MPI_UNSIGNED_CHAR, 0, 111, getCommunicator()->communicator());
    }
    else {
-      for (int rank=0; rank<parent->getCommunicator()->commSize(); rank++) {
+      for (int rank=0; rank<getCommunicator()->commSize(); rank++) {
          if (rank!=0) {
-            MPI_Recv(montageImageComm, nx*ny*3, MPI_UNSIGNED_CHAR, rank, 111, parent->getCommunicator()->communicator(), MPI_STATUS_IGNORE);
+            MPI_Recv(montageImageComm, nx*ny*3, MPI_UNSIGNED_CHAR, rank, 111, getCommunicator()->communicator(), MPI_STATUS_IGNORE);
          }
          else {
             memcpy(montageImageComm, montageImageLocal, nx*ny*3);
          }
-         int const numCommRows = parent->getCommunicator()->numCommRows();
-         int const numCommCols = parent->getCommunicator()->numCommColumns();
+         int const numCommRows = getCommunicator()->numCommRows();
+         int const numCommCols = getCommunicator()->numCommColumns();
          int const commRow = rowFromRank(rank, numCommRows, numCommCols);
          int const commCol = columnFromRank(rank, numCommRows, numCommCols);
          for (int y=0; y<ny; y++) {

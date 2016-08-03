@@ -147,7 +147,7 @@ int LIFGap::allocateConductances(int num_channels) {
    gapStrength = (pvgsyndata_t *) calloc((size_t) getNumNeuronsAllBatches(), sizeof(*gapStrength));
    if(gapStrength == NULL) {
       pvError().printf("%s: rank %d process unable to allocate memory for gapStrength: %s\n",
-            getDescription_c(), parent->getCommunicator()->commRank(), strerror(errno));
+            getDescription_c(), getCommunicator()->commRank(), strerror(errno));
    }
    return status;
 }
@@ -172,7 +172,7 @@ int LIFGap::calcGapStrength() {
    for (int c=0; c<parent->numberOfConnections(); c++) {
       HyPerConn * conn = dynamic_cast<HyPerConn *>(parent->getConnection(c));
       if (conn->postSynapticLayer() != this || conn->getChannel() != CHANNEL_GAP) { continue; }
-      if (conn->getPlasticityFlag() && parent->getCommunicator()->commRank()==0) {
+      if (conn->getPlasticityFlag() && getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: %s on CHANNEL_GAP has plasticity flag set to true\n", getDescription_c(), conn->getDescription_c());
       }
       HyPerLayer * pre = conn->preSynapticLayer();
@@ -192,7 +192,7 @@ int LIFGap::checkpointWrite(const char * cpDir) {
    int status = LIF::checkpointWrite(cpDir);
 
    // checkpoint gapStrength buffer
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    double timed = (double) parent->simulationTime();
    int filenamesize = strlen(cpDir)+(size_t) 1+strlen(name)+strlen("_gapStrength.pvp")+(size_t) 1;
    // The +1's are for the slash between cpDir and name, and for the null terminator
@@ -215,7 +215,7 @@ int LIFGap::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIFGap::readGapStrengthFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "gapStrength", "pvp");
-   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &gapStrength, 1, /*extended*/false, getLayerLoc());
+   int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &gapStrength, 1, /*extended*/false, getLayerLoc());
    assert(status==PV_SUCCESS);
    delete filename;
    gapStrengthInitialized = true;

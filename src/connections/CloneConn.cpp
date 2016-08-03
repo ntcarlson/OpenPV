@@ -35,20 +35,20 @@ int CloneConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 
 void CloneConn::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "writeStep");
+      getParams()->handleUnnecessaryParameter(name, "writeStep");
       writeStep = -1;
    }   
 }
 
 void CloneConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
+      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
    }
 }
 
 void CloneConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "normalizeMethod", NULL);
+      getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", NULL);
    }
 }
 
@@ -112,21 +112,21 @@ PVPatch *** CloneConn::initializeWeights(PVPatch *** patches, pvdata_t ** dataSt
 
 void CloneConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights");
+      getParams()->handleUnnecessaryParameter(name, "sharedWeights");
    }
    // During the communication phase, sharedWeights will be copied from originalConn
 }
 
 void CloneConn::ioParam_shrinkPatches(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "shrinkPatches");
+      getParams()->handleUnnecessaryParameter(name, "shrinkPatches");
    }
    // During the communication phase, shrinkPatches_flag will be copied from originalConn
 }
 
 void CloneConn::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "numAxonalArbors");
+      getParams()->handleUnnecessaryParameter(name, "numAxonalArbors");
    }
    // During the communication phase, numAxonalArbors will be copied from originalConn
 }
@@ -134,7 +134,7 @@ void CloneConn::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
 void CloneConn::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       plasticityFlag = false; // CloneConn updates automatically, since it's done using pointer magic.
-      parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
+      getParams()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
    }
 }
 
@@ -160,7 +160,7 @@ void CloneConn::ioParam_nfp(enum ParamsIOFlag ioFlag) {
 void CloneConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "initializeFromCheckpointFlag");
+      getParams()->handleUnnecessaryParameter(name, "initializeFromCheckpointFlag");
    }
    // CloneConn does not checkpoint, so we don't need initializeFromCheckpointFlag
 }
@@ -168,7 +168,7 @@ void CloneConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
 void CloneConn::ioParam_writeCompressedWeights(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "writeCompressedWeights");
+      getParams()->handleUnnecessaryParameter(name, "writeCompressedWeights");
    }
    // CloneConn does not write during outputState, so we don't need writeCompressedWeights
 }
@@ -176,7 +176,7 @@ void CloneConn::ioParam_writeCompressedWeights(enum ParamsIOFlag ioFlag) {
 void CloneConn::ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "writeCompressedWeights");
+      getParams()->handleUnnecessaryParameter(name, "writeCompressedWeights");
    }
    // CloneConn does not checkpoint, so we don't need writeCompressedCheckpoints
 }
@@ -185,22 +185,22 @@ int CloneConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    // Need to set originalConn before calling HyPerConn::communicate, since HyPerConn::communicate calls setPatchSize, which needs originalConn.
    BaseConnection * originalConnBase = parent->getConnFromName(originalConnName);
    if (originalConnBase == NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a connection in the column.\n",
                getDescription_c(), originalConnName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
    if (originalConn == NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a HyPerConn or HyPerConn-derived class.\n",
                getDescription_c(), originalConnName);
       }
    }
    if (!originalConn->getInitInfoCommunicatedFlag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;
@@ -234,14 +234,14 @@ int CloneConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    const PVLayerLoc * origPreLoc = originalConn->preSynapticLayer()->getLayerLoc();
 
    if (preLoc->nx != origPreLoc->nx || preLoc->ny != origPreLoc->ny || preLoc->nf != origPreLoc->nf ) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: CloneConn and originalConn \"%s\" must have presynaptic layers with the same nx,ny,nf.\n",
-               getDescription_c(), parent->getCommunicator()->commRank(), originalConn->getName());
+               getDescription_c(), getCommunicator()->commRank(), originalConn->getName());
          errorMessage.printf("{nx=%d, ny=%d, nf=%d} versus {nx=%d, ny=%d, nf=%d}\n",
                  preLoc->nx, preLoc->ny, preLoc->nf, origPreLoc->nx, origPreLoc->ny, origPreLoc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       abort();
    }
 
@@ -271,7 +271,7 @@ int CloneConn::allocatePostConn(){
 
 int CloneConn::allocateDataStructures() {
    if (!originalConn->getDataStructuresAllocatedFlag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;
@@ -297,16 +297,16 @@ int CloneConn::setPatchSize() {
    nxp = originalConn->xPatchSize();
    nyp = originalConn->yPatchSize();
    nfp = originalConn->fPatchSize();
-   parent->parameters()->handleUnnecessaryParameter(name, "nxp", nxp);
-   parent->parameters()->handleUnnecessaryParameter(name, "nyp", nyp);
-   parent->parameters()->handleUnnecessaryParameter(name, "nfp", nfp);
+   getParams()->handleUnnecessaryParameter(name, "nxp", nxp);
+   getParams()->handleUnnecessaryParameter(name, "nyp", nyp);
+   getParams()->handleUnnecessaryParameter(name, "nfp", nfp);
    return PV_SUCCESS;
 }
 
 int CloneConn::cloneParameters() {
    // Copy sharedWeights, numAxonalArborLists, shrinkPatches_flag from originalConn
 
-   PVParams * params = parent->parameters();
+   PVParams * params = getParams();
 
    sharedWeights = originalConn->usingSharedWeights();
    params->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
@@ -315,7 +315,7 @@ int CloneConn::cloneParameters() {
    params->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
 
    shrinkPatches_flag = originalConn->getShrinkPatches_flag();
-   parent->parameters()->handleUnnecessaryParameter(name, "shrinkPatches", shrinkPatches_flag);
+   getParams()->handleUnnecessaryParameter(name, "shrinkPatches", shrinkPatches_flag);
    return PV_SUCCESS;
 }
 

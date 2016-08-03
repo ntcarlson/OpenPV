@@ -92,19 +92,19 @@ void PtwiseLinearTransferLayer::ioParam_verticesV(enum ParamsIOFlag ioFlag) {
    this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesV", &verticesV, &numVerticesTmp);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesTmp==0) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesV cannot be empty\n",
                   getDescription_c());
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       if (numVertices !=0 && numVerticesTmp != numVertices) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesV (%d elements) and verticesA (%d elements) must have the same lengths.\n",
                   getDescription_c(), numVerticesTmp, numVertices);
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       assert(numVertices==0 || numVertices==numVerticesTmp);
@@ -117,19 +117,19 @@ void PtwiseLinearTransferLayer::ioParam_verticesA(enum ParamsIOFlag ioFlag) {
    this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesA", &verticesA, &numVerticesA);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesA==0) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesA cannot be empty\n",
                   getDescription_c());
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       if (numVertices !=0 && numVerticesA != numVertices) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesV (%d elements) and verticesA (%d elements) must have the same lengths.\n",
                   getDescription_c(), numVertices, numVerticesA);
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       assert(numVertices==0 || numVertices==numVerticesA);
@@ -157,7 +157,7 @@ int PtwiseLinearTransferLayer::checkVertices() {
    for (int v=1; v<numVertices; v++) {
       if (verticesV[v] < verticesV[v-1]) {
          status = PV_FAILURE;
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: vertices %d and %d: V-coordinates decrease from %f to %f.\n",
                   getDescription_c(), v, v+1, verticesV[v-1], verticesV[v]);
          }
@@ -247,7 +247,7 @@ int PtwiseLinearTransferLayer::setActivity() {
 int PtwiseLinearTransferLayer::checkpointRead(char const * cpDir, double * timeptr) {
    int status = HyPerLayer::checkpointRead(cpDir, timeptr);
    if (status==PV_SUCCESS) {
-      status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", parent->getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());
+      status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());
    }
    return status;
 }
@@ -255,7 +255,7 @@ int PtwiseLinearTransferLayer::checkpointRead(char const * cpDir, double * timep
 int PtwiseLinearTransferLayer::checkpointWrite(char const * cpDir) {
    int status = HyPerLayer::checkpointWrite(cpDir);
    if (status==PV_SUCCESS) {
-      status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", parent->getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
+      status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
    }
    return status;
 }

@@ -30,13 +30,15 @@ int BaseObject::initialize_base() {
 
 int BaseObject::initialize(const char * name, HyPerCol * hc) {
    int status = setName(name);
+   setParams(hc->parameters());
+   setCommunicator(hc->getCommunicator());
    if (status==PV_SUCCESS) { status = setParent(hc); }
    if (status==PV_SUCCESS) { status = setDescription(); }
    return status;
 }
 
 char const * BaseObject::getKeyword() const {
-   return getParent()->parameters()->groupKeywordFromName(getName());
+   return getParams()->groupKeywordFromName(getName());
 }
 
 int BaseObject::setName(char const * name) {
@@ -48,6 +50,16 @@ int BaseObject::setName(char const * name) {
       status = PV_FAILURE;
    }
    return status;
+}
+
+void BaseObject::setParams(PVParams * params) {
+   if (params==nullptr) {  throw; }
+   mParams = params;
+}
+
+void BaseObject::setCommunicator(Communicator * comm) {
+   if (comm==nullptr) { throw; }
+   mCommunicator = comm;
 }
 
 int BaseObject::setParent(HyPerCol * hc) {

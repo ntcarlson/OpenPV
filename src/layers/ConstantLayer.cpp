@@ -41,7 +41,7 @@ void ConstantLayer::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       triggerLayerName = nullptr;
       triggerFlag = false;
-      parent->parameters()->handleUnnecessaryStringParameter(name, "triggerLayerName", nullptr);
+      getParams()->handleUnnecessaryStringParameter(name, "triggerLayerName", nullptr);
    }
 }
 

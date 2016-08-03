@@ -54,7 +54,7 @@ int AvgPoolTestLayer::updateState(double timef, double dt){
          }
       }
       if(!isCorrect){
-         Communicator * icComm = parent->getCommunicator();
+         Communicator * icComm = getCommunicator();
          MPI_Barrier(icComm->communicator()); // If there is an error, make sure that MPI doesn't kill the run before process 0 reports the error.
          exit(-1);
       }

@@ -232,7 +232,7 @@ int MomentumLCALayer::checkpointWrite(const char * cpDir) {
 #endif
 
    // Writes checkpoint files for V, A, and datastore to files in working directory
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    double timed = (double) parent->simulationTime();
    auto filename = pathInCheckpoint(cpDir, getName(), "prevDrive", "pvp");
    int status = writeBufferFile(filename->c_str(), icComm, timed, &prevDrive, /*numbands*/1, /*extended*/false, getLayerLoc());
@@ -245,7 +245,7 @@ int MomentumLCALayer::checkpointRead(const char * cpDir, double * timeptr) {
    HyPerLCALayer::checkpointRead(cpDir, timeptr);
    int status = PV_SUCCESS;
    auto filename = pathInCheckpoint(cpDir, getName(), "prevDrive", "pvp");
-   status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &prevDrive, 1, /*extended*/false, getLayerLoc());
+   status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &prevDrive, 1, /*extended*/false, getLayerLoc());
    assert(status == PV_SUCCESS);
    delete filename;
 

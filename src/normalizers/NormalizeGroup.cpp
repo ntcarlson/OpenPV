@@ -52,10 +52,10 @@ int NormalizeGroup::communicateInitInfo(CommunicateInitInfoMessage const * messa
 
    HyPerConn * normalizeGroup = message->mTable->lookup<HyPerConn>(normalizeGroupName);
    if (normalizeGroup==nullptr) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit() << getDescription() << ": normalizeGroupName \"" << normalizeGroupName << "\" is not recognized.\n";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    normalizeGroup->addObserver(targetConn, ConnectionAddNormalizerMessage());

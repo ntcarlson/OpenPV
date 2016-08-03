@@ -93,7 +93,7 @@ int LIFTestProbe::communicateInitInfo(CommunicateInitInfoMessage const * message
 
 int LIFTestProbe::allocateDataStructures() {
    int status = StatsProbe::allocateDataStructures();
-   if (status == PV_SUCCESS && getParent()->getCommunicator()->commRank()==0) {
+   if (status == PV_SUCCESS && getCommunicator()->commRank()==0) {
       pvAssert(outputStream);
       outputStream->printf("%s Correct: ", getMessage());
       for (int k=0; k<LIFTESTPROBE_BINS; k++) {
@@ -126,7 +126,7 @@ int LIFTestProbe::outputState(double timed) {
       }
    }
    int root_proc = 0;
-   Communicator * icComm = l->getParent()->getCommunicator();
+   Communicator * icComm = l->getCommunicator();
    if (icComm->commRank()==root_proc) {
       MPI_Reduce(MPI_IN_PLACE, rates, LIFTESTPROBE_BINS, MPI_DOUBLE, MPI_SUM, root_proc, icComm->communicator());
       pvInfo(dumpRates);

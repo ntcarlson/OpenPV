@@ -42,7 +42,7 @@ int GapConn::initialize(const char * name, HyPerCol * hc) {
 void GapConn::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       channel = CHANNEL_GAP;
-      parent->parameters()->handleUnnecessaryParameter(name, "channelCode", (int) CHANNEL_GAP);
+      getParams()->handleUnnecessaryParameter(name, "channelCode", (int) CHANNEL_GAP);
    }
 }
 
@@ -51,9 +51,9 @@ void GapConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    // This default was chosen for backwards compatibility because GapConn used to require sharedWeights be true.
    // Now GapConn can be used with or without shared weights, so eventually the default will false as it is for other HyPerConns.
    parent->ioParamValue(ioFlag, name, "sharedWeights", &sharedWeights, true/*default*/, true/*warn if absent*/);
-   if (ioFlag==PARAMS_IO_READ && !parent->parameters()->present(name, "sharedWeights")) {
+   if (ioFlag==PARAMS_IO_READ && !getParams()->present(name, "sharedWeights")) {
       sharedWeights = true;
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: sharedWeights defaults to true for GapConns, but the default may be changed to false in a future release, to be consistent with other HyPerConns.\n", getDescription_c());
       }
       return;
@@ -65,11 +65,11 @@ void GapConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
    // Default of normalizeSum for normalizeMethod for GapConns was deprecated Aug 11, 2014.
    // This default was chosen for backwards compatibility because GapConn used to require normalizeMethod be normalizeSum.
    // Now GapConn can be normalized using any method, so eventually the default will be removed and the parameter required as is for other HyPerConns.
-   if (ioFlag==PARAMS_IO_READ && !parent->parameters()->stringPresent(name, "normalizeMethod")) {
+   if (ioFlag==PARAMS_IO_READ && !getParams()->stringPresent(name, "normalizeMethod")) {
       normalizeMethod = strdup("normalizeSum");
       GapConn * conn = this;
       normalizer = new NormalizeGap(name, parent);
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: normalizeMethod defaults to normalizeSum for GapConns, but this parameter may be required in a future release, to be consistent with other HyPerConns.\n", getDescription_c());
       }
       return;
@@ -81,11 +81,11 @@ int GapConn::allocateDataStructures() {
    HyPerLayer * postHyPerLayer = this->postSynapticLayer();
    LIFGap * postLIFGap = dynamic_cast <LIFGap*> (postHyPerLayer);
    if (postLIFGap == NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: postsynaptic layer must be a LIFGap or LIFGap-derived layer.\n",
                getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    int status = HyPerConn::allocateDataStructures();

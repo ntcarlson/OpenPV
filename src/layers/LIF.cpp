@@ -232,14 +232,14 @@ void LIF::ioParam_method(enum ParamsIOFlag ioFlag) {
    }
    method = methodString ? methodString[0] : 'a'; // Default is ARMA; 'beginning' and 'original' are deprecated.
    if (method != 'o' && method != 'b' && method != 'a') {
-      if (getParent()->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("LIF::setLIFParams error.  Layer \"%s\" has method \"%s\".  Allowable values are \"arma\", \"beginning\" and \"original\".", name, methodString);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if (method != 'a') {
-      if (getParent()->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn().printf("LIF layer \"%s\" integration method \"%s\" is deprecated.  Method \"arma\" is preferred.\n", name, methodString);
       }
    }
@@ -280,7 +280,7 @@ int LIF::allocateBuffers() {
    Vth = (pvdata_t *) calloc((size_t) getNumNeuronsAllBatches(), sizeof(pvdata_t));
    if(Vth == NULL) {
       pvError().printf("%s: rank %d process unable to allocate memory for Vth: %s\n",
-            getDescription_c(), parent->getCommunicator()->commRank(), strerror(errno));
+            getDescription_c(), getCommunicator()->commRank(), strerror(errno));
    }
    return HyPerLayer::allocateBuffers();
 }
@@ -291,7 +291,7 @@ int LIF::allocateConductances(int num_channels) {
    G_E = (pvdata_t *) calloc((size_t) (getNumNeuronsAllBatches()*numChannels), sizeof(pvdata_t));
    if(G_E == NULL) {
       pvError().printf("%s: rank %d process unable to allocate memory for %d conductances: %s\n",
-            getDescription_c(), parent->getCommunicator()->commRank(), num_channels, strerror(errno));
+            getDescription_c(), getCommunicator()->commRank(), num_channels, strerror(errno));
    }
 
    G_I  = G_E + 1*numNeurons;
@@ -312,7 +312,7 @@ int LIF::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIF::readVthFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "Vth", "pvp");
-   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
+   int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
    delete filename;
    return status;
@@ -320,7 +320,7 @@ int LIF::readVthFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIF::readG_EFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "G_E", "pvp");
-   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &G_E, 1, /*extended*/true, getLayerLoc());
+   int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &G_E, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
    delete filename;
    return status;
@@ -328,7 +328,7 @@ int LIF::readG_EFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIF::readG_IFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "G_I", "pvp");
-   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &G_I, 1, /*extended*/true, getLayerLoc());
+   int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &G_I, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
    delete filename;
    return status;
@@ -336,7 +336,7 @@ int LIF::readG_IFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIF::readG_IBFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "G_IB", "pvp");
-   int status = readBufferFile(filename->c_str(), parent->getCommunicator(), timeptr, &G_IB, 1, /*extended*/true, getLayerLoc());
+   int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &G_IB, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
    delete filename;
    return status;
@@ -344,7 +344,7 @@ int LIF::readG_IBFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIF::readRandStateFromCheckpoint(const char * cpDir, double * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "rand_state", "bin");
-   int status = readRandState(filename->c_str(), parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), false /*extended*/); // TODO Make a method in Random class
+   int status = readRandState(filename->c_str(), getCommunicator(), randState->getRNG(0), getLayerLoc(), false /*extended*/); // TODO Make a method in Random class
    assert(status==PV_SUCCESS);
    delete filename;
    return status;
@@ -352,7 +352,7 @@ int LIF::readRandStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int LIF::checkpointWrite(const char * cpDir) {
    HyPerLayer::checkpointWrite(cpDir);
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    double timed = (double) parent->simulationTime();
    int filenamesize = strlen(cpDir)+1+strlen(name)+16;
    // The +1 is for the slash between cpDir and name; the +16 needs to be large enough to hold the suffix (e.g. _rand_state.bin) plus the null terminator
@@ -378,7 +378,7 @@ int LIF::checkpointWrite(const char * cpDir) {
 
    chars_needed = snprintf(filename, filenamesize, "%s/%s_rand_state.bin", cpDir, name);
    assert(chars_needed < filenamesize);
-   writeRandState(filename, parent->getCommunicator(), randState->getRNG(0), getLayerLoc(), false /*extended*/, parent->getVerifyWrites()); // TODO Make a method in Random class
+   writeRandState(filename, getCommunicator(), randState->getRNG(0), getLayerLoc(), false /*extended*/, parent->getVerifyWrites()); // TODO Make a method in Random class
 
    free(filename);
    return PV_SUCCESS;

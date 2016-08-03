@@ -135,10 +135,10 @@ int BBFindConfRemapLayer::communicateInitInfo(PV::CommunicateInitInfoMessage con
    if (imageLayerName && imageLayerName[0]) {
       imageLayer = parent->getLayerFromName(imageLayerName);
       if (imageLayer==nullptr) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvError() << getDescription_c() << ": imageLayer \"" << imageLayerName << "\" does not refer to a layer in the column." << std::endl;
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          pvExitFailure("");
       }
       imageWidth = imageLayer->getLayerLoc()->nxGlobal;
@@ -160,10 +160,10 @@ int BBFindConfRemapLayer::communicateInitInfo(PV::CommunicateInitInfoMessage con
       for (int k=0; k<numDisplayedCategories; k++) {
          int cat = displayedCategories[k];
          if (cat <=0 || cat > getLayerLoc()->nf) {
-            if (parent->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvError() << getDescription_c() << ": displayedCategories element " << k+1 << " is " << cat << ", outside the range [1," << getLayerLoc()->nf << "]." << std::endl;
             }
-            MPI_Barrier(parent->getCommunicator()->communicator());
+            MPI_Barrier(getCommunicator()->communicator());
             pvExitFailure("");
          }
       }
@@ -221,7 +221,7 @@ int BBFindConfRemapLayer::updateState(double t, double dt) {
 
    // Gather the V buffers into root process for BBFind, then scatter the activity.
    pvadata_t confidenceLocal[getNumNeurons()];
-   PV::Communicator * icComm = parent->getCommunicator();
+   PV::Communicator * icComm = getCommunicator();
    PVLayerLoc const * loc = getLayerLoc();
    PVHalo const * halo = &loc->halo;
    int const nx = loc->nx;
@@ -230,7 +230,7 @@ int BBFindConfRemapLayer::updateState(double t, double dt) {
    int const rootProcess = 0;
    for (int b=0; b<parent->getNBatch(); b++) {
       memset(confidenceLocal, 0, sizeof(*confidenceLocal)*getNumNeurons());
-      if (parent->getCommunicator()->commRank()==rootProcess) {
+      if (getCommunicator()->commRank()==rootProcess) {
          int const nxGlobal = loc->nxGlobal;
          int const nyGlobal = loc->nyGlobal;
          pvdata_t confidenceGlobal[getNumGlobalNeurons()];

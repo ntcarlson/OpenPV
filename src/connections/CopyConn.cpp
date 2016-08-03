@@ -41,7 +41,7 @@ void CopyConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
 void CopyConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       keepKernelsSynchronized_flag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "keepKernelsSynchronized");
+      getParams()->handleUnnecessaryParameter(name, "keepKernelsSynchronized");
    }
    // CopyConn doesn't use the keepKernelsSynchronized flag.
    // It copies weights from original conn, so kernels will automatically synchronize
@@ -51,7 +51,7 @@ void CopyConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
 void CopyConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
    // CopyConn doesn't use a weight initializer
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
+      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
    }
 }
 
@@ -70,7 +70,7 @@ void CopyConn::ioParam_nfp(enum ParamsIOFlag ioFlag) {
 void CopyConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
-      parent->parameters()->handleUnnecessaryParameter(name, "initializeFromCheckpointFlag");
+      getParams()->handleUnnecessaryParameter(name, "initializeFromCheckpointFlag");
    }
    // During the setInitialValues phase, the conn will be copied from the original conn, so initializeFromCheckpointFlag is not needed.
 }
@@ -88,22 +88,22 @@ void CopyConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
       // make sure that TransposePoolingConn always checks if its originalConn has updated
       triggerFlag = false;
       triggerLayerName = NULL;
-      parent->parameters()->handleUnnecessaryParameter(name, "triggerFlag", triggerFlag);
-      parent->parameters()->handleUnnecessaryStringParameter(name, "triggerLayerName", NULL);
+      getParams()->handleUnnecessaryParameter(name, "triggerFlag", triggerFlag);
+      getParams()->handleUnnecessaryStringParameter(name, "triggerLayerName", NULL);
    }
 }
 
 void CopyConn::ioParam_weightUpdatePeriod(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       weightUpdatePeriod = parent->getDeltaTime();
-      parent->parameters()->handleUnnecessaryParameter(name, "weightUpdatePeriod");
+      getParams()->handleUnnecessaryParameter(name, "weightUpdatePeriod");
    }
 }
 
 void CopyConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initialWeightUpdateTime = parent->getStartTime();
-      parent->parameters()->handleUnnecessaryParameter(name, "initialWeightUpdateTime");
+      getParams()->handleUnnecessaryParameter(name, "initialWeightUpdateTime");
       weightUpdateTime = initialWeightUpdateTime;
    }
 }
@@ -111,21 +111,21 @@ void CopyConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag) {
 void CopyConn::ioParam_dWMax(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       // since CopyConn doesn't do its own learning, it doesn't use dWMax
-      parent->parameters()->handleUnnecessaryParameter(name, "dWMax");
+      getParams()->handleUnnecessaryParameter(name, "dWMax");
    }
 }
 
 void CopyConn::ioParam_useMask(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       useMask = false; // since CopyConn doesn't do its own learning, it doesn't need to have a mask
-      parent->parameters()->handleUnnecessaryParameter(name, "useMask", useMask);
+      getParams()->handleUnnecessaryParameter(name, "useMask", useMask);
    }
 }
 
 void CopyConn::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       maskLayerName = NULL; // since CopyConn doesn't do its own learning, it doesn't need to have a mask
-      parent->parameters()->handleUnnecessaryStringParameter(name, "maskLayerName", maskLayerName);
+      getParams()->handleUnnecessaryStringParameter(name, "maskLayerName", maskLayerName);
    }
 }
 
@@ -137,15 +137,15 @@ int CopyConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = PV_SUCCESS;
    BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
    if (originalConnBase==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" does not refer to any connection in the column.\n", getDescription_c(), this->originalConnName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    this->originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
    if (originalConn == NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not an existing connection.\n", getDescription_c(), originalConnName);
          status = PV_FAILURE;
       }
@@ -153,20 +153,20 @@ int CopyConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    if (status != PV_SUCCESS) return status;
 
    if (!originalConn->getInitInfoCommunicatedFlag()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
       }
       return PV_POSTPONE;
    }
 
    sharedWeights = originalConn->usingSharedWeights();
-   parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
+   getParams()->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
 
    numAxonalArborLists = originalConn->numberOfAxonalArborLists();
-   parent->parameters()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
+   getParams()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
 
    plasticityFlag = originalConn->getPlasticityFlag();
-   parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
+   getParams()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
 
    status = HyPerConn::communicateInitInfo(message);
 
@@ -177,9 +177,9 @@ int CopyConn::setPatchSize() {
    nxp = originalConn->xPatchSize();
    nyp = originalConn->yPatchSize();
    nfp = originalConn->fPatchSize();
-   parent->parameters()->handleUnnecessaryParameter(name, "nxp", nxp);
-   parent->parameters()->handleUnnecessaryParameter(name, "nyp", nyp);
-   parent->parameters()->handleUnnecessaryParameter(name, "nfp", nfp);
+   getParams()->handleUnnecessaryParameter(name, "nxp", nxp);
+   getParams()->handleUnnecessaryParameter(name, "nyp", nyp);
+   getParams()->handleUnnecessaryParameter(name, "nfp", nfp);
    return PV_SUCCESS;
 }
 

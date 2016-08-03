@@ -31,10 +31,10 @@ int ImageFromMemoryBuffer::initialize_base() {
 int ImageFromMemoryBuffer::initialize(char const * name, HyPerCol * hc) {
    return BaseInput::initialize(name, hc);
    if (useImageBCflag && autoResizeFlag) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: setting both useImageBCflag and autoResizeFlag has not yet been implemented.\n", getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -49,7 +49,7 @@ int ImageFromMemoryBuffer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 template <typename pixeltype>
 int ImageFromMemoryBuffer::setMemoryBuffer(pixeltype const * externalBuffer, int height, int width, int numbands, int xstride, int ystride, int bandstride, pixeltype zeroval, pixeltype oneval) {
    if (height<=0 || width<=0 || numbands<=0) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("ImageFromMemoryBuffer::setMemoryBuffer: height, width, numbands arguments must be positive.\n");
       }
       return PV_FAILURE;
@@ -59,7 +59,7 @@ int ImageFromMemoryBuffer::setMemoryBuffer(pixeltype const * externalBuffer, int
    int newSize = height * width * numbands;
 
 
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       if (oldSize != newSize) {
          delete[] imageData;
          imageData = new pvadata_t[newSize];
@@ -105,11 +105,11 @@ int ImageFromMemoryBuffer::setMemoryBuffer(pixeltype const * externalBuffer, int
    free(this->offsetAnchor);
    this->offsetAnchor = strdup(offsetAnchor);
    if (checkValidAnchorString()!=PV_SUCCESS) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: setMemoryBuffer called with invalid anchor string \"%s\"",
                getDescription_c(), offsetAnchor);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return setMemoryBuffer(externalBuffer, height, width, numbands, xstride, ystride, bandstride, zeroval, oneval);

@@ -29,7 +29,7 @@ int CloneHyPerConnTestProbe::initCloneHyPerConnTestProbe(const char * probeName,
 int CloneHyPerConnTestProbe::outputState(double timed)
 {
    int status = StatsProbe::outputState(timed);
-   Communicator * icComm = getTargetLayer()->getParent()->getCommunicator();
+   Communicator * icComm = getTargetLayer()->getCommunicator();
    const int rcvProc = 0;
    if( icComm->commRank() != rcvProc ) {
       return 0;

@@ -71,12 +71,12 @@ int KernelProbe::communicateInitInfo(CommunicateInitInfoMessage const * message)
    int status = BaseHyPerConnProbe::communicateInitInfo(message);
    assert(targetHyPerConn);
    if(getTargetHyPerConn()->usingSharedWeights()==false) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: %s is not using shared weights.\n", getDescription_c(), targetConn->getDescription_c());
       }
       status = PV_FAILURE;
    }
-   MPI_Barrier(parent->getCommunicator()->communicator());
+   MPI_Barrier(getCommunicator()->communicator());
    if (status != PV_SUCCESS) {
       exit(EXIT_FAILURE);
    }
@@ -104,7 +104,7 @@ int KernelProbe::allocateDataStructures() {
 }
 
 int KernelProbe::outputState(double timed) {
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    const int rank = icComm->commRank();
    if( rank != 0 ) return PV_SUCCESS;
    assert(getTargetConn()!=NULL);

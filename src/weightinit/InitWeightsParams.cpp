@@ -84,6 +84,7 @@ int InitWeightsParams::initialize(char const * name, HyPerCol * hc) {
    int status = PV_SUCCESS;
 
    this->parentConn = NULL;
+   this->mParams = hc->parameters();
    this->parent = hc;
    this->setName(name);
 
@@ -106,23 +107,23 @@ void InitWeightsParams::ioParam_initWeightsFile(enum ParamsIOFlag ioFlag) {
 }
 
 void InitWeightsParams::ioParam_useListOfArborFiles(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "initWeightsFile"));
+   assert(!mParams->presentAndNotBeenRead(name, "initWeightsFile"));
    if (filename!=NULL) {
       parent->ioParamValue(ioFlag, name, "useListOfArborFiles", &useListOfArborFiles, false/*default*/, true/*warnIfAbsent*/);
    }
 }
 
 void InitWeightsParams::ioParam_combineWeightFiles(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "initWeightsFile"));
+   assert(!mParams->presentAndNotBeenRead(name, "initWeightsFile"));
    if (filename!=NULL) {
       parent->ioParamValue(ioFlag, name, "combineWeightFiles", &combineWeightFiles, false/*default*/, true/*warnIfAbsent*/);
    }
 }
 
 void InitWeightsParams::ioParam_numWeightFiles(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "initWeightsFile"));
+   assert(!mParams->presentAndNotBeenRead(name, "initWeightsFile"));
    if (filename!=NULL) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "combineWeightFiles"));
+      assert(!mParams->presentAndNotBeenRead(name, "combineWeightFiles"));
       if (combineWeightFiles) {
          int max_weight_files = 1;  // arbitrary limit...
          parent->ioParamValue(ioFlag, name, "numWeightFiles", &numWeightFiles, max_weight_files, true/*warnIfAbsent*/);

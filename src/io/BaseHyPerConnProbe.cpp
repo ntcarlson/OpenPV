@@ -32,7 +32,7 @@ int BaseHyPerConnProbe::communicateInitInfo(CommunicateInitInfoMessage const * m
    assert(getTargetConn());
    targetHyPerConn = dynamic_cast<HyPerConn *>(targetConn);
    if (targetHyPerConn==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: targetConn \"%s\" must be a HyPerConn or HyPerConn-derived class.\n",
                getDescription_c(), targetConn->getName());
       }

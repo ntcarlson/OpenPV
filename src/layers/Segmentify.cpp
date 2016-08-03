@@ -50,11 +50,11 @@ void Segmentify::ioParam_inputMethod(enum ParamsIOFlag ioFlag) {
    else if(strcmp(inputMethod, "max") == 0){
    }
    else{
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: inputMethod must be \"average\", \"sum\", or \"max\".\n",
                  getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -66,11 +66,11 @@ void Segmentify::ioParam_outputMethod(enum ParamsIOFlag ioFlag) {
    else if(strcmp(outputMethod, "fill") == 0){
    }
    else{
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: outputMethod must be \"centriod\" or \"fill\".\n",
                  getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -79,11 +79,11 @@ void Segmentify::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalLayerName", &originalLayerName);
    assert(originalLayerName);
    if (ioFlag==PARAMS_IO_READ && originalLayerName[0]=='\0') {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName must be set.\n",
                  getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -92,11 +92,11 @@ void Segmentify::ioParam_segmentLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "segmentLayerName", &segmentLayerName);
    assert(segmentLayerName);
    if (ioFlag==PARAMS_IO_READ && segmentLayerName[0]=='\0') {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: segmentLayerName must be set.\n",
                  getDescription_c());
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
@@ -107,11 +107,11 @@ int Segmentify::communicateInitInfo(CommunicateInitInfoMessage const * message) 
    //Get original layer
    originalLayer = parent->getLayerFromName(originalLayerName);
    if (originalLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), originalLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    if (originalLayer->getInitInfoCommunicatedFlag()==false) {
@@ -121,20 +121,20 @@ int Segmentify::communicateInitInfo(CommunicateInitInfoMessage const * message) 
    //Get segment layer
    HyPerLayer* tmpLayer = parent->getLayerFromName(segmentLayerName);
    if (tmpLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: segmentLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), segmentLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    segmentLayer = dynamic_cast <SegmentLayer*>(tmpLayer);
    if (segmentLayer==NULL) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: segmentLayerName \"%s\" is not a SegmentLayer.\n",
                  getDescription_c(), segmentLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
@@ -154,24 +154,24 @@ int Segmentify::communicateInitInfo(CommunicateInitInfoMessage const * message) 
 
    //Src layer must have the same number of features as this layer
    if (srcLoc->nf != thisLoc->nf) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit(errorMessage);
          errorMessage.printf("%s: originalLayer \"%s\" does not have the same feature dimension as this layer.\n",
                  getDescription_c(), originalLayerName);
          errorMessage.printf("    original (nf=%d) versus (nf=%d)\n",
                  srcLoc->nf, thisLoc->nf);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
    //Segment layer must have 1 feature
    if(segLoc->nf != 1){
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: segmentLayer \"%s\" can only have 1 feature.\n",
          getDescription_c(), segmentLayerName);
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 
@@ -223,7 +223,7 @@ int Segmentify::initializeActivity() {
 }
 
 int Segmentify::buildLabelToIdx(int batchIdx){
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
    int numMpi = icComm->commSize();
    int rank = icComm->commRank();
 
@@ -274,7 +274,7 @@ int Segmentify::buildLabelToIdx(int batchIdx){
 }
 
 int Segmentify::calculateLabelVals(int batchIdx){
-   Communicator * icComm = parent->getCommunicator();
+   Communicator * icComm = getCommunicator();
 
    const PVLayerLoc * srcLoc = originalLayer->getLayerLoc();
    const PVLayerLoc * segLoc = segmentLayer->getLayerLoc();

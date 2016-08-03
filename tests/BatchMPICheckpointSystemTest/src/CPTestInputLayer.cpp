@@ -55,13 +55,13 @@ int CPTestInputLayer::allocateDataStructures() {
 
    status = initializeV();
    if (status != PV_SUCCESS) {
-      pvErrorNoExit().printf("CPTestInputLayer \"%s\" in rank %d process: initializeV failed.\n", name, parent->getCommunicator()->commRank());
+      pvErrorNoExit().printf("CPTestInputLayer \"%s\" in rank %d process: initializeV failed.\n", name, getCommunicator()->commRank());
    }
    return status;
 }
 
 int CPTestInputLayer::initializeV() {
-   assert(parent->parameters()->value(name, "restart", 0.0f, false)==0.0f); // initializeV should only be called if restart is false
+   assert(getParams()->value(name, "restart", 0.0f, false)==0.0f); // initializeV should only be called if restart is false
    const PVLayerLoc * loc = getLayerLoc();
    for (int b = 0; b < parent->getNBatch(); b++){
       pvdata_t * VBatch = getV() + b * getNumNeurons();

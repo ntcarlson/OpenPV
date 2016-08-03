@@ -81,7 +81,7 @@ int ANNLayer::initialize(const char * name, HyPerCol * hc) {
 int ANNLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = HyPerLayer::ioParamsFillGroup(ioFlag);
 
-   if (parent->parameters()->arrayPresent(name, "verticesV")) {
+   if (getParams()->arrayPresent(name, "verticesV")) {
       verticesListInParams = true;
       ioParam_verticesV(ioFlag);
       ioParam_verticesA(ioFlag);
@@ -107,19 +107,19 @@ void ANNLayer::ioParam_verticesV(enum ParamsIOFlag ioFlag) {
    this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesV", &verticesV, &numVerticesTmp);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesTmp==0) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesV cannot be empty\n",
                   getDescription_c());
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       if (numVertices !=0 && numVerticesTmp != numVertices) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesV (%d elements) and verticesA (%d elements) must have the same lengths.\n",
                   getDescription_c(), numVerticesTmp, numVertices);
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       assert(numVertices==0 || numVertices==numVerticesTmp);
@@ -133,19 +133,19 @@ void ANNLayer::ioParam_verticesA(enum ParamsIOFlag ioFlag) {
    this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesA", &verticesA, &numVerticesA);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesA==0) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesA cannot be empty\n",
                   getDescription_c());
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       if (numVertices !=0 && numVerticesA != numVertices) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: verticesV (%d elements) and verticesA (%d elements) must have the same lengths.\n",
                   getDescription_c(), numVertices, numVerticesA);
          }
-         MPI_Barrier(this->getParent()->getCommunicator()->communicator());
+         MPI_Barrier(this->getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
       assert(numVertices==0 || numVertices==numVerticesA);
@@ -170,7 +170,7 @@ void ANNLayer::ioParam_VThresh(enum ParamsIOFlag ioFlag) {
 
 void ANNLayer::ioParam_AMin(enum ParamsIOFlag ioFlag) {
    pvAssert(!verticesListInParams);
-   pvAssert(!parent->parameters()->presentAndNotBeenRead(name, "VThresh"));
+   pvAssert(!getParams()->presentAndNotBeenRead(name, "VThresh"));
    parent->ioParamValue(ioFlag, name, "AMin", &AMin, VThresh); // defaults to the value of VThresh, which was read earlier.
 }
 
@@ -201,7 +201,7 @@ int ANNLayer::setVertices() {
    if (VWidth<0) {
       VThresh += VWidth;
       VWidth = -VWidth;
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: interpreting negative VWidth as setting VThresh=%f and VWidth=%f\n",
                getDescription_c(), VThresh, VWidth);
       }
@@ -211,7 +211,7 @@ int ANNLayer::setVertices() {
    if (AMax < limfromright) limfromright = AMax;
 
    if (AMin > limfromright) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          if (VWidth==0) {
             pvWarn().printf("%s: nonmonotonic transfer function, jumping from %f to %f at Vthresh=%f\n",
                   getDescription_c(), AMin, limfromright, VThresh);
@@ -348,13 +348,13 @@ int ANNLayer::checkVertices() const {
    for (int v=1; v < numVertices; v++) {
       if (verticesV[v] < verticesV[v-1]) {
          status = PV_FAILURE;
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: vertices %d and %d: V-coordinates decrease from %f to %f.\n",
                   getDescription_c(), v, v+1, verticesV[v-1], verticesV[v]);
          }
       }
       if (verticesA[v] < verticesA[v-1]) {
-         if (this->getParent()->getCommunicator()->commRank()==0) {
+         if (this->getCommunicator()->commRank()==0) {
             pvWarn().printf("%s: vertices %d and %d: A-coordinates decrease from %f to %f.\n",
                   getDescription_c(), v, v+1, verticesA[v-1], verticesA[v]);
          }
@@ -413,7 +413,7 @@ int ANNLayer::setActivity() {
 int ANNLayer::checkpointRead(char const * cpDir, double * timeptr) {
    int status = HyPerLayer::checkpointRead(cpDir, timeptr);
    if (status==PV_SUCCESS) {
-      status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", parent->getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());
+      status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());
    }
    return status;
 }
@@ -421,7 +421,7 @@ int ANNLayer::checkpointRead(char const * cpDir, double * timeptr) {
 int ANNLayer::checkpointWrite(char const * cpDir) {
    int status = HyPerLayer::checkpointWrite(cpDir);
    if (status==PV_SUCCESS) {
-      status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", parent->getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
+      status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
    }
    return status;
 }

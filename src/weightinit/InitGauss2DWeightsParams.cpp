@@ -47,7 +47,6 @@ int InitGauss2DWeightsParams::initialize_base() {
 int InitGauss2DWeightsParams::initialize(const char * name, HyPerCol * hc) {
    InitWeightsParams::initialize(name, hc);
 
-   PVParams * params = parent->parameters();
    int status = PV_SUCCESS;
 
    return status;
@@ -138,7 +137,7 @@ void InitGauss2DWeightsParams::ioParam_bowtieFlag(enum ParamsIOFlag ioFlag) {
 }
 
 void InitGauss2DWeightsParams::ioParam_bowtieAngle(enum ParamsIOFlag ioFlag) {
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "bowtieFlag"));
+   assert(!mParams->presentAndNotBeenRead(name, "bowtieFlag"));
    if (bowtieFlag) {
       parent->ioParamValue(ioFlag, name, "bowtieAngle", &bowtieAngle, bowtieAngle);
    }
@@ -158,12 +157,12 @@ void InitGauss2DWeightsParams::ioParam_aspectRelatedParams(enum ParamsIOFlag ioF
 
 bool InitGauss2DWeightsParams::needAspectParams() {
    assert(pre && post);
-   assert(!parent->parameters()->presentAndNotBeenRead(name, "aspect"));
+   assert(!mParams->presentAndNotBeenRead(name, "aspect"));
    if (post->getLayerLoc()->nf>1) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "numOrientationsPost"));
+      assert(!mParams->presentAndNotBeenRead(name, "numOrientationsPost"));
    }
    if (pre->getLayerLoc()->nf>1) {
-      assert(!parent->parameters()->presentAndNotBeenRead(name, "numOrientationsPre"));
+      assert(!mParams->presentAndNotBeenRead(name, "numOrientationsPre"));
    }
    return (aspect != 1.0f && ((this->numOrientationsPre <= 1)||(this->numOrientationsPost <= 1)));
 }

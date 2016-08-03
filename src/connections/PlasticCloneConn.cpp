@@ -46,14 +46,14 @@ int PlasticCloneConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 
 void PlasticCloneConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "keepKernelsSynchronized");
+      getParams()->handleUnnecessaryParameter(name, "keepKernelsSynchronized");
    }
    // During the communication phase, shrinkPatches_flag will be copied from originalConn
 }
 
 void PlasticCloneConn::ioParam_normalizeDw(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "normalizeDw");
+      getParams()->handleUnnecessaryParameter(name, "normalizeDw");
    }
    // During the communication phase, normalizeDw will be copied from originalConn
 }
@@ -91,7 +91,7 @@ int PlasticCloneConn::cloneParameters() {
    CloneConn::cloneParameters();
 #ifdef PV_USE_MPI
    keepKernelsSynchronized_flag = originalConn->getKeepKernelsSynchronized();
-   parent->parameters()->handleUnnecessaryParameter(name, "keepKernelsSynchronized", keepKernelsSynchronized_flag);
+   getParams()->handleUnnecessaryParameter(name, "keepKernelsSynchronized", keepKernelsSynchronized_flag);
 #endif
    //Set plasticity flag to true for allocate
    plasticityFlag = true;

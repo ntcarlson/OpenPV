@@ -30,7 +30,7 @@ StatsProbe::StatsProbe()
 
 StatsProbe::~StatsProbe()
 {
-   int rank = getParent()->getCommunicator()->commRank();
+   int rank = getCommunicator()->commRank();
    if (rank==0) {
       iotimer->fprint_time(output());
       mpitimer->fprint_time(output());
@@ -116,7 +116,7 @@ int StatsProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void StatsProbe::requireType(PVBufType requiredType) {
-   PVParams * params = getParent()->parameters();
+   PVParams * params = getParams();
    if (params->stringPresent(getName(), "buffer")) {
       params->handleUnnecessaryStringParameter(getName(), "buffer");
       StatsProbe::ioParam_buffer(PARAMS_IO_READ);
@@ -134,7 +134,7 @@ void StatsProbe::requireType(PVBufType requiredType) {
             break;
          }
          if (type != BufV) {
-            if (getParent()->getCommunicator()->commRank()==0) {
+            if (getCommunicator()->commRank()==0) {
                pvErrorNoExit().printf("   Value \"%s\" is inconsistent with allowed values %s.\n",
                      params->stringValue(getName(), "buffer"), requiredString);
             }
@@ -171,13 +171,13 @@ void StatsProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
          type = BufActivity;
       }
       else {
-         if (getParent()->getCommunicator()->commRank()==0) {
-            const char * bufnameinparams = getParent()->parameters()->stringValue(getName(), "buffer");
+         if (getCommunicator()->commRank()==0) {
+            const char * bufnameinparams = getParams()->stringValue(getName(), "buffer");
             assert(bufnameinparams);
             pvErrorNoExit().printf("%s: buffer \"%s\" is not recognized.\n",
                   getDescription_c(), bufnameinparams);
          }
-         MPI_Barrier(getParent()->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
@@ -199,7 +199,7 @@ int StatsProbe::initNumValues() {
 int StatsProbe::outputState(double timed)
 {
 #ifdef PV_USE_MPI
-   Communicator * icComm = getTargetLayer()->getParent()->getCommunicator();
+   Communicator * icComm = getTargetLayer()->getCommunicator();
    MPI_Comm comm = icComm->communicator();
    int rank = icComm->commRank();
    const int rcvProc = 0;

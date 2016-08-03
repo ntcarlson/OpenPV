@@ -30,6 +30,8 @@ int InitV::initialize_base() {
 }
 
 int InitV::initialize(HyPerCol * hc, const char * groupName) {
+   this->mParams = hc->parameters();
+   this->mCommunicator = hc->getCommunicator();
    this->parent = hc;
    this->groupName = strdup(groupName);
    return PV_SUCCESS;
@@ -71,7 +73,7 @@ void InitV::ioParamGroup_InitVFromFile(enum ParamsIOFlag ioFlag){
 
 int InitV::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = PV_SUCCESS;
-   printErrors = parent->getCommunicator()->commRank()==0;
+   printErrors = mCommunicator->commRank()==0;
    parent->ioParamString(ioFlag, groupName, "InitVType", &initVTypeString, "ConstantV", true/*warnIfAbsent*/);
    if( !strcmp(initVTypeString, "ConstantV") ) {
       initVTypeCode = ConstantV;
@@ -125,7 +127,7 @@ int InitV::calcV(HyPerLayer * layer) {
       status = calcGaussianRandomV(V, loc, layer->getParent());
       break;
    case InitVFromFile:
-      status = calcVFromFile(V, layer->getLayerLoc(), layer->getParent()->getCommunicator());
+      status = calcVFromFile(V, layer->getLayerLoc(), layer->getCommunicator());
       break;
    default:
       status = PV_FAILURE;

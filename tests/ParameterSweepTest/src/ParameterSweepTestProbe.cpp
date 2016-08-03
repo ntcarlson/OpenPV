@@ -46,7 +46,7 @@ void ParameterSweepTestProbe::ioParam_expectedMax(enum ParamsIOFlag ioFlag) {
 
 int ParameterSweepTestProbe::outputState(double timed) {
    int status = StatsProbe::outputState(timed);
-   Communicator * icComm = getTargetLayer()->getParent()->getCommunicator();
+   Communicator * icComm = getTargetLayer()->getCommunicator();
    const int rcvProc = 0;
    if( icComm->commRank() != rcvProc ) {
       return 0;

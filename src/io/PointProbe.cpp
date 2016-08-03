@@ -77,7 +77,7 @@ int PointProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) 
    int status = LayerProbe::communicateInitInfo(message);
    assert(getTargetLayer());
    const PVLayerLoc * loc = getTargetLayer()->getLayerLoc();
-   bool isRoot = getParent()->getCommunicator()->commRank()==0;
+   bool isRoot = getCommunicator()->commRank()==0;
    if( (xLoc < 0 || xLoc > loc->nxGlobal) && isRoot ) {
       pvErrorNoExit().printf("PointProbe on layer %s: xLoc coordinate %d is out of bounds (layer has %d neurons in the x-direction.\n", getTargetLayer()->getName(), xLoc, loc->nxGlobal);
       status = PV_FAILURE;
@@ -111,7 +111,7 @@ int PointProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) 
 int PointProbe::outputState(double timef)
 {
    getValues(timef);
-   if (parent->getCommunicator()->commRank()==0) {
+   if (getCommunicator()->commRank()==0) {
       return writeState(timef);
    }
    else{
@@ -159,23 +159,23 @@ int PointProbe::calcValues(double timevalue) {
          valuesBuffer[1] = 0.0;
       }
       //If not in root process, send to root process
-      if(parent->getCommunicator()->commRank()!=0){
-         MPI_Send(valuesBuffer, 2, MPI_DOUBLE, 0, 0, parent->getCommunicator()->communicator());
+      if(getCommunicator()->commRank()!=0){
+         MPI_Send(valuesBuffer, 2, MPI_DOUBLE, 0, 0, getCommunicator()->communicator());
       }
    }
 
    //Root process
-   if(parent->getCommunicator()->commRank()==0){
+   if(getCommunicator()->commRank()==0){
       //Calculate which rank target neuron is
       //TODO we need to calculate rank from batch as well
       int xRank = xLoc/nx;
       int yRank = yLoc/ny;
 
-      int srcRank = rankFromRowAndColumn(yRank, xRank, parent->getCommunicator()->numCommRows(), parent->getCommunicator()->numCommColumns());
+      int srcRank = rankFromRowAndColumn(yRank, xRank, getCommunicator()->numCommRows(), getCommunicator()->numCommColumns());
 
       //If srcRank is not root process, MPI_Recv from that rank
       if(srcRank != 0){
-         MPI_Recv(valuesBuffer, 2, MPI_DOUBLE, srcRank, 0, parent->getCommunicator()->communicator(), MPI_STATUS_IGNORE);
+         MPI_Recv(valuesBuffer, 2, MPI_DOUBLE, srcRank, 0, getCommunicator()->communicator(), MPI_STATUS_IGNORE);
       }
    }
    return PV_SUCCESS;
@@ -183,7 +183,7 @@ int PointProbe::calcValues(double timevalue) {
 
 int PointProbe::writeState(double timef) {
    double * valuesBuffer = this->getValuesBuffer();
-   if(parent->getCommunicator()->commRank()==0){
+   if(getCommunicator()->commRank()==0){
       pvAssert(outputStream);
       outputStream->printf("%s t=%.1f V=%6.5f a=%.5f", getMessage(), timef, getV(), getA());
       output() << std::endl;
