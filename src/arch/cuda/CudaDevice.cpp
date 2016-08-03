@@ -116,14 +116,6 @@ int CudaDevice::query_device_info()
    return 0;
 }
 
-CudaBuffer* CudaDevice::createBuffer(size_t size){
-   long memLeft = reserveMem(size);
-   if(memLeft < 0){
-      pvError().printf("CudaDevice createBuffer: out of memory\n");
-   }
-   return(new CudaBuffer(size, this, stream));
-}
-
 void CudaDevice::query_device(int id)
 {
    struct cudaDeviceProp props;

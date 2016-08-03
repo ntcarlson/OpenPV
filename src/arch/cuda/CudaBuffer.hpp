@@ -8,6 +8,7 @@
 #ifndef CUDABUFFER_HPP_
 #define CUDABUFFER_HPP_
 
+#include "arch/cuda/CudaDevice.hpp"
 #include <cuda_runtime_api.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,8 +29,7 @@ public:
     * @param inSize The size of the buffer to create on the device
     * @param stream The cuda stream any transfer commands should go on
     */
-   CudaBuffer(size_t inSize, CudaDevice * inDevice, cudaStream_t stream);
-   CudaBuffer();
+   CudaBuffer(size_t inSize, CudaDevice * inDevice);
    virtual ~CudaBuffer();
    
    /**
@@ -65,7 +65,6 @@ public:
 protected:
    void * d_ptr;                       // pointer to buffer on host
    size_t size;
-   cudaStream_t stream;
    CudaDevice * device;
 
 private:

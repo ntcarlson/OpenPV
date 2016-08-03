@@ -9,7 +9,6 @@
 #define CUDADEVICE_HPP_
 
 #include "../../include/pv_arch.h"
-#include "CudaBuffer.hpp"
 #include <stdio.h>
 #include <cuda_runtime_api.h>
 
@@ -50,12 +49,7 @@ public:
     */
    int id()  { return device_id; }
 
-   /**
-    * A function to create a buffer from the given stream
-    * @param size The size of the buffer being created
-    * @return The CudaBuffer object from creating the buffer
-    */
-   CudaBuffer * createBuffer(size_t size);
+// createBuffer removed Aug 3, 2016.  Instead, CudaBuffer's constuctor calls CudaDevice's reserveMem().
 
    /**
     * A function to return the cuda stream the device is using
