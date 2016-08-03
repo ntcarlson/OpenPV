@@ -2398,39 +2398,8 @@ int HyPerCol::outputParams(char const * path) {
       pvError().printf("outputParams: Error copying params to \"%s\"\n", printParamsPath);
    }
 
-   // HyPerLayer params
-   for (int l=0; l<mLayers.size(); l++) {
-      HyPerLayer * layer = mLayers.at(l);
-      status = layer->ioParams(PARAMS_IO_WRITE);
-      if( status != PV_SUCCESS ) {
-         pvError().printf("outputParams: Error copying params to \"%s\"\n", printParamsPath);
-      }
-   }
 
-   // BaseConnection params
-   for (auto c : mConnections) {
-      status = c->ioParams(PARAMS_IO_WRITE);
-      if( status != PV_SUCCESS ) {
-         pvError().printf("outputParams: Error copying params to \"%s\"\n", printParamsPath);
-      }
-   }
-
-   // Probe params
-
-   // ColProbes
-   for (int p=0; p<mColProbes.size(); p++) {
-      mColProbes.at(p)->ioParams(PARAMS_IO_WRITE);
-   }
-
-   // LayerProbes
-   for (int l=0; l<mLayers.size(); l++) {
-      mLayers.at(l)->outputProbeParams();
-   }
-
-   // BaseConnectionProbes
-   for (auto c : mConnections) {
-      c->outputProbeParams();
-   }
+   notify(std::make_shared<WriteParamsMessage>(mPrintParamsStream, mLuaPrintParamsStream));
 
    if(rank == 0){
       fprintf(mLuaPrintParamsStream->fp, "} --End of pvParameters\n");

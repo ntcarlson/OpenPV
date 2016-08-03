@@ -35,7 +35,7 @@ protected:
    FirmThresholdCostFnProbe();
    int initFirmThresholdCostFnProbe(const char * probeName, HyPerCol * hc);
    virtual double getValueInternal(double timevalue, int index);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /** 
     * List of parameters for the FirmThresholdCostFnProbe class

@@ -23,7 +23,7 @@ public:
    InitOneToOneWeightsParams();
    InitOneToOneWeightsParams(const char * name, HyPerCol * hc);
    virtual ~InitOneToOneWeightsParams();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void calcOtherParams(int patchIndex);
 
    //get/set methods:

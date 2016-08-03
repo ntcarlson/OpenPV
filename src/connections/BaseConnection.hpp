@@ -31,14 +31,6 @@ public:
     */
    virtual ~BaseConnection();
 
-   /**
-    * Method for reading or writing the params from group in the parent HyPerCol's parameters.
-    * The group from params is selected using the name of the connection.
-    *
-    * Note that ioParams is not virtual.  To add parameters in a derived class, override ioParamFillGroup.
-    */
-   int ioParams(enum ParamsIOFlag ioFlag);
-
    virtual int respond(std::shared_ptr<BaseMessage> message) override;
 
    /**
@@ -125,12 +117,6 @@ public:
     * A pure virtual function for writing timing information.
     */
    virtual int writeTimers(std::ostream& stream) = 0;
-
-   /**
-    * Called by HyPerCol::outputParams to output the params groups for probes whose ownership has
-    * been transferred to this connection. (Does this need to be virtual?)
-    */
-   virtual int outputProbeParams();
 
    /**
     * Adds the given probe to the list of probes.
@@ -340,7 +326,7 @@ protected:
     * The ioParam_[parametername] methods should call the parent HyPerCol's ioParamValue() and related methods,
     * to ensure that all parameters that get read also get written to the outputParams-generated file.
     */
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /**
     * List of parameters needed from the BaseConnection class

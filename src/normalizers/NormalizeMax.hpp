@@ -18,7 +18,7 @@ public:
    NormalizeMax(const char * name, HyPerCol * hc);
    virtual ~NormalizeMax();
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int normalizeWeights();
 
 protected:

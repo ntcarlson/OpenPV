@@ -71,7 +71,7 @@ protected:
 
    Patterns();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    //virtual void ioParam_imagePath(enum ParamsIOFlag ioFlag);
    virtual void ioParam_patternType(enum ParamsIOFlag ioFlag);
    virtual void ioParam_orientation(enum ParamsIOFlag ioFlag);

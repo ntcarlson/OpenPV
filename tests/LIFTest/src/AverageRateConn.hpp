@@ -21,7 +21,7 @@ public:
 protected:
    AverageRateConn();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
 
 private:

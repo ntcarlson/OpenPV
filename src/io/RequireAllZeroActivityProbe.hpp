@@ -33,7 +33,7 @@ public:
 
 protected:
    RequireAllZeroActivityProbe();
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    int initRequireAllZeroActivityProbe(const char * probeName, HyPerCol * hc);
    virtual void ioParam_buffer(enum ParamsIOFlag ioFlag);
 

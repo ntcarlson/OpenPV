@@ -16,7 +16,7 @@ public:
 protected:
    Segmentify();
    int initialize(const char * name, HyPerCol * hc);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_originalLayerName(enum ParamsIOFlag ioFlag);
    void ioParam_segmentLayerName(enum ParamsIOFlag ioFlag);
    //Defines the way to reduce values within a segment

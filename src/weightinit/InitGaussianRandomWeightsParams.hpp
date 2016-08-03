@@ -17,7 +17,7 @@ public:
    InitGaussianRandomWeightsParams();
    InitGaussianRandomWeightsParams(const char * name, HyPerCol * hc);
    virtual ~InitGaussianRandomWeightsParams();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    //get-set methods:
    inline float getMean()        {return wGaussMean;}

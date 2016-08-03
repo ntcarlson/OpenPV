@@ -24,7 +24,7 @@ public:
 protected:
    SigmoidLayer();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_Vrest(enum ParamsIOFlag ioFlag);
    virtual void ioParam_VthRest(enum ParamsIOFlag ioFlag);
    virtual void ioParam_InverseFlag(enum ParamsIOFlag ioFlag);

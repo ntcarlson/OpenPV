@@ -17,6 +17,24 @@
 
 namespace PV {
 
+class ReadParamsMessage : public BaseMessage {
+public:
+   ReadParamsMessage() {
+      setMessageType("ReadParams");
+   }
+};
+
+class WriteParamsMessage : public BaseMessage {
+public:
+   WriteParamsMessage(PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+      setMessageType("WriteParams");
+      mPrintParamsStream = printParamsStream;
+      mPrintLuaParamsStream = printLuaParamsStream;
+   }
+   PV_Stream * mPrintParamsStream;
+   PV_Stream * mPrintLuaParamsStream;
+};
+
 class AllocateDataMessage : public BaseMessage {
 public:
    AllocateDataMessage() {

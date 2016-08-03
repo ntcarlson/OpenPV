@@ -19,7 +19,7 @@ public:
    virtual ~MaskLayer();
 protected:
    virtual int updateState(double time, double dt);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_maskMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_maskLayerName(enum ParamsIOFlag ioFlag);
    virtual void ioParam_featureIdxs(enum ParamsIOFlag ioFlag);

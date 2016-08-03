@@ -92,7 +92,7 @@ protected:
 protected:
    LIF();
    int initialize(const char * name, HyPerCol * hc, const char * kernel_name);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_Vrest(enum ParamsIOFlag ioFlag);
    virtual void ioParam_Vexc(enum ParamsIOFlag ioFlag);
    virtual void ioParam_Vinh(enum ParamsIOFlag ioFlag);

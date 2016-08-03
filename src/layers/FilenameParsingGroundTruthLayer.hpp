@@ -24,7 +24,7 @@ public:
    virtual int initialize(const char * name, HyPerCol * hc);
    virtual int updateState(double timef, double dt);
    virtual bool needUpdate(double time, double dt);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 private:
    std::ifstream inputfile;
    std::string * classes;

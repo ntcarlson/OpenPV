@@ -25,7 +25,7 @@ public:
 protected:
    LIFTestProbe();
    int initLIFTestProbe(const char * probeName, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_endingTime(enum ParamsIOFlag ioFlag);
    virtual void ioParam_tolerance(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);

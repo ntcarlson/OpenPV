@@ -35,7 +35,7 @@ public:
 protected:
    MoviePvp();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int retrieveData(double timef, double dt, int batchIndex);
 
    /**

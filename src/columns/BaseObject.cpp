@@ -83,18 +83,28 @@ int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
    if (message==nullptr) {
       return PV_SUCCESS;
    }
-   else if (CommunicateInitInfoMessage const * castMessage = dynamic_cast<CommunicateInitInfoMessage const*>(message.get())) {
+   else if (auto castMessage = dynamic_cast<ReadParamsMessage const*>(message.get())) {
+      return respondReadParams(castMessage);
+   }
+   else if (auto castMessage = dynamic_cast<CommunicateInitInfoMessage const*>(message.get())) {
       return respondCommunicateInitInfo(castMessage);
    }
-   else if (AllocateDataMessage const * castMessage = dynamic_cast<AllocateDataMessage const*>(message.get())) {
+   else if (auto castMessage = dynamic_cast<WriteParamsMessage const*>(message.get())) {
+      return respondWriteParams(castMessage);
+   }
+   else if (auto castMessage = dynamic_cast<AllocateDataMessage const*>(message.get())) {
       return respondAllocateData(castMessage);
    }
-   else if (InitializeStateMessage const * castMessage = dynamic_cast<InitializeStateMessage const*>(message.get())) {
+   else if (auto * castMessage = dynamic_cast<InitializeStateMessage const*>(message.get())) {
       return respondInitializeState(castMessage);
    }
    else {
       return PV_SUCCESS;
    }
+}
+
+int BaseObject::respondReadParams(ReadParamsMessage const * message) {
+   return ioParams(PARAMS_IO_READ);
 }
 
 int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * message) {
@@ -103,6 +113,10 @@ int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * me
    status = communicateInitInfo(message);
    if (status==PV_SUCCESS) { setInitInfoCommunicatedFlag(); }
    return status;
+}
+
+int BaseObject::respondWriteParams(WriteParamsMessage const * message) {
+   return ioParams(PARAMS_IO_WRITE);
 }
 
 int BaseObject::respondAllocateData(AllocateDataMessage const * message) {
@@ -120,6 +134,16 @@ int BaseObject::respondInitializeState(InitializeStateMessage const * message) {
    if (status==PV_SUCCESS) { setInitialValuesSetFlag(); }
    return status;
 }
+
+int BaseObject::ioParams(enum ParamsIOFlag ioFlag)
+{
+   parent->ioParamsStartGroup(ioFlag, name);
+   ioParamsFillGroup(ioFlag);
+   parent->ioParamsFinishGroup(ioFlag);
+
+   return PV_SUCCESS;
+}
+
 
 BaseObject::~BaseObject() {
    free(name);

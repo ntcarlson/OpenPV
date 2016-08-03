@@ -17,7 +17,7 @@ public:
    InitUniformRandomWeightsParams();
    InitUniformRandomWeightsParams(const char * name, HyPerCol * hc);
    virtual ~InitUniformRandomWeightsParams();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    //get-set methods:
    inline float getWMin()        {return wMin;}

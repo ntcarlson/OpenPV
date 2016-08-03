@@ -18,7 +18,7 @@ public:
    NormalizeContrastZeroMean(const char * name, HyPerCol * hc);
    virtual ~NormalizeContrastZeroMean();
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int normalizeWeights();
 
 protected:

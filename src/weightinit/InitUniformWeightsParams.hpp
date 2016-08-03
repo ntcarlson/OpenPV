@@ -17,7 +17,7 @@ public:
    InitUniformWeightsParams();
    InitUniformWeightsParams(const char * name, HyPerCol * hc);
    virtual ~InitUniformWeightsParams();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    //get-set methods:
    inline float getInitWeight()        {return initWeight;}

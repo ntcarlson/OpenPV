@@ -21,7 +21,7 @@ public:
 protected:
    PointLIFProbe();
    int initialize(const char * probeName, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_writeStep(enum ParamsIOFlag ioFlag);
 
    /**

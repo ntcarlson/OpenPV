@@ -32,7 +32,7 @@ public:
 protected:
    LCALIFLayer();
    int initialize(const char * name, HyPerCol * hc, const char * kernel_name);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_tauTHR(enum ParamsIOFlag ioFlag);
    virtual void ioParam_targetRate(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeInput(enum ParamsIOFlag ioFlag);

@@ -22,7 +22,7 @@ virtual int checkpointTimers(OutStream& timerstream);
 protected:
    StatsProbe();
    int initStatsProbe(const char * probeName, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_buffer(enum ParamsIOFlag ioFlag);
    virtual void ioParam_nnzThreshold(enum ParamsIOFlag ioFlag);
    void requireType(PVBufType requiredType);

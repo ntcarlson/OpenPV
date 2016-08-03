@@ -12,7 +12,7 @@ public:
 
 protected:
    virtual int updateState(double timef, double dt);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_maskMethod(enum ParamsIOFlag ioFlag);
 
 private:

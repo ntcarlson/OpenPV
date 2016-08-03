@@ -36,7 +36,7 @@ protected:
    int readNonspikingActivityFrame(int numParams, int * params, PV_Stream * pvstream, int frameNumber);
    virtual int scatterImageFilePVP(const char * filename, int xOffset, int yOffset, PV::Communicator * comm, const PVLayerLoc * loc, float * buf, int frameNumber);
    ImagePvp();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    long * frameStartBuf;
    int * countBuf;

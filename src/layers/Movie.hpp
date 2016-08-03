@@ -39,7 +39,7 @@ public:
 protected:
    Movie();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /**
     * List of parameters needed from the Movie class

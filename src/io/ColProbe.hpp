@@ -71,7 +71,7 @@ protected:
     * should override the ioParam_ method for that parameter.  The derived class's
     * ioParamsFillGroup method should call its base class's ioParamsFillGroup method.
     */
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
     
    /**
     * @brief targetName: ColProbe overrides targetName since the only possible target

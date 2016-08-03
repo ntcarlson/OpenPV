@@ -23,7 +23,7 @@ public:
 protected:
    TestImage();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_InitVType(enum ParamsIOFlag ioFlag);
    virtual void ioParam_constantVal(enum ParamsIOFlag ioFlag);
    virtual int allocateV();

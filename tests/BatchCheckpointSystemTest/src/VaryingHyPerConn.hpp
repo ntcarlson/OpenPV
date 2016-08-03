@@ -22,7 +22,7 @@ public:
 
 protected:
    int initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer=NULL, NormalizeBase * weightNormalizer=NULL);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int calc_dW(int axonId);
 
 }; // end class VaryingHyPerConn

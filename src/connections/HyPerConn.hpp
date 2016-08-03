@@ -89,7 +89,6 @@ public:
    virtual int checkpointWrite(const char * cpDir);
    virtual int writeTimers(std::ostream& stream);
    virtual int insertProbe(BaseConnectionProbe* p);
-   int outputProbeParams();
    virtual int outputState(double time, bool last = false);
    int updateState(double time, double dt); 
    virtual int finalizeUpdate(double timed, double dt);
@@ -605,7 +604,7 @@ protected:
    virtual int setWeightInitializer(); // Note: no longer deprecated.
    virtual InitWeights * createInitWeightsObject(const char * weightInitTypeStr);
    int setWeightNormalizer(); // Note: no longer deprecated.
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /** 
     * List of parameters needed from the HyPerConn class

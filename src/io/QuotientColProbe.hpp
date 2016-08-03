@@ -37,7 +37,7 @@ public:
    /**
     * Calls ColProbe::ioParamsFillGroup and then reads/writes the parameters added by QuotientColProbe
     */
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    
    /**
     * List of QuotientColProbe parameters

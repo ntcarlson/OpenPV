@@ -23,7 +23,7 @@ public:
 
 protected:
    int initLayerPhaseTestProbe(const char * probeName, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_buffer(enum ParamsIOFlag ioFlag);
    virtual void ioParam_equilibriumValue(enum ParamsIOFlag ioFlag);
    virtual void ioParam_equilibriumTime(enum ParamsIOFlag ioFlag);

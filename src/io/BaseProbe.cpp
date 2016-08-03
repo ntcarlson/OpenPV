@@ -69,13 +69,6 @@ int BaseProbe::initialize(const char * probeName, HyPerCol * hc)
    return status;
 }
 
-int BaseProbe::ioParams(enum ParamsIOFlag ioFlag) {
-   parent->ioParamsStartGroup(ioFlag, name);
-   ioParamsFillGroup(ioFlag);
-   parent->ioParamsFinishGroup(ioFlag);
-   return PV_SUCCESS;
-}
-
 int BaseProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    ioParam_targetName(ioFlag);
    ioParam_message(ioFlag);

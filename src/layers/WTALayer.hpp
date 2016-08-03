@@ -16,7 +16,7 @@ public:
    virtual int updateState(double timef, double dt);
    virtual bool activityIsSpiking() { return false; }
 protected:
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_originalLayerName(enum ParamsIOFlag ioFlag);
    void ioParam_binMaxMin(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;

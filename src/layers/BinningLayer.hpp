@@ -16,7 +16,7 @@ public:
 protected:
    BinningLayer();
    int initialize(const char * name, HyPerCol * hc);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_originalLayerName(enum ParamsIOFlag ioFlag);
    void ioParam_binMaxMin(enum ParamsIOFlag ioFlag);
    void ioParam_delay(enum ParamsIOFlag ioFlag);

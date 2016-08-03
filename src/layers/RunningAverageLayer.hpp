@@ -25,7 +25,7 @@ public:
 protected:
    RunningAverageLayer();
    int initialize(const char * name, HyPerCol * hc);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_numImagesToAverage(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
 private:

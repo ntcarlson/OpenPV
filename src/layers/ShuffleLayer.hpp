@@ -24,7 +24,7 @@ public:
 protected:
    ShuffleLayer();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_shuffleMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_readFreqFromFile(enum ParamsIOFlag ioFlag);
    virtual void ioParam_freqFilename(enum ParamsIOFlag ioFlag);

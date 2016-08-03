@@ -22,7 +22,7 @@ protected:
    virtual int updateState(double time, double dt);
    void ioParam_errScale(enum ParamsIOFlag ioFlag);
    void ioParam_isBinary(enum ParamsIOFlag ioFlag);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 private:
    int initialize_base();
    float errScale;

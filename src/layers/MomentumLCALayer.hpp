@@ -23,7 +23,7 @@ protected:
    MomentumLCALayer();
    int initialize(const char * name, HyPerCol * hc);
    virtual int allocateDataStructures();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /**
     * List of parameters needed from the MomentumLCALayer class

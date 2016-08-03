@@ -76,10 +76,22 @@ protected:
    int setParent(HyPerCol * hc);
    virtual int setDescription();
 
+   int respondReadParams(ReadParamsMessage const * message);
    int respondCommunicateInitInfo(CommunicateInitInfoMessage const * message);
+   int respondWriteParams(WriteParamsMessage const * message);
    int respondAllocateData(AllocateDataMessage const * message);
    int respondInitializeState(InitializeStateMessage const * message);
 
+
+   /**
+    * Method for reading or writing the params from group in the parent HyPerCol's parameters.
+    * The group from params is selected using the name of the connection.
+    *
+    * Note that ioParams is not virtual.  To add parameters in a derived class, override ioParamFillGroup.
+    */
+   int ioParams(enum ParamsIOFlag ioFlag);
+
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) { return PV_SUCCESS; }
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
    virtual int initializeState() { return PV_SUCCESS; }

@@ -17,7 +17,7 @@ public:
    MomentumConnTestProbe(const char * probename, HyPerCol * hc);
    virtual int outputState(double timed);
    virtual void ioParam_isViscosity(enum ParamsIOFlag ioFlag);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
 protected:
    int initialize(const char * probename, HyPerCol * hc);

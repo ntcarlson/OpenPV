@@ -18,7 +18,7 @@ public:
    NormalizeSum(const char * name, HyPerCol * hc);
    virtual ~NormalizeSum();
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int normalizeWeights();
 
 protected:

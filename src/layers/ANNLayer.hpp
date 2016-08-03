@@ -61,7 +61,7 @@ protected:
    virtual int updateState(double time, double dt);
    virtual int setActivity();
    
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    
    /** 
     * List of parameters used by the ANNLayer class

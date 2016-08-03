@@ -19,7 +19,7 @@ public:
    InitSpreadOverArborsWeightsParams(char const * name, HyPerCol * hc);
    InitSpreadOverArborsWeightsParams(HyPerConn * parentConn);
    virtual ~InitSpreadOverArborsWeightsParams();
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void calcOtherParams(int patchIndex);
 
    //get-set methods:

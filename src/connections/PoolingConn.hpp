@@ -31,7 +31,7 @@ public:
 
 protected:
    int initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
    void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
    void ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag);

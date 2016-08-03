@@ -17,7 +17,7 @@ public:
    NormalizeGroup(char const * name, HyPerCol * hc);
    virtual ~NormalizeGroup();
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
 protected:
    NormalizeGroup();

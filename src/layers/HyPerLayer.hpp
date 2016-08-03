@@ -301,7 +301,7 @@ protected:
    /**
     * The function that calls all ioParam functions
     */
-   virtual int  ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    static int equalizeMargins(HyPerLayer * layer1, HyPerLayer * layer2);
 
@@ -312,8 +312,6 @@ public:
    virtual ~HyPerLayer();
 
    void synchronizeMarginWidth(HyPerLayer * layer);
-
-   int ioParams(enum ParamsIOFlag ioFlag);
 
    // TODO - make protected
    PVLayer  * clayer;
@@ -398,7 +396,6 @@ public:
    virtual int writeActivitySparse(double timed, bool includeValues);
 
    virtual int insertProbe(LayerProbe * probe);
-   int outputProbeParams();
 
    int getNumProbes() { return numProbes; }
    LayerProbe * getProbe(int n) { return (n>=0 && n<numProbes) ? probes[n] : NULL; }

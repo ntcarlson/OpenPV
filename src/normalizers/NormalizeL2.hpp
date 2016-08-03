@@ -18,7 +18,7 @@ public:
    NormalizeL2(const char * name, HyPerCol * hc);
    virtual ~NormalizeL2();
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int normalizeWeights();
 
 protected:

@@ -24,7 +24,7 @@ public:
 protected:
    CopyConn();
    int initialize(char const * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    /**
     * List of parameters needed from the CopyConn class
     * @name CopyConn Parameters

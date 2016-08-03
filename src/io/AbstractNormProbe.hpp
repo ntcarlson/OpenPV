@@ -59,7 +59,7 @@ protected:
     */
    int setNormDescriptionToString(char const * s);
    
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    
    /**
     * List of parameters needed from the AbstractNormProbe class

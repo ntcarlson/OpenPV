@@ -20,7 +20,7 @@ public:
 protected:
    RescaleConn();
    int initialize(char const * name, HyPerCol * hc);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /**
     * List of parameters needed from the HyPerConn class

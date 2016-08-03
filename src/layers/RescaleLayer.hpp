@@ -28,7 +28,7 @@ public:
 protected:
    RescaleLayer();
    int initialize(const char * name, HyPerCol * hc);
-   int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    void ioParam_targetMax(enum ParamsIOFlag ioFlag);
    void ioParam_targetMin(enum ParamsIOFlag ioFlag);

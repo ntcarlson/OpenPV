@@ -598,15 +598,6 @@ int HyPerLayer::initializeActivity() {
    return status;
 }
 
-int HyPerLayer::ioParams(enum ParamsIOFlag ioFlag)
-{
-   parent->ioParamsStartGroup(ioFlag, name);
-   ioParamsFillGroup(ioFlag);
-   parent->ioParamsFinishGroup(ioFlag);
-
-   return PV_SUCCESS;
-}
-
 int HyPerLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Derived classes with new params behavior should override ioParamsFillGroup
    // and the overriding method should call the base class's ioParamsFillGroup.
@@ -1968,14 +1959,7 @@ int HyPerLayer::insertProbe(LayerProbe * p)
    return ++numProbes;
 }
 
-int HyPerLayer::outputProbeParams() {
-   int status = PV_SUCCESS;
-   for (int p=0; p<numProbes; p++) {
-      int status1 = probes[p]->ioParams(PARAMS_IO_WRITE);
-      if (status1 != PV_SUCCESS) { status = PV_FAILURE; }
-   }
-   return status;
-}
+//outputProbeParams removed Aug 3, 2016.  HyPerCol sends a WriteParamsMessage instead.
 
 int HyPerLayer::outputState(double timef, bool last)
 {

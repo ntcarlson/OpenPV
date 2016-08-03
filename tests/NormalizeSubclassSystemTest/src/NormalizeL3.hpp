@@ -15,7 +15,7 @@ class NormalizeL3 : public NormalizeMultiply {
 public:
    NormalizeL3(const char * probeName, HyPerCol * hc);
    ~NormalizeL3();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int normalizeWeights();
 
 protected:

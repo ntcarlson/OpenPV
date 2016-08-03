@@ -17,7 +17,7 @@ public:
    InitMaxPoolingWeightsParams();
    InitMaxPoolingWeightsParams(const char * name, HyPerCol * hc);
    virtual ~InitMaxPoolingWeightsParams();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
 protected:
    virtual int initialize_base();

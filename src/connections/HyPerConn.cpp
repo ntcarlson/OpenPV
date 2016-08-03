@@ -2269,14 +2269,7 @@ int HyPerConn::setInitialValues() {
    return PV_SUCCESS;
 }
 
-int HyPerConn::outputProbeParams() {
-   int status = PV_SUCCESS;
-   for (int p=0; p<numProbes; p++) {
-      int status1 = probes[p]->ioParams(PARAMS_IO_WRITE);
-      if (status1 != PV_SUCCESS) { status = PV_FAILURE; }
-   }
-   return status;
-}
+//outputProbeParams removed Aug 3, 2016.  HyPerCol sends a WriteParamsMessage instead.
 
 int HyPerConn::outputState(double timef, bool last)
 {

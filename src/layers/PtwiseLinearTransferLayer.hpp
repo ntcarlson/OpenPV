@@ -55,7 +55,7 @@ protected:
    virtual int updateState(double time, double dt);
    virtual int setActivity();
    
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    
    // To allow doxygen to document the layer's parameters, put all ioParam_<parametername> functions between
    // this comment block and the comment "/** @} */" below.

@@ -19,7 +19,7 @@ public:
 protected:
    ANNErrorLayer();
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /** 
     * List of parameters used by the ANNErrorLayer class

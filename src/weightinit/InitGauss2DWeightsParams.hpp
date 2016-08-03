@@ -41,7 +41,7 @@ public:
    InitGauss2DWeightsParams();
    InitGauss2DWeightsParams(const char * name, HyPerCol * hc);
    virtual ~InitGauss2DWeightsParams();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int communicateParamsInfo();
    virtual void calcOtherParams(int patchIndex);
    bool isSameLocOrSelf(float xDelta, float yDelta, int fPost);

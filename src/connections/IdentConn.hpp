@@ -28,7 +28,7 @@ protected:
    int initialize_base();
    int initialize(const char * name, HyPerCol *hc);
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 #ifdef PV_USE_CUDA
    virtual void ioParam_receiveGpu(enum ParamsIOFlag ioFlag);
 #endif // PV_USE_CUDA 

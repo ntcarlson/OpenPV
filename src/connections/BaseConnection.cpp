@@ -221,14 +221,6 @@ int BaseConnection::getPreAndPostLayerNames(const char * name, char ** preLayerN
    return status;
 }
 
-int BaseConnection::ioParams(enum ParamsIOFlag ioFlag) {
-   parent->ioParamsStartGroup(ioFlag, this->getName());
-   ioParamsFillGroup(ioFlag);
-   parent->ioParamsFinishGroup(ioFlag);
-
-   return PV_SUCCESS;
-}
-
 int BaseConnection::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = PV_SUCCESS;
    ioParam_preLayerName(ioFlag);
@@ -418,14 +410,7 @@ int BaseConnection::respond(std::shared_ptr<BaseMessage> message) {
    }
 }
 
-int BaseConnection::outputProbeParams() {
-   int status = PV_SUCCESS;
-   for (int p=0; p<numProbes; p++) {
-      int status1 = probes[p]->ioParams(PARAMS_IO_WRITE);
-      if (status1 != PV_SUCCESS) { status = PV_FAILURE; }
-   }
-   return status;
-}
+//outputProbeParams removed Aug 3, 2016.  HyPerCol sends a WriteParamsMessage instead.
 
 int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = PV_SUCCESS;

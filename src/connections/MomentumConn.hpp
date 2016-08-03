@@ -23,7 +23,7 @@ public:
    virtual int checkpointRead(const char * cpDir, double* timef);
    virtual int checkpointWrite(const char * cpDir);
 protected:
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_momentumTau(enum ParamsIOFlag ioFlag);
    virtual void ioParam_momentumMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_momentumDecay(enum ParamsIOFlag ioFlag);

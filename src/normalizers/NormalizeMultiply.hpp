@@ -24,7 +24,7 @@ public:
    const float getNormalizeCutoff() { return normalize_cutoff; }
    const bool  getNormalizeFromPostPerspectiveFlag() {return normalizeFromPostPerspective;}
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /**
     * Sets the size in the x-direction of the rectangle zeroed out by applyRMin

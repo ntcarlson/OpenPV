@@ -34,8 +34,6 @@ public:
    //BaseProbe(const char * probeName, HyPerCol * hc);
    virtual ~BaseProbe();
 
-   int ioParams(enum ParamsIOFlag ioFlag);
-
    /**
     * Called during HyPerCol::run, during the allocateDataStructures stage.
     * BaseProbe::allocateDataStructures sets up the output stream.
@@ -123,7 +121,7 @@ public:
 protected:
    BaseProbe();
    int initialize(const char * probeName, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /** 
     * List of parameters for the BaseProbe class

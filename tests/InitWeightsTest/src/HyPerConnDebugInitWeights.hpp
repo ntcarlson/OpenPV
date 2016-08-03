@@ -24,7 +24,7 @@ public:
 
 protected:
    int initialize(const char * name, HyPerCol * hc);
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_channelCode(enum ParamsIOFlag ioFlag);
    virtual void ioParam_copiedConn(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);
