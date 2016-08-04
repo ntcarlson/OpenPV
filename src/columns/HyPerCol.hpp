@@ -343,8 +343,7 @@ public:
    int insertProbe(ColProbe* p);
    int outputState(double time);
    int processParams(char const* path);
-   int ioParamsFinishGroup(enum ParamsIOFlag);
-   int ioParamsStartGroup(enum ParamsIOFlag ioFlag, const char* group_name);
+   // ioParamsStartGroup and ioParamsFinishGroup moved to PVParams Aug 3, 2016
    // readArrayFromFile moved to fileio.hpp Aug 1, 2016
    // readScalarFromFile moved to fileio.hpp Aug 1, 2016
    int run() { return run(mStartTime, mStopTime, mDeltaTimeBase); }

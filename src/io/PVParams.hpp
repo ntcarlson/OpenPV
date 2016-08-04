@@ -9,7 +9,6 @@
 #define PVPARAMS_HPP_
 
 #include "include/pv_common.h"
-//#include "columns/HyPerCol.hpp"
 #include "columns/Communicator.hpp"
 #include "fileio.hpp"
 #include "io.hpp"
@@ -222,6 +221,12 @@ public:
    int parseBufferInRootProcess(char * buffer, long int bufferLength);
 #endif // OBSOLETE // Marked obsolete Aug 30, 2015. Never gets called anywhere in the OpenPV repository, and undocumented.
    bool getParseStatus() { return parseStatus; }
+   void writeParamsStartGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream);
+   void writeParamsFinishGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream);
+
+   template <typename T>
+   void ioParamValue(enum ParamsIOFlag ioFlag, char const * groupName, char const * paramName, T * value, T defaultValue, bool warnIfAbsent);
+
    int   present(const char * groupName, const char * paramName);
    double value  (const char * groupName, const char * paramName);
    double value  (const char * groupName, const char * paramName, double initialValue, bool warnIfAbsent=true);
@@ -256,7 +261,7 @@ public:
     * are not equal.
     */
    void handleUnnecessaryStringParameter(const char * group_name, const char * param_name, const char * correctValue, bool case_insensitive_flag=false);
-   int outputParams(FILE *);
+
    int setParameterSweepValues(int n);
    int setBatchSweepValues();
 
@@ -342,8 +347,8 @@ private:
    static char * stripOverwriteTag(const char *s);
    bool hasSweepValue(const char* paramName);
    int convertParamToInt(double value);
-};
+}; // end class PVParams
 
-}
+}  // end namespace PV
 
 #endif /* PVPARAMS_HPP_ */

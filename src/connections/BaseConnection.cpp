@@ -49,7 +49,7 @@ int BaseConnection::initialize(const char * name, HyPerCol * hc) {
    int status = BaseObject::initialize(name, hc);
 
    this->connId = this->getParent()->addConnection(this);
-   if (status == PV_SUCCESS) status = ioParams(PARAMS_IO_READ);
+   if (status == PV_SUCCESS) status = ioParamsFillGroup(PARAMS_IO_READ);
    return status;
 }
 

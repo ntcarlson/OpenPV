@@ -167,7 +167,7 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
 
    PVParams * params = getParams();
 
-   status = ioParams(PARAMS_IO_READ);
+   status = ioParamsFillGroup(PARAMS_IO_READ);
    assert(status == PV_SUCCESS);
 
    writeTime = initialWriteTime;

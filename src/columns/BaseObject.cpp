@@ -104,7 +104,7 @@ int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
 }
 
 int BaseObject::respondReadParams(ReadParamsMessage const * message) {
-   return ioParams(PARAMS_IO_READ);
+   return ioParamsFillGroup(PARAMS_IO_READ);
 }
 
 int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * message) {
@@ -116,7 +116,12 @@ int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * me
 }
 
 int BaseObject::respondWriteParams(WriteParamsMessage const * message) {
-   return ioParams(PARAMS_IO_WRITE);
+   mPrintParamsStream = message->mPrintParamsStream;
+   mPrintLuaParamsStream = message->mPrintLuaParamsStream;
+   mParams->writeParamsStartGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream);
+   int status = ioParamsFillGroup(PARAMS_IO_WRITE);
+   mParams->writeParamsFinishGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream);
+   return status;
 }
 
 int BaseObject::respondAllocateData(AllocateDataMessage const * message) {
@@ -135,18 +140,21 @@ int BaseObject::respondInitializeState(InitializeStateMessage const * message) {
    return status;
 }
 
-int BaseObject::ioParams(enum ParamsIOFlag ioFlag)
-{
-   parent->ioParamsStartGroup(ioFlag, name);
-   ioParamsFillGroup(ioFlag);
-   parent->ioParamsFinishGroup(ioFlag);
-
-   return PV_SUCCESS;
-}
-
-
 BaseObject::~BaseObject() {
    free(name);
 }
+
+template <>
+void BaseObject::ioParamValue<>(enum ParamsIOFlag ioFlag, char const * groupName, char const * paramName, int * value, int defaultValue, bool warnIfAbsent) {
+   switch(ioFlag) {
+   case PARAMS_IO_READ:
+      *value = mParams->valueInt(groupName, paramName, defaultValue, warnIfAbsent);
+      break;
+   case PARAMS_IO_WRITE:
+      writeFormattedParamValue(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);
+      break;
+   }
+}
+
 
 } /* namespace PV */

@@ -82,19 +82,13 @@ protected:
    int respondAllocateData(AllocateDataMessage const * message);
    int respondInitializeState(InitializeStateMessage const * message);
 
-
-   /**
-    * Method for reading or writing the params from group in the parent HyPerCol's parameters.
-    * The group from params is selected using the name of the connection.
-    *
-    * Note that ioParams is not virtual.  To add parameters in a derived class, override ioParamFillGroup.
-    */
-   int ioParams(enum ParamsIOFlag ioFlag);
-
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) { return PV_SUCCESS; }
    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
    virtual int initializeState() { return PV_SUCCESS; }
+
+   template <typename T>
+   void ioParamValue(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T * val, T defaultValue, bool warnIfAbsent=true);
 
    /**
     * This method sets mInitInfoCommunicatedFlag to true.
@@ -121,9 +115,24 @@ protected:
    bool mDataStructuresAllocatedFlag = false;
    bool mInitialValuesSetFlag = false;
 
+   PV_Stream* mPrintParamsStream = nullptr; // file pointer associated with mPrintParamsFilename
+   PV_Stream* mPrintLuaParamsStream = nullptr; // file pointer associated with the output lua file
+
 private:
    int initialize_base();
 }; // class BaseObject
+
+template <typename T>
+void BaseObject::ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * value, T defaultValue, bool warnIfAbsent) {
+   switch(ioFlag) {
+   case PARAMS_IO_READ:
+      *value = (T) mParams->value(groupName, paramName, defaultValue, warnIfAbsent);
+      break;
+   case PARAMS_IO_WRITE:
+      writeFormattedParamValue(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);
+      break;
+   }
+}
 
 }  // namespace PV
 

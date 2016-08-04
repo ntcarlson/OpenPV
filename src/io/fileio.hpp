@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <limits>
 
 namespace PV {
 
@@ -186,6 +187,42 @@ int writeArrayToFile(char const * filenamebin, char const * filenametxt, Communi
 template <typename T>
 int writeScalarToFile(char const * directory, char const * groupName, char const * arrayName, Communicator * comm, T val, bool verifyWrites) {
    return writeArrayToFile(directory, groupName, arrayName, comm, &val, (size_t) 1, verifyWrites);
+}
+
+template <typename T>
+void appendParamValueToString(T value, std::string * vstr) {
+   if (std::numeric_limits<T>::has_infinity) {
+      if (value<=-FLT_MAX*0.9999) {
+         vstr->append("-infinity");
+      }
+      else if (value>=FLT_MAX*1.0001) {
+         vstr->append("infinity");
+      }
+      else {
+         vstr->append(std::to_string(value));
+      }
+   }
+   else {
+      vstr->append(std::to_string(value));
+   }
+}
+
+template <typename T>
+void writeFormattedParamValue(const char * paramName, T value, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+   if (!printParamsStream && !printLuaParamsStream) { return; }
+   std::string vstr("");
+   vstr.reserve(50);
+   vstr.append("    ").append(paramName);
+   if (vstr.length()<39) { vstr.resize(39, ' ');}
+   vstr.append(" = ");
+   appendParamValueToString(value, &vstr);
+   vstr.append(";\n");
+   if (printParamsStream && printParamsStream->fp) {
+      fwrite(vstr.c_str(), 1, vstr.size(), printParamsStream->fp);
+   }
+   if (printLuaParamsStream && printLuaParamsStream->fp) {
+      fwrite(vstr.c_str(), 1, vstr.size(), printLuaParamsStream->fp);
+   }
 }
 
 } // namespace PV

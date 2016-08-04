@@ -1415,6 +1415,28 @@ int PVParams::setParameterSweepValues(int n) {
    return status;
 }
 
+void PVParams::writeParamsStartGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+   char const * keyword = groupKeywordFromName(groupName);
+   if (!keyword) { throw; }
+   if (printParamsStream && printParamsStream->fp) {
+      fprintf(printParamsStream->fp, "\n");
+      fprintf(printParamsStream->fp, "%s \"%s\" = {\n", keyword, groupName);
+   }
+   if (printLuaParamsStream && printLuaParamsStream->fp) {
+      fprintf(printLuaParamsStream->fp, "%s = {\n", groupName);
+      fprintf(printLuaParamsStream->fp, "groupType = \"%s\";\n", keyword);
+   }
+}
+
+void PVParams::writeParamsFinishGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+   if (printParamsStream && printParamsStream->fp) {
+      fprintf(printParamsStream->fp, "};\n");
+   }
+   if (printLuaParamsStream && printLuaParamsStream->fp) {
+      fprintf(printLuaParamsStream->fp, "};\n\n");
+   }
+}
+
 /**
  * @groupName
  * @paramName
@@ -1866,14 +1888,6 @@ void PVParams::handleUnnecessaryStringParameter(const char * group_name, const c
       MPI_Barrier(icComm->globalCommunicator());
       exit(EXIT_FAILURE);
    }
-}
-
-int PVParams::outputParams(FILE * fp) {
-   int status = PV_SUCCESS;
-   for( int g=0; g<numGroups; g++ ) {
-      if( groups[g]->outputGroup(fp)!=PV_SUCCESS ) status = PV_FAILURE;
-   }
-   return status;
 }
 
 /**

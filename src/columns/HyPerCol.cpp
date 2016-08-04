@@ -423,24 +423,13 @@ int HyPerCol::initialize(const char * name, PV_Init* initObj)
 }
 
 int HyPerCol::ioParams(enum ParamsIOFlag ioFlag) {
-   ioParamsStartGroup(ioFlag, mName);
+   mParams->writeParamsStartGroup(mName, mPrintParamsStream, mLuaPrintParamsStream);
    ioParamsFillGroup(ioFlag);
-   ioParamsFinishGroup(ioFlag);
+   mParams->writeParamsFinishGroup(mName, mPrintParamsStream, mLuaPrintParamsStream);
    return PV_SUCCESS;
 }
 
-int HyPerCol::ioParamsStartGroup(enum ParamsIOFlag ioFlag, const char * group_name) {
-   if (ioFlag == PARAMS_IO_WRITE && columnId()==0) {
-      pvAssert(mPrintParamsStream);
-      pvAssert(mLuaPrintParamsStream);
-      const char * keyword = mParams->groupKeywordFromName(group_name);
-      fprintf(mPrintParamsStream->fp, "\n");
-      fprintf(mPrintParamsStream->fp, "%s \"%s\" = {\n", keyword, group_name);
-      fprintf(mLuaPrintParamsStream->fp, "%s = {\n", group_name);
-      fprintf(mLuaPrintParamsStream->fp, "groupType = \"%s\";\n", keyword);
-   }
-   return PV_SUCCESS;
-}
+// ioParamsStartGroup and ioParamsFinishGroup moved to PVParams Aug 3, 2016
 
 int HyPerCol::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    ioParam_startTime(ioFlag);
@@ -488,15 +477,7 @@ int HyPerCol::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    return PV_SUCCESS;
 }
 
-int HyPerCol::ioParamsFinishGroup(enum ParamsIOFlag ioFlag) {
-   if (ioFlag == PARAMS_IO_WRITE && columnId()==0) {
-      pvAssert(mPrintParamsStream);
-      pvAssert(mLuaPrintParamsStream);
-      fprintf(mPrintParamsStream->fp, "};\n");
-      fprintf(mLuaPrintParamsStream->fp, "};\n\n");
-   }
-   return PV_SUCCESS;
-}
+// ioParamsStartGroup and ioParamsFinishGroup moved to PVParams Aug 3, 2016
 
 template <typename T>
 void HyPerCol::ioParamValueRequired(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T * value) {

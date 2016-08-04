@@ -2742,4 +2742,9 @@ template int scatterActivity<float>(PV_Stream * pvstream, Communicator * icComm,
 // template int scatterActivity<pvdata_t>(PV_Stream * pvstream, Communicator * icComm, int rootproc, pvdata_t * buffer, const PVLayerLoc * layerLoc, bool extended, const PVLayerLoc * fileLoc, int offsetX, int offsetY); // duplicates float since pvdata_t is currently float, but this may in principle change
 template int scatterActivity<taus_uint4>(PV_Stream * pvstream, Communicator * icComm, int rootproc, taus_uint4 * buffer, const PVLayerLoc * layerLoc, bool extended, const PVLayerLoc * fileLoc, int offsetX, int offsetY, int filetype, int numActive);
 
+template <>
+void appendParamValueToString(bool value, std::string * vstr) {
+   vstr->append(value ? "true" : "false");
+}
+
 } // namespace PV
