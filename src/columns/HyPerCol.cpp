@@ -423,9 +423,9 @@ int HyPerCol::initialize(const char * name, PV_Init* initObj)
 }
 
 int HyPerCol::ioParams(enum ParamsIOFlag ioFlag) {
-   mParams->writeParamsStartGroup(mName, mPrintParamsStream, mLuaPrintParamsStream);
+   mParams->writeParamsStartGroup(mName, mPrintParamsStream, mLuaPrintParamsStream, true);
    ioParamsFillGroup(ioFlag);
-   mParams->writeParamsFinishGroup(mName, mPrintParamsStream, mLuaPrintParamsStream);
+   mParams->writeParamsFinishGroup(mName, mPrintParamsStream, mLuaPrintParamsStream, true);
    return PV_SUCCESS;
 }
 
@@ -2270,7 +2270,7 @@ int HyPerCol::outputParams(char const * path) {
    }
 
 
-   notify(std::make_shared<WriteParamsMessage>(mPrintParamsStream, mLuaPrintParamsStream));
+   notify(std::make_shared<WriteParamsMessage>(mPrintParamsStream, mLuaPrintParamsStream, true));
 
    if(rank == 0){
       fprintf(mLuaPrintParamsStream->fp, "} --End of pvParameters\n");

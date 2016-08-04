@@ -1415,7 +1415,8 @@ int PVParams::setParameterSweepValues(int n) {
    return status;
 }
 
-void PVParams::writeParamsStartGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+void PVParams::writeParamsStartGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream, bool includeHeaderFooter) {
+   if (!includeHeaderFooter) { return; }
    char const * keyword = groupKeywordFromName(groupName);
    if (!keyword) { throw; }
    if (printParamsStream && printParamsStream->fp) {
@@ -1428,7 +1429,8 @@ void PVParams::writeParamsStartGroup(char const * groupName, PV_Stream * printPa
    }
 }
 
-void PVParams::writeParamsFinishGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+void PVParams::writeParamsFinishGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream, bool includeHeaderFooter) {
+   if (!includeHeaderFooter) { return; }
    if (printParamsStream && printParamsStream->fp) {
       fprintf(printParamsStream->fp, "};\n");
    }

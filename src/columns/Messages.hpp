@@ -26,13 +26,15 @@ public:
 
 class WriteParamsMessage : public BaseMessage {
 public:
-   WriteParamsMessage(PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+   WriteParamsMessage(PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream, bool includeHeaderFooter) {
       setMessageType("WriteParams");
       mPrintParamsStream = printParamsStream;
       mPrintLuaParamsStream = printLuaParamsStream;
+      mIncludeHeaderFooter = includeHeaderFooter;
    }
    PV_Stream * mPrintParamsStream;
    PV_Stream * mPrintLuaParamsStream;
+   bool mIncludeHeaderFooter;
 };
 
 class AllocateDataMessage : public BaseMessage {

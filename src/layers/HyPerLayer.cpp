@@ -200,11 +200,9 @@ int HyPerLayer::initClayer() {
    setLayerLoc(loc, nxScale, nyScale, numFeatures, parent->getNBatch());
    assert(loc->halo.lt==0 && loc->halo.rt==0 && loc->halo.dn==0 && loc->halo.up==0);
 
-   int nBatch = parent->getNBatch();
-
    clayer->numNeurons  = loc->nx * loc->ny * loc->nf;
    clayer->numExtended = clayer->numNeurons; // initially, margin is zero; it will be updated as needed during the communicateInitInfo stage.
-   clayer->numNeuronsAllBatches  = nBatch * loc->nx * loc->ny * loc->nf;
+   clayer->numNeuronsAllBatches  = loc->nbatch * loc->nx * loc->ny * loc->nf;
    clayer->numExtendedAllBatches = clayer->numNeuronsAllBatches;
 
    double xScaled = -log2( (double) nxScale);
@@ -581,7 +579,7 @@ int HyPerLayer::setInitialValues() {
 int HyPerLayer::initializeV() {
    int status = PV_SUCCESS;
    if (getV()!=NULL && initVObject != NULL) {
-      status = initVObject->calcV(this);
+      status = initVObject->calcV(getV(), getLayerLoc());
    }
    return status;
 }
@@ -695,15 +693,26 @@ void HyPerLayer::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) 
 
 void HyPerLayer::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
-      initVObject = new InitV(parent, name);
+      initVObject = new InitV(name, parent);
       if( initVObject == NULL ) {
-         pvErrorNoExit().printf("%s: unable to create InitV object\n", getDescription_c());
-         abort();
+         pvError().printf("%s: unable to create InitV object\n", getDescription_c());
       }
    }
    if (initVObject != NULL) {
-      initVObject->ioParamsFillGroup(ioFlag);
-   }
+      std::shared_ptr<BaseMessage> ioParamsMessage = nullptr;
+      switch(ioFlag) {
+      case PARAMS_IO_READ:
+         ioParamsMessage = std::make_shared<ReadParamsMessage>();
+         initVObject->respond(ioParamsMessage);
+         break;
+      case PARAMS_IO_WRITE:
+         ioParamsMessage = std::make_shared<WriteParamsMessage>(mPrintParamsStream, mPrintLuaParamsStream, false);
+         initVObject->respond(ioParamsMessage);
+         break;
+      default:
+         pvAssert(0);
+      }
+  }
 }
 
 void HyPerLayer::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {

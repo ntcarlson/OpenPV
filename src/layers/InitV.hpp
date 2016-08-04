@@ -8,12 +8,13 @@
 #ifndef INITV_HPP_
 #define INITV_HPP_
 
+#include "observerpattern/BaseMessage.hpp"
+#include "columns/BaseObject.hpp"
 #include "columns/Random.hpp"
 #include "columns/GaussianRandom.hpp"
 #include "include/default_params.h"
 #include "include/pv_types.h"
 #include "include/pv_common.h"
-#include "layers/HyPerLayer.hpp"
 #include "io/fileio.hpp"
 #include "io/imageio.hpp"
 #include "io/io.hpp"
@@ -29,7 +30,7 @@ enum InitVType {
    InitVFromFile
 };
 
-class InitV {
+class InitV : BaseObject {
 protected:
    /** 
     * List of parameters needed from the InitV class
@@ -65,29 +66,26 @@ protected:
    virtual void ioParamGroup_InitVFromFile(enum ParamsIOFlag ioFlag);
    /** @} */
 public:
-   InitV(HyPerCol * hc, const char * groupName);
+   InitV(char const * name, HyPerCol * hc);
    virtual ~InitV();
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
-   virtual int calcV(HyPerLayer * layer);
+   virtual int respond(std::shared_ptr<BaseMessage> message) override;
+   virtual int calcV(pvdata_t * V, PVLayerLoc const * loc);
 
 protected:
    InitV();
-   int initialize(HyPerCol * hc, const char * groupName);
-
+   int initialize(char const * name, HyPerCol * hc);
+   virtual int setDescription() override;
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
 private:
    int initialize_base();
-   int calcConstantV(pvdata_t * V, int numNeurons);
-   int calcGaussianRandomV(pvdata_t * V, const PVLayerLoc * loc, HyPerCol * hc);
-   int calcUniformRandomV(pvdata_t * V, const PVLayerLoc * loc, HyPerCol * hc);
+   int calcConstantV(pvdata_t * V, PVLayerLoc const * loc);
+   int calcGaussianRandomV(pvdata_t * V, const PVLayerLoc * loc);
+   int calcUniformRandomV(pvdata_t * V, const PVLayerLoc * loc);
    int calcVFromFile(pvdata_t * V, const PVLayerLoc * loc, Communicator * icComm);
    int checkLoc(const PVLayerLoc * loc, int nx, int ny, int nf, int nxGlobal, int nyGlobal);
    int checkLocValue(int fromParams, int fromFile, const char * field);
 
-   PVParams * mParams;
-   Communicator * mCommunicator;
-   HyPerCol * parent;
-   char * groupName;
    char * initVTypeString;
    InitVType initVTypeCode;
    pvdata_t constantValue; // Defined only for initVTypeCode=ConstantV

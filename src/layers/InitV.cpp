@@ -6,7 +6,7 @@
  */
 
 #include "InitV.hpp"
-//#include "Image.hpp"
+#include "columns/HyPerCol.hpp"
 
 namespace PV {
 InitV::InitV() {
@@ -16,35 +16,48 @@ InitV::InitV() {
    // constructor should not call a non-default InitV constructor.
 }
 
-InitV::InitV(HyPerCol * hc, const char * groupName) {
+InitV::InitV(char const * name, HyPerCol * hc) {
    initialize_base();
-   initialize(hc, groupName);
+   initialize(name, hc);
 }
 
 int InitV::initialize_base() {
-   groupName = NULL;
    initVTypeString = NULL;
    initVTypeCode = UndefinedInitV;
    filename = NULL;
    return PV_SUCCESS;
 }
 
-int InitV::initialize(HyPerCol * hc, const char * groupName) {
-   this->mParams = hc->parameters();
-   this->mCommunicator = hc->getCommunicator();
-   this->parent = hc;
-   this->groupName = strdup(groupName);
-   return PV_SUCCESS;
+int InitV::initialize(char const * name, HyPerCol * hc) {
+   int status = BaseObject::initialize(name, hc);
+   if (status==PV_SUCCESS) { status = setDescription(); }
+   return status;
 }
 
 InitV::~InitV() {
-   free(this->groupName);
    free(this->initVTypeString);
    free(this->filename);
 }
 
+int InitV::setDescription() {
+   description.clear();
+   description.append("InitV for \"").append(name).append("\"");
+   return PV_SUCCESS;
+}
+
+int InitV::respond(std::shared_ptr<BaseMessage> message) {
+   int status = BaseObject::respond(message);
+   if (status != PV_SUCCESS) {
+      return status;
+   }
+// TODO CalcV message.
+   else {
+      return status;
+   }
+}
+
 void InitV::ioParamGroup_ConstantV(enum ParamsIOFlag ioFlag){
-   parent->ioParamValue(ioFlag, groupName, "valueV", &constantValue, (pvdata_t) V_REST);
+   ioParamValue(ioFlag, name, "valueV", &constantValue, (pvdata_t) V_REST);
 }
 
 void InitV::ioParamGroup_ZeroV(enum ParamsIOFlag ioFlag){
@@ -52,20 +65,20 @@ void InitV::ioParamGroup_ZeroV(enum ParamsIOFlag ioFlag){
 }
 
 void InitV::ioParamGroup_UniformRandomV(enum ParamsIOFlag ioFlag){
-   parent->ioParamValue(ioFlag, groupName, "minV", &minV, 0.0f);
-   parent->ioParamValue(ioFlag, groupName, "maxV", &maxV, minV + 1.0f);
+   ioParamValue(ioFlag, name, "minV", &minV, 0.0f);
+   ioParamValue(ioFlag, name, "maxV", &maxV, minV + 1.0f);
 }
 
 void InitV::ioParamGroup_GaussianRandomV(enum ParamsIOFlag ioFlag){
-   parent->ioParamValue(ioFlag, groupName, "meanV", &meanV, 0.0f);
-   parent->ioParamValue(ioFlag, groupName, "sigmaV", &sigmaV, 1.0f);
+   ioParamValue(ioFlag, name, "meanV", &meanV, 0.0f);
+   ioParamValue(ioFlag, name, "sigmaV", &sigmaV, 1.0f);
 }
 
 void InitV::ioParamGroup_InitVFromFile(enum ParamsIOFlag ioFlag){
-   parent->ioParamString(ioFlag, groupName, "Vfilename", &filename, NULL, true/*warnIfAbsent*/);
+   parent->ioParamString(ioFlag, name, "Vfilename", &filename, NULL, true/*warnIfAbsent*/);
    if( filename == NULL ) {
       initVTypeCode = UndefinedInitV;
-      pvErrorNoExit().printf("InitV::initialize, group \"%s\": for InitVFromFile, string parameter \"Vfilename\" must be defined.  Exiting\n", groupName);
+      pvErrorNoExit().printf("InitV::initialize, group \"%s\": for InitVFromFile, string parameter \"Vfilename\" must be defined.  Exiting\n", name);
       abort();
    }
 }
@@ -74,7 +87,7 @@ void InitV::ioParamGroup_InitVFromFile(enum ParamsIOFlag ioFlag){
 int InitV::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = PV_SUCCESS;
    printErrors = mCommunicator->commRank()==0;
-   parent->ioParamString(ioFlag, groupName, "InitVType", &initVTypeString, "ConstantV", true/*warnIfAbsent*/);
+   parent->ioParamString(ioFlag, name, "InitVType", &initVTypeString, "ConstantV", true/*warnIfAbsent*/);
    if( !strcmp(initVTypeString, "ConstantV") ) {
       initVTypeCode = ConstantV;
       ioParamGroup_ConstantV(ioFlag);
@@ -97,19 +110,17 @@ int InitV::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    }
    else {
       initVTypeCode = UndefinedInitV;
-      if (printErrors) pvErrorNoExit().printf("InitV::initialize, group \"%s\": InitVType \"%s\" not recognized.\n", groupName, initVTypeString);
+      if (printErrors) pvErrorNoExit().printf("InitV::initialize, group \"%s\": InitVType \"%s\" not recognized.\n", name, initVTypeString);
       abort();
    }
    return status;
 }
 
-int InitV::calcV(HyPerLayer * layer) {
+int InitV::calcV(pvdata_t * V, PVLayerLoc const * loc) {
    int status = PV_SUCCESS;
-   const PVLayerLoc * loc = layer->getLayerLoc();
-   pvdata_t * V = layer->getV();
    if (V == NULL) {
-      pvErrorNoExit().printf("%s: InitV called but membrane potential V is null.\n",
-            layer->getDescription_c());
+      pvErrorNoExit().printf("%s: membrane potential V is null.\n",
+            getDescription_c());
       exit(EXIT_FAILURE);
    }
    switch(initVTypeCode) {
@@ -118,16 +129,16 @@ int InitV::calcV(HyPerLayer * layer) {
       if (printErrors) pvErrorNoExit().printf("InitV::calcV: InitVType was undefined.\n");
       break;
    case ConstantV:
-      status = calcConstantV(V, layer->getNumNeuronsAllBatches());
+      status = calcConstantV(V, loc);
       break;
    case UniformRandomV:
-      status = calcUniformRandomV(V, loc, layer->getParent());
+      status = calcUniformRandomV(V, loc);
       break;
    case GaussianRandomV:
-      status = calcGaussianRandomV(V, loc, layer->getParent());
+      status = calcGaussianRandomV(V, loc);
       break;
    case InitVFromFile:
-      status = calcVFromFile(V, layer->getLayerLoc(), layer->getCommunicator());
+      status = calcVFromFile(V, loc, getCommunicator());
       break;
    default:
       status = PV_FAILURE;
@@ -137,15 +148,16 @@ int InitV::calcV(HyPerLayer * layer) {
    return status;
 }
 
-int InitV::calcConstantV(pvdata_t * V, int numNeurons) {
+int InitV::calcConstantV(pvdata_t * V, PVLayerLoc const * loc) {
+   int const numNeuronsAllBatches = loc->nx*loc->ny*loc->nf*loc->nbatch;
 #ifdef PV_USE_OPENMP_THREADS
 #pragma omp parallel for
 #endif
-   for( int k=0; k<numNeurons; k++ ) V[k] = constantValue;
+   for( int k=0; k<numNeuronsAllBatches; k++ ) V[k] = constantValue;
    return PV_SUCCESS;
 }
 
-int InitV::calcGaussianRandomV(pvdata_t * V, const PVLayerLoc * loc, HyPerCol * hc) {
+int InitV::calcGaussianRandomV(pvdata_t * V, const PVLayerLoc * loc) {
    PVLayerLoc flatLoc;
    memcpy(&flatLoc, loc, sizeof(PVLayerLoc));
    flatLoc.nf = 1;
@@ -169,7 +181,7 @@ int InitV::calcGaussianRandomV(pvdata_t * V, const PVLayerLoc * loc, HyPerCol * 
    return PV_SUCCESS;
 }
 
-int InitV::calcUniformRandomV(pvdata_t * V, const PVLayerLoc * loc, HyPerCol * hc) {
+int InitV::calcUniformRandomV(pvdata_t * V, const PVLayerLoc * loc) {
    PVLayerLoc flatLoc;
    memcpy(&flatLoc, loc, sizeof(PVLayerLoc));
    flatLoc.nf = 1;
@@ -234,7 +246,7 @@ int InitV::calcVFromFile(pvdata_t * V, const PVLayerLoc * loc, Communicator * ic
       fileLoc.ky0 = 0;
       if (params[INDEX_NX_PROCS] != 1 || params[INDEX_NY_PROCS] != 1) {
          if (icComm->commRank()==0) {
-            pvErrorNoExit().printf("HyPerLayer::readBufferFile: file \"%s\" appears to be in an obsolete version of the .pvp format.\n", filename);
+            pvErrorNoExit().printf("calcVFromFile: file \"%s\" appears to be in an obsolete version of the .pvp format.\n", filename);
          }
          abort();
       }
@@ -266,21 +278,7 @@ int InitV::calcVFromFile(pvdata_t * V, const PVLayerLoc * loc, Communicator * ic
       readFile = NULL;
    }
    else { // Treat as an image file
-      if (printErrors) pvErrorNoExit().printf("calcVFromFile: file \"%s\" is not a pvp file.\n", this->filename);
-      abort();
-      
-      //Obsoleted 7/7/15, as image does not have a v, and scatterImageFileGDAL should not be public
-      //status = getImageInfoGDAL(filename, icComm, &fileLoc, NULL);
-      //assert(status == PV_SUCCESS);
-      //if ( checkLoc(loc, fileLoc.nx, fileLoc.ny, fileLoc.nf, fileLoc.nxGlobal, fileLoc.nyGlobal)!=PV_SUCCESS ) {
-      //   // error message produced by checkLoc
-      //   abort();
-      //}
-      //HyPerLayer * layer = parent->getLayerFromName(groupName);
-      //Image * image = dynamic_cast<Image *>(layer);
-      //assert(image != NULL);
-      //status = image->scatterImageFileGDAL(this->filename, 0, 0, icComm, loc, V, false);
-      //// scatterImageFileGDAL handles the scaling by 1/255.0
+      if (printErrors) pvError().printf("calcVFromFile: file \"%s\" is not a pvp file.\n", this->filename);
    }
    return status;
 }
@@ -297,7 +295,7 @@ int InitV::checkLocValue(int fromParams, int fromFile, const char * field) {
    int status = PV_SUCCESS;
    if( fromParams != fromFile ) {
       if (printErrors) pvErrorNoExit().printf("InitVFromFile: Incompatible %s: parameter group \"%s\" gives %d; filename \"%s\" gives %d\n",
-               field, groupName, fromParams, filename, fromFile);
+               field, name, fromParams, filename, fromFile);
       status = PV_FAILURE;
    }
    return status;

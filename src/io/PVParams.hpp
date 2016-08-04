@@ -221,8 +221,8 @@ public:
    int parseBufferInRootProcess(char * buffer, long int bufferLength);
 #endif // OBSOLETE // Marked obsolete Aug 30, 2015. Never gets called anywhere in the OpenPV repository, and undocumented.
    bool getParseStatus() { return parseStatus; }
-   void writeParamsStartGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream);
-   void writeParamsFinishGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream);
+   void writeParamsStartGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream, bool includeHeaderFooter);
+   void writeParamsFinishGroup(char const * groupName, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream, bool includeHeaderFooter);
 
    template <typename T>
    void ioParamValue(enum ParamsIOFlag ioFlag, char const * groupName, char const * paramName, T * value, T defaultValue, bool warnIfAbsent);

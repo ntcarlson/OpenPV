@@ -118,9 +118,10 @@ int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * me
 int BaseObject::respondWriteParams(WriteParamsMessage const * message) {
    mPrintParamsStream = message->mPrintParamsStream;
    mPrintLuaParamsStream = message->mPrintLuaParamsStream;
-   mParams->writeParamsStartGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream);
+   bool includeHeaderFooter = message->mIncludeHeaderFooter;
+   mParams->writeParamsStartGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream, includeHeaderFooter);
    int status = ioParamsFillGroup(PARAMS_IO_WRITE);
-   mParams->writeParamsFinishGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream);
+   mParams->writeParamsFinishGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream, includeHeaderFooter);
    return status;
 }
 
