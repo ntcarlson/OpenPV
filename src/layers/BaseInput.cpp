@@ -125,12 +125,12 @@ void BaseInput::ioParam_inputPath(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_useImageBCflag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "useImageBCflag", &useImageBCflag, useImageBCflag);
+   ioParamValue(ioFlag, name, "useImageBCflag", &useImageBCflag, useImageBCflag);
 }
 
 int BaseInput::ioParam_offsets(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "offsetX", &offsets[0], offsets[0]);
-   parent->ioParamValue(ioFlag, name, "offsetY", &offsets[1], offsets[1]);
+   ioParamValue(ioFlag, name, "offsetX", &offsets[0], offsets[0]);
+   ioParamValue(ioFlag, name, "offsetY", &offsets[1], offsets[1]);
 
    return PV_SUCCESS;
 }
@@ -150,7 +150,7 @@ void BaseInput::ioParam_offsetAnchor(enum ParamsIOFlag ioFlag){
 }
 
 void BaseInput::ioParam_writeImages(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "writeImages", &writeImages, writeImages);
+   ioParamValue(ioFlag, name, "writeImages", &writeImages, writeImages);
 }
 
 void BaseInput::ioParam_writeImagesExtension(enum ParamsIOFlag ioFlag) {
@@ -161,7 +161,7 @@ void BaseInput::ioParam_writeImagesExtension(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_autoResizeFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "autoResizeFlag", &autoResizeFlag, autoResizeFlag);
+   ioParamValue(ioFlag, name, "autoResizeFlag", &autoResizeFlag, autoResizeFlag);
 }
 
 void BaseInput::ioParam_aspectRatioAdjustment(enum ParamsIOFlag ioFlag) {
@@ -225,67 +225,67 @@ void BaseInput::ioParam_interpolationMethod(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_inverseFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "inverseFlag", &inverseFlag, inverseFlag);
+   ioParamValue(ioFlag, name, "inverseFlag", &inverseFlag, inverseFlag);
 }
 
 void BaseInput::ioParam_normalizeLuminanceFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "normalizeLuminanceFlag", &normalizeLuminanceFlag, normalizeLuminanceFlag);
+   ioParamValue(ioFlag, name, "normalizeLuminanceFlag", &normalizeLuminanceFlag, normalizeLuminanceFlag);
 }
 
 void BaseInput::ioParam_normalizeStdDev(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "normalizeLuminanceFlag"));
    if (normalizeLuminanceFlag) {
-     parent->ioParamValue(ioFlag, name, "normalizeStdDev", &normalizeStdDev, normalizeStdDev);
+     ioParamValue(ioFlag, name, "normalizeStdDev", &normalizeStdDev, normalizeStdDev);
    }
 }
 
 void BaseInput::ioParam_jitterFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "jitterFlag", &jitterFlag, jitterFlag);
+   ioParamValue(ioFlag, name, "jitterFlag", &jitterFlag, jitterFlag);
 }
 
 void BaseInput::ioParam_jitterType(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "jitterType", &jitterType, jitterType);
+      ioParamValue(ioFlag, name, "jitterType", &jitterType, jitterType);
    }
 }
 
 void BaseInput::ioParam_jitterRefractoryPeriod(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "jitterRefractoryPeriod", &jitterRefractoryPeriod, jitterRefractoryPeriod);
+      ioParamValue(ioFlag, name, "jitterRefractoryPeriod", &jitterRefractoryPeriod, jitterRefractoryPeriod);
    }
 }
 
 void BaseInput::ioParam_stepSize(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "stepSize", &stepSize, stepSize);
+      ioParamValue(ioFlag, name, "stepSize", &stepSize, stepSize);
    }
 }
 
 void BaseInput::ioParam_persistenceProb(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "persistenceProb", &persistenceProb, persistenceProb);
+      ioParamValue(ioFlag, name, "persistenceProb", &persistenceProb, persistenceProb);
    }
 }
 
 void BaseInput::ioParam_recurrenceProb(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "recurrenceProb", &recurrenceProb, recurrenceProb);
+      ioParamValue(ioFlag, name, "recurrenceProb", &recurrenceProb, recurrenceProb);
    }
 }
 
 void BaseInput::ioParam_padValue(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "padValue", &padValue, padValue);
+   ioParamValue(ioFlag, name, "padValue", &padValue, padValue);
 }
 
 void BaseInput::ioParam_biasChangeTime(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "biasChangeTime", &biasChangeTime, biasChangeTime);
+      ioParamValue(ioFlag, name, "biasChangeTime", &biasChangeTime, biasChangeTime);
       if (ioFlag == PARAMS_IO_READ) {
          if (biasChangeTime < 0) {
             biasChangeTime = FLT_MAX;
@@ -298,7 +298,7 @@ void BaseInput::ioParam_biasChangeTime(enum ParamsIOFlag ioFlag) {
 void BaseInput::ioParam_biasConstraintMethod(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "biasConstraintMethod", &biasConstraintMethod, biasConstraintMethod);
+      ioParamValue(ioFlag, name, "biasConstraintMethod", &biasConstraintMethod, biasConstraintMethod);
       if (ioFlag == PARAMS_IO_READ && (biasConstraintMethod <0 || biasConstraintMethod >3)) {
          pvError().printf("%s: biasConstraintMethod allowed values are 0 (ignore), 1 (mirror BC), 2 (threshold), 3 (circular BC)\n",
                getDescription_c());
@@ -309,7 +309,7 @@ void BaseInput::ioParam_biasConstraintMethod(enum ParamsIOFlag ioFlag) {
 void BaseInput::ioParam_offsetConstraintMethod(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "offsetConstraintMethod", &offsetConstraintMethod, 0/*default*/);
+      ioParamValue(ioFlag, name, "offsetConstraintMethod", &offsetConstraintMethod, 0/*default*/);
       if (ioFlag == PARAMS_IO_READ && (offsetConstraintMethod <0 || offsetConstraintMethod >3) ) {
          pvError().printf("%s: offsetConstraintMethod allowed values are 0 (ignore), 1 (mirror BC), 2 (threshold), 3 (circular BC)\n", getDescription_c());
       }
@@ -319,7 +319,7 @@ void BaseInput::ioParam_offsetConstraintMethod(enum ParamsIOFlag ioFlag) {
 void BaseInput::ioParam_writePosition(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "jitterFlag"));
    if (jitterFlag) {
-      parent->ioParamValue(ioFlag, name, "writePosition", &writePosition, writePosition);
+      ioParamValue(ioFlag, name, "writePosition", &writePosition, writePosition);
    }
 }
 

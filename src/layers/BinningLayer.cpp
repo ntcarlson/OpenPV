@@ -57,8 +57,8 @@ void BinningLayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
 }
 
 void BinningLayer::ioParam_binMaxMin(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "binMax", &binMax, binMax);
-   parent->ioParamValue(ioFlag, name, "binMin", &binMin, binMin);
+   ioParamValue(ioFlag, name, "binMax", &binMax, binMax);
+   ioParamValue(ioFlag, name, "binMin", &binMin, binMin);
    if(ioFlag == PARAMS_IO_READ && binMax <= binMin){
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: binMax (%f) must be greater than binMin (%f).\n",
@@ -70,23 +70,23 @@ void BinningLayer::ioParam_binMaxMin(enum ParamsIOFlag ioFlag) {
 }
 
 void BinningLayer::ioParam_binSigma(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "binSigma", &binSigma, binSigma);
+   ioParamValue(ioFlag, name, "binSigma", &binSigma, binSigma);
 }
 
 void BinningLayer::ioParam_delay(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "delay", &delay, delay);
+   ioParamValue(ioFlag, name, "delay", &delay, delay);
 }
 
 void BinningLayer::ioParam_zeroNeg(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "zeroNeg", &zeroNeg, zeroNeg);
+   ioParamValue(ioFlag, name, "zeroNeg", &zeroNeg, zeroNeg);
 }
 
 void BinningLayer::ioParam_zeroDCR(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "zeroDCR", &zeroDCR, zeroDCR);
+   ioParamValue(ioFlag, name, "zeroDCR", &zeroDCR, zeroDCR);
 }
 
 void BinningLayer::ioParam_normalDist(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "normalDist", &normalDist, normalDist);
+   ioParamValue(ioFlag, name, "normalDist", &normalDist, normalDist);
 }
 
 //TODO read params for gaussian over features

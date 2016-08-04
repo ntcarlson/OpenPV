@@ -225,15 +225,15 @@ void Movie::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
 }
 
 void Movie::ioParam_flipOnTimescaleError(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "flipOnTimescaleError", &flipOnTimescaleError, flipOnTimescaleError);
+   ioParamValue(ioFlag, name, "flipOnTimescaleError", &flipOnTimescaleError, flipOnTimescaleError);
 }
 
 void Movie::ioParam_displayPeriod(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, displayPeriod);
+   ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, displayPeriod);
 }
 
 void Movie::ioParam_echoFramePathnameFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "echoFramePathnameFlag", &echoFramePathnameFlag, false/*default value*/);
+   ioParamValue(ioFlag, name, "echoFramePathnameFlag", &echoFramePathnameFlag, false/*default value*/);
 }
 
 void Movie::ioParam_batchMethod(enum ParamsIOFlag ioFlag){
@@ -262,11 +262,11 @@ void Movie::ioParam_movieOutputPath(enum ParamsIOFlag ioFlag) {
 }
 
 void Movie::ioParam_writeFrameToTimestamp(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "writeFrameToTimestamp", &writeFrameToTimestamp, writeFrameToTimestamp);
+   ioParamValue(ioFlag, name, "writeFrameToTimestamp", &writeFrameToTimestamp, writeFrameToTimestamp);
 }
 
 void Movie::ioParam_resetToStartOnLoop(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "resetToStartOnLoop", &resetToStartOnLoop, resetToStartOnLoop);
+   ioParamValue(ioFlag, name, "resetToStartOnLoop", &resetToStartOnLoop, resetToStartOnLoop);
 }
 
 int Movie::allocateDataStructures() {

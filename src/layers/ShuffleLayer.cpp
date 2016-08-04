@@ -126,7 +126,7 @@ void ShuffleLayer::ioParam_shuffleMethod(enum ParamsIOFlag ioFlag){
 void ShuffleLayer::ioParam_readFreqFromFile(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "shuffleMethod"));
    if (strcmp(shuffleMethod, "rejection") == 0){
-      parent->ioParamValue(ioFlag, name, "readFreqFromFile", &readFreqFromFile, readFreqFromFile);
+      ioParamValue(ioFlag, name, "readFreqFromFile", &readFreqFromFile, readFreqFromFile);
    }
 }
 
@@ -140,7 +140,7 @@ void ShuffleLayer::ioParam_freqFilename(enum ParamsIOFlag ioFlag) {
 void ShuffleLayer::ioParam_freqCollectTime(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "readFreqFromFile"));
    if (!readFreqFromFile){
-      parent->ioParamValue(ioFlag, name, "freqCollectTime", &freqCollectTime, freqCollectTime);
+      ioParamValue(ioFlag, name, "freqCollectTime", &freqCollectTime, freqCollectTime);
    }
 }
 

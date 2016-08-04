@@ -86,12 +86,12 @@ int ISTALayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void ISTALayer::ioParam_timeConstantTau(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "timeConstantTau", &timeConstantTau, timeConstantTau, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "timeConstantTau", &timeConstantTau, timeConstantTau, true/*warnIfAbsent*/);
 }
 
 
 void ISTALayer::ioParam_selfInteract(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "selfInteract", &selfInteract, selfInteract);
+   ioParamValue(ioFlag, name, "selfInteract", &selfInteract, selfInteract);
    if (getCommunicator()->commRank() == 0) {
      pvInfo() << "selfInteract = " << selfInteract << std::endl;
    }   

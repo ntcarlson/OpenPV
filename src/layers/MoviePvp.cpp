@@ -158,11 +158,11 @@ void MoviePvp::ioParam_pvpFrameIdx(enum ParamsIOFlag ioFlag) {
 }
 
 void MoviePvp::ioParam_flipOnTimescaleError(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "flipOnTimescaleError", &flipOnTimescaleError, flipOnTimescaleError);
+   ioParamValue(ioFlag, name, "flipOnTimescaleError", &flipOnTimescaleError, flipOnTimescaleError);
 }
 
 void MoviePvp::ioParam_displayPeriod(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, displayPeriod);
+   ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, displayPeriod);
 }
 
 void MoviePvp::ioParam_batchMethod(enum ParamsIOFlag ioFlag){
@@ -191,11 +191,11 @@ void MoviePvp::ioParam_movieOutputPath(enum ParamsIOFlag ioFlag) {
 }
 
 void MoviePvp::ioParam_writeFrameToTimestamp(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "writeFrameToTimestamp", &writeFrameToTimestamp, writeFrameToTimestamp);
+   ioParamValue(ioFlag, name, "writeFrameToTimestamp", &writeFrameToTimestamp, writeFrameToTimestamp);
 }
 
 void MoviePvp::ioParam_resetToStartOnLoop(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "resetToStartOnLoop", &resetToStartOnLoop, resetToStartOnLoop);
+   ioParamValue(ioFlag, name, "resetToStartOnLoop", &resetToStartOnLoop, resetToStartOnLoop);
 }
 
 MoviePvp::~MoviePvp()

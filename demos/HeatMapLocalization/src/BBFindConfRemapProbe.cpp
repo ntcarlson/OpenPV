@@ -61,15 +61,15 @@ void BBFindConfRemapProbe::ioParam_classNamesFile(enum PV::ParamsIOFlag ioFlag) 
 }
 
 void BBFindConfRemapProbe::ioParam_minBoundingBoxWidth(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "minBoundingBoxWidth", &minBoundingBoxWidth, minBoundingBoxWidth, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "minBoundingBoxWidth", &minBoundingBoxWidth, minBoundingBoxWidth, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapProbe::ioParam_minBoundingBoxHeight(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "minBoundingBoxHeight", &minBoundingBoxHeight, minBoundingBoxHeight, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "minBoundingBoxHeight", &minBoundingBoxHeight, minBoundingBoxHeight, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapProbe::ioParam_drawMontage(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "drawMontage", &drawMontage, drawMontage, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "drawMontage", &drawMontage, drawMontage, true/*warnIfAbsent*/);
 #ifdef PV_USE_GDAL
    GDALAllRegister();
 #else // PV_USE_GDAL
@@ -108,14 +108,14 @@ void BBFindConfRemapProbe::ioParam_heatMapMaximum(enum PV::ParamsIOFlag ioFlag) 
 void BBFindConfRemapProbe::ioParam_imageBlendCoeff(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "imageBlendCoeff", &imageBlendCoeff, imageBlendCoeff/*default value*/, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "imageBlendCoeff", &imageBlendCoeff, imageBlendCoeff/*default value*/, true/*warnIfAbsent*/);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "boundingBoxLineWidth", &boundingBoxLineWidth, boundingBoxLineWidth/*default value*/, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "boundingBoxLineWidth", &boundingBoxLineWidth, boundingBoxLineWidth/*default value*/, true/*warnIfAbsent*/);
    }
 }
 

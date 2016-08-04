@@ -102,11 +102,11 @@ void HyPerLCALayer::ioParam_numChannels(enum ParamsIOFlag ioFlag) {
 #endif // OBSOLETE // Marked obsolete Jun 27, 2016.
 
 void HyPerLCALayer::ioParam_timeConstantTau(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "timeConstantTau", &timeConstantTau, timeConstantTau, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "timeConstantTau", &timeConstantTau, timeConstantTau, true/*warnIfAbsent*/);
 }
 
 void HyPerLCALayer::ioParam_selfInteract(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "selfInteract", &selfInteract, selfInteract);
+   ioParamValue(ioFlag, name, "selfInteract", &selfInteract, selfInteract);
    if (ioFlag==PARAMS_IO_READ && getCommunicator()->commRank() == 0) {
       pvInfo() << getDescription() << ": selfInteract flag is " << (selfInteract ? "true" : "false") << std::endl;
    }   

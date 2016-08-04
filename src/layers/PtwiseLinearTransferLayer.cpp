@@ -138,15 +138,15 @@ void PtwiseLinearTransferLayer::ioParam_verticesA(enum ParamsIOFlag ioFlag) {
 }
 
 void PtwiseLinearTransferLayer::ioParam_slopeNegInf(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "slopeNegInf", &slopeNegInf, slopeNegInf/*default*/, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "slopeNegInf", &slopeNegInf, slopeNegInf/*default*/, true/*warnIfAbsent*/);
 }
 
 void PtwiseLinearTransferLayer::ioParam_slopePosInf(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "slopePosInf", &slopePosInf, slopePosInf/*default*/, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "slopePosInf", &slopePosInf, slopePosInf/*default*/, true/*warnIfAbsent*/);
 }
 
 void PtwiseLinearTransferLayer::ioParam_clearGSynInterval(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "clearGSynInterval", &clearGSynInterval, 0.0);
+   ioParamValue(ioFlag, name, "clearGSynInterval", &clearGSynInterval, 0.0);
    if (ioFlag==PARAMS_IO_READ) {
       nextGSynClearTime = parent->getStartTime();
    }

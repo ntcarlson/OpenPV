@@ -294,7 +294,7 @@ void BaseConnection::ioParam_delay(enum ParamsIOFlag ioFlag) {
 
 void BaseConnection::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
    int numArbors = this->numberOfAxonalArborLists();
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "numAxonalArbors", &numArbors, 1);
+   this->ioParamValue(ioFlag, this->getName(), "numAxonalArbors", &numArbors, 1);
    if (ioFlag == PARAMS_IO_READ) {
       this->setNumberOfAxonalArborLists(numArbors);
       if (ioFlag == PARAMS_IO_READ && this->numberOfAxonalArborLists()==0 && this->getCommunicator()->commRank()==0) {
@@ -304,12 +304,12 @@ void BaseConnection::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseConnection::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "plasticityFlag", &plasticityFlag, true/*default value*/);
+   ioParamValue(ioFlag, name, "plasticityFlag", &plasticityFlag, true/*default value*/);
 }
 
 // preActivityIsNotRate was replaced with convertRateToSpikeCount on Dec 31, 2014.
 // void BaseConnection::ioParam_preActivityIsNotRate(enum ParamsIOFlag ioFlag) {
-//    this->getParent()->ioParamValue(ioFlag, this->getName(), "preActivityIsNotRate", &preActivityIsNotRate, false/*default value*/, true/*warn if absent*/);
+//    this->ioParamValue(ioFlag, this->getName(), "preActivityIsNotRate", &preActivityIsNotRate, false/*default value*/, true/*warn if absent*/);
 // }
 
 void BaseConnection::ioParam_convertRateToSpikeCount(enum ParamsIOFlag ioFlag) {
@@ -333,15 +333,15 @@ void BaseConnection::ioParam_convertRateToSpikeCount(enum ParamsIOFlag ioFlag) {
          if (preActivityIsNotRateValue) { exit(EXIT_FAILURE); }
       }
    }
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "convertRateToSpikeCount", &convertRateToSpikeCount, false/*default value*/);
+   this->ioParamValue(ioFlag, this->getName(), "convertRateToSpikeCount", &convertRateToSpikeCount, false/*default value*/);
 }
 
 void BaseConnection::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
 #ifdef PV_USE_CUDA
-   parent->ioParamValue(ioFlag, name, "receiveGpu", &receiveGpu, false/*default*/, true/*warn if absent*/);
+   ioParamValue(ioFlag, name, "receiveGpu", &receiveGpu, false/*default*/, true/*warn if absent*/);
 #else
    bool receiveGpu = false;
-   parent->ioParamValue(ioFlag, name, "receiveGpu", &receiveGpu, receiveGpu/*default*/, false/*warn if absent*/);
+   ioParamValue(ioFlag, name, "receiveGpu", &receiveGpu, receiveGpu/*default*/, false/*warn if absent*/);
    if (ioFlag==PARAMS_IO_READ && receiveGpu) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: receiveGpu is set to true, but PetaVision was compiled without GPU acceleration.\n",
@@ -357,7 +357,7 @@ void BaseConnection::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
 void BaseConnection::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    assert(parent->getInitializeFromCheckpointDir()); // If we're not initializing any layers or connections from a checkpoint, this should be the empty string, not null.
    if (parent->getInitializeFromCheckpointDir() && parent->getInitializeFromCheckpointDir()[0]) {
-      parent->ioParamValue(ioFlag, name, "initializeFromCheckpointFlag", &initializeFromCheckpointFlag, parent->getDefaultInitializeFromCheckpointFlag(), true/*warnIfAbsent*/);
+      ioParamValue(ioFlag, name, "initializeFromCheckpointFlag", &initializeFromCheckpointFlag, parent->getDefaultInitializeFromCheckpointFlag(), true/*warnIfAbsent*/);
    }
 }
 

@@ -104,7 +104,7 @@ int MomentumLCALayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void MomentumLCALayer::ioParam_LCAMomentumRate(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "LCAMomentumRate", &LCAMomentumRate, LCAMomentumRate, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "LCAMomentumRate", &LCAMomentumRate, LCAMomentumRate, true/*warnIfAbsent*/);
 }
 
 #ifdef PV_USE_CUDA

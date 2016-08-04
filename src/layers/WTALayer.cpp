@@ -101,8 +101,8 @@ void WTALayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
 }
 
 void WTALayer::ioParam_binMaxMin(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "binMax", &binMax, binMax);
-   parent->ioParamValue(ioFlag, name, "binMin", &binMin, binMin);
+   ioParamValue(ioFlag, name, "binMax", &binMax, binMax);
+   ioParamValue(ioFlag, name, "binMin", &binMin, binMin);
    if(ioFlag == PARAMS_IO_READ && binMax <= binMin){
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: binMax (%f) must be greater than binMin (%f).\n",

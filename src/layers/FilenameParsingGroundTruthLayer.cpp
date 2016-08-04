@@ -47,12 +47,12 @@ int FilenameParsingGroundTruthLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag)
 }
 
 void FilenameParsingGroundTruthLayer::ioParam_gtClassTrueValue(enum ParamsIOFlag ioFlag) {
-      parent->ioParamValue(ioFlag, name, "gtClassTrueValue", &gtClassTrueValue, 1.0f, false);
+      ioParamValue(ioFlag, name, "gtClassTrueValue", &gtClassTrueValue, 1.0f, false);
 }
 
 
 void FilenameParsingGroundTruthLayer::ioParam_gtClassFalseValue(enum ParamsIOFlag ioFlag) {
-      parent->ioParamValue(ioFlag, name, "gtClassFalseValue", &gtClassFalseValue, -1.0f, false);
+      ioParamValue(ioFlag, name, "gtClassFalseValue", &gtClassFalseValue, -1.0f, false);
 }
 
 void FilenameParsingGroundTruthLayer::ioParam_movieLayerName(enum ParamsIOFlag ioFlag) {

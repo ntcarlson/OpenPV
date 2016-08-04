@@ -185,7 +185,7 @@ void StatsProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
 }
 
 void StatsProbe::ioParam_nnzThreshold(enum ParamsIOFlag ioFlag) {
-    getParent()->ioParamValue(ioFlag, getName(), "nnzThreshold", &nnzThreshold, (pvdata_t) 0);
+    ioParamValue(ioFlag, getName(), "nnzThreshold", &nnzThreshold, (pvdata_t) 0);
 }
 
 int StatsProbe::initNumValues() {

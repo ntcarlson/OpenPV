@@ -155,42 +155,42 @@ void ANNLayer::ioParam_verticesA(enum ParamsIOFlag ioFlag) {
 
 void ANNLayer::ioParam_slopeNegInf(enum ParamsIOFlag ioFlag) {
    pvAssert(verticesListInParams);
-   parent->ioParamValue(ioFlag, name, "slopeNegInf", &slopeNegInf, slopeNegInf/*default*/, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "slopeNegInf", &slopeNegInf, slopeNegInf/*default*/, true/*warnIfAbsent*/);
 }
 
 void ANNLayer::ioParam_slopePosInf(enum ParamsIOFlag ioFlag) {
    pvAssert(verticesListInParams);
-   parent->ioParamValue(ioFlag, name, "slopePosInf", &slopePosInf, slopePosInf/*default*/, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "slopePosInf", &slopePosInf, slopePosInf/*default*/, true/*warnIfAbsent*/);
 }
 
 void ANNLayer::ioParam_VThresh(enum ParamsIOFlag ioFlag) {
    pvAssert(!verticesListInParams);
-   parent->ioParamValue(ioFlag, name, "VThresh", &VThresh, VThresh);
+   ioParamValue(ioFlag, name, "VThresh", &VThresh, VThresh);
 }
 
 void ANNLayer::ioParam_AMin(enum ParamsIOFlag ioFlag) {
    pvAssert(!verticesListInParams);
    pvAssert(!getParams()->presentAndNotBeenRead(name, "VThresh"));
-   parent->ioParamValue(ioFlag, name, "AMin", &AMin, VThresh); // defaults to the value of VThresh, which was read earlier.
+   ioParamValue(ioFlag, name, "AMin", &AMin, VThresh); // defaults to the value of VThresh, which was read earlier.
 }
 
 void ANNLayer::ioParam_AMax(enum ParamsIOFlag ioFlag) {
    pvAssert(!verticesListInParams);
-   parent->ioParamValue(ioFlag, name, "AMax", &AMax, AMax);
+   ioParamValue(ioFlag, name, "AMax", &AMax, AMax);
 }
 
 void ANNLayer::ioParam_AShift(enum ParamsIOFlag ioFlag) {
    pvAssert(!verticesListInParams);
-   parent->ioParamValue(ioFlag, name, "AShift", &AShift, AShift);
+   ioParamValue(ioFlag, name, "AShift", &AShift, AShift);
 }
 
 void ANNLayer::ioParam_VWidth(enum ParamsIOFlag ioFlag) {
    pvAssert(!verticesListInParams);
-   parent->ioParamValue(ioFlag, name, "VWidth", &VWidth, VWidth);
+   ioParamValue(ioFlag, name, "VWidth", &VWidth, VWidth);
 }
 
 void ANNLayer::ioParam_clearGSynInterval(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "clearGSynInterval", &clearGSynInterval, clearGSynInterval);
+   ioParamValue(ioFlag, name, "clearGSynInterval", &clearGSynInterval, clearGSynInterval);
    if (ioFlag==PARAMS_IO_READ) {
       nextGSynClearTime = parent->getStartTime();
    }

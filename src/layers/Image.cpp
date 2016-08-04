@@ -451,7 +451,7 @@ int Image::updateState(double time, double dt)
 
 void Image::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
    //Default to -1 in Image
-   parent->ioParamValue(ioFlag, name, "writeStep", &writeStep, -1.0);
+   ioParamValue(ioFlag, name, "writeStep", &writeStep, -1.0);
 }
 
 int Image::readImage(const char * filename)

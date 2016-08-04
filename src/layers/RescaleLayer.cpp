@@ -100,35 +100,35 @@ void RescaleLayer::ioParam_rescaleMethod(enum ParamsIOFlag ioFlag){
 void RescaleLayer::ioParam_targetMax(enum ParamsIOFlag ioFlag){
    assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if (strcmp(rescaleMethod, "maxmin")==0) {
-      parent->ioParamValue(ioFlag, name, "targetMax", &targetMax, targetMax);
+      ioParamValue(ioFlag, name, "targetMax", &targetMax, targetMax);
    }
 }
 
 void RescaleLayer::ioParam_targetMin(enum ParamsIOFlag ioFlag){
    assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if (strcmp(rescaleMethod, "maxmin")==0) {
-      parent->ioParamValue(ioFlag, name, "targetMin", &targetMin, targetMin);
+      ioParamValue(ioFlag, name, "targetMin", &targetMin, targetMin);
    }
 }
 
 void RescaleLayer::ioParam_targetMean(enum ParamsIOFlag ioFlag){
    assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if ((strcmp(rescaleMethod, "meanstd")==0) || (strcmp(rescaleMethod, "pointmeanstd")==0)) {
-      parent->ioParamValue(ioFlag, name, "targetMean", &targetMean, targetMean);
+      ioParamValue(ioFlag, name, "targetMean", &targetMean, targetMean);
    }
 }
 
 void RescaleLayer::ioParam_targetStd(enum ParamsIOFlag ioFlag){
    assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if ((strcmp(rescaleMethod, "meanstd")==0) || (strcmp(rescaleMethod, "pointmeanstd")==0)) {
-      parent->ioParamValue(ioFlag, name, "targetStd", &targetStd, targetStd);
+      ioParamValue(ioFlag, name, "targetStd", &targetStd, targetStd);
    }
 }
 
 void RescaleLayer::ioParam_patchSize(enum ParamsIOFlag ioFlag){
    assert(!getParams()->presentAndNotBeenRead(name, "rescaleMethod"));
    if (strcmp(rescaleMethod, "l2")==0 || strcmp(rescaleMethod, "l2NoMean") == 0) {
-      parent->ioParamValue(ioFlag, name, "patchSize", &patchSize, patchSize);
+      ioParamValue(ioFlag, name, "patchSize", &patchSize, patchSize);
    }
 }
 

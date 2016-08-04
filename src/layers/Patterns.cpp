@@ -228,14 +228,14 @@ int Patterns::setOrientation(OrientationMode ormode) {
 void Patterns::ioParam_pMove(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      parent->ioParamValue(ioFlag, name, "pMove", &pMove, 0.0f);
+      ioParamValue(ioFlag, name, "pMove", &pMove, 0.0f);
    }
 }
 
 void Patterns::ioParam_pSwitch(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      parent->ioParamValue(ioFlag, name, "pSwitch", &pSwitch, 0.0f);
+      ioParamValue(ioFlag, name, "pSwitch", &pSwitch, 0.0f);
    }
 }
 
@@ -268,14 +268,14 @@ void Patterns::ioParam_movementType(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_movementSpeed(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES) {
-      parent->ioParamValue(ioFlag, name, "movementSpeed", &movementSpeed, 1.0f);
+      ioParamValue(ioFlag, name, "movementSpeed", &movementSpeed, 1.0f);
    }
 }
 
 void Patterns::ioParam_writePosition(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      parent->ioParamValue(ioFlag, name, "writePosition", &writePosition, 1);
+      ioParamValue(ioFlag, name, "writePosition", &writePosition, 1);
    }
    else {
       writePosition = false;
@@ -285,21 +285,21 @@ void Patterns::ioParam_writePosition(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_maxValue(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV || type==DROP) {
-      parent->ioParamValue(ioFlag, name, "maxValue", &maxVal, PATTERNS_MAXVAL);
+      ioParamValue(ioFlag, name, "maxValue", &maxVal, PATTERNS_MAXVAL);
    }
 }
 
 void Patterns::ioParam_width(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      parent->ioParamValue(ioFlag, name, "width", &maxWidth, getLayerLoc()->nx);
+      ioParamValue(ioFlag, name, "width", &maxWidth, getLayerLoc()->nx);
    }
 }
 
 void Patterns::ioParam_height(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      parent->ioParamValue(ioFlag, name, "height", &maxHeight, getLayerLoc()->ny);
+      ioParamValue(ioFlag, name, "height", &maxHeight, getLayerLoc()->ny);
    }
 }
 
@@ -307,7 +307,7 @@ void Patterns::ioParam_wavelengthVert(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       assert(!getParams()->presentAndNotBeenRead(name, "width"));
-      parent->ioParamValue(ioFlag, name, "wavelengthVert", &wavelengthVert, 2*maxWidth);
+      ioParamValue(ioFlag, name, "wavelengthVert", &wavelengthVert, 2*maxWidth);
    }
 }
 
@@ -315,14 +315,14 @@ void Patterns::ioParam_wavelengthHoriz(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
       assert(!getParams()->presentAndNotBeenRead(name, "height"));
-      parent->ioParamValue(ioFlag, name, "wavelengthHoriz", &wavelengthHoriz, 2*maxHeight);
+      ioParamValue(ioFlag, name, "wavelengthHoriz", &wavelengthHoriz, 2*maxHeight);
    }
 }
 
 void Patterns::ioParam_rotation(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV) {
-      parent->ioParamValue(ioFlag, name, "rotation", &rotation, 0.0f);
+      ioParamValue(ioFlag, name, "rotation", &rotation, 0.0f);
    }
 }
 
@@ -331,7 +331,7 @@ void Patterns::ioParam_dropSpeed(enum ParamsIOFlag ioFlag) {
    // -1 for random speed: see dropSpeedRandomMax and dropSpeedRandomMin
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-       parent->ioParamValue(ioFlag, name, "dropSpeed", &dropSpeed, 1.0f);
+       ioParamValue(ioFlag, name, "dropSpeed", &dropSpeed, 1.0f);
    }
 }
 
@@ -340,7 +340,7 @@ void Patterns::ioParam_dropSpeedRandomMax(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "dropSpeed"));
       if (dropSpeed==-1.0f) {
-         parent->ioParamValue(ioFlag, name, "dropSpeedRandomMax", &dropSpeedRandomMax, 3.0f);
+         ioParamValue(ioFlag, name, "dropSpeedRandomMax", &dropSpeedRandomMax, 3.0f);
       }
    }
 }
@@ -350,7 +350,7 @@ void Patterns::ioParam_dropSpeedRandomMin(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "dropSpeed"));
       if (dropSpeed==-1.0f) {
-         parent->ioParamValue(ioFlag, name, "dropSpeedRandomMin", &dropSpeedRandomMin, 1.0f);
+         ioParamValue(ioFlag, name, "dropSpeedRandomMin", &dropSpeedRandomMin, 1.0f);
       }
    }
 }
@@ -360,7 +360,7 @@ void Patterns::ioParam_dropPeriod(enum ParamsIOFlag ioFlag) {
    //TODO: What does dropPeriod of 0 represent? If nothing - why not have 0 be random?
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-       parent->ioParamValue(ioFlag, name, "dropPeriod", &dropPeriod, 1);
+       ioParamValue(ioFlag, name, "dropPeriod", &dropPeriod, 1);
    }
 }
 
@@ -369,7 +369,7 @@ void Patterns::ioParam_dropPeriodRandomMax(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "dropPeriod"));
       if (dropPeriod==-1) {
-         parent->ioParamValue(ioFlag, name, "dropPeriodRandomMax", &dropPeriodRandomMax, 20);
+         ioParamValue(ioFlag, name, "dropPeriodRandomMax", &dropPeriodRandomMax, 20);
       }
    }
 }
@@ -379,7 +379,7 @@ void Patterns::ioParam_dropPeriodRandomMin(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "dropPeriod"));
       if (dropPeriod==-1) {
-         parent->ioParamValue(ioFlag, name, "dropPeriodRandomMin", &dropPeriodRandomMin, 5);
+         ioParamValue(ioFlag, name, "dropPeriodRandomMin", &dropPeriodRandomMin, 5);
       }
    }
 }
@@ -389,7 +389,7 @@ void Patterns::ioParam_dropPosition(enum ParamsIOFlag ioFlag) {
    //number of timesteps in which the drop stays at the position
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-       parent->ioParamValue(ioFlag, name, "dropPosition", &dropPosition, 1);
+       ioParamValue(ioFlag, name, "dropPosition", &dropPosition, 1);
    }
 }
 
@@ -398,7 +398,7 @@ void Patterns::ioParam_dropPositionRandomMax(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "dropPosition"));
       if (dropPosition==-1) {
-         parent->ioParamValue(ioFlag, name, "dropPositionRandomMax", &dropPositionRandomMax, 20);
+         ioParamValue(ioFlag, name, "dropPositionRandomMax", &dropPositionRandomMax, 20);
       }
    }
 }
@@ -408,7 +408,7 @@ void Patterns::ioParam_dropPositionRandomMin(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "dropPosition"));
       if (dropPosition==-1) {
-         parent->ioParamValue(ioFlag, name, "dropPositionRandomMin", &dropPositionRandomMin, 5);
+         ioParamValue(ioFlag, name, "dropPositionRandomMin", &dropPositionRandomMin, 5);
       }
    }
 }
@@ -416,7 +416,7 @@ void Patterns::ioParam_dropPositionRandomMin(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_halfNeutral(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      parent->ioParamValue(ioFlag, name, "halfNeutral", &onOffFlag, 0);
+      ioParamValue(ioFlag, name, "halfNeutral", &onOffFlag, 0);
    }
 }
 
@@ -425,7 +425,7 @@ void Patterns::ioParam_minValue(enum ParamsIOFlag ioFlag) {
    if (type==DROP) {
       assert(!getParams()->presentAndNotBeenRead(name, "halfNeutral"));
       if(onOffFlag){
-         parent->ioParamValue(ioFlag, name, "minValue", &minVal, PATTERNS_MINVAL);
+         ioParamValue(ioFlag, name, "minValue", &minVal, PATTERNS_MINVAL);
       }
       else {
          if (ioFlag==PARAMS_IO_READ) minVal = maxVal;
@@ -439,7 +439,7 @@ void Patterns::ioParam_minValue(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_inOut(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      parent->ioParamValue(ioFlag, name, "inOut", &inOut, 1.0f);
+      ioParamValue(ioFlag, name, "inOut", &inOut, 1.0f);
       //inOut must be between -1 and 1
       if (inOut < -1 || inOut > 1){
          pvError().printf("Patterns:: inOut must be -1 for all in drops, 0 for random, or 1 for all out drops, or anything in between ");
@@ -450,14 +450,14 @@ void Patterns::ioParam_inOut(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_startFrame(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      parent->ioParamValue(ioFlag, name, "startFrame", &startFrame, 0.0);
+      ioParamValue(ioFlag, name, "startFrame", &startFrame, 0.0);
    }
 }
 
 void Patterns::ioParam_endFrame(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==DROP) {
-      parent->ioParamValue(ioFlag, name, "endFrame", &endFrame, -1.0);
+      ioParamValue(ioFlag, name, "endFrame", &endFrame, -1.0);
       if (ioFlag == PARAMS_IO_READ && endFrame < 0) {
          endFrame = INT_MAX;
       }
@@ -476,7 +476,7 @@ void Patterns::ioParam_patternsOutputPath(enum ParamsIOFlag ioFlag) {
 }
 
 void Patterns::ioParam_displayPeriod(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, 0.0);
+   ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, 0.0);
 }
 
 int Patterns::communicateInitInfo(CommunicateInitInfoMessage const * message) {

@@ -64,7 +64,7 @@ int ImagePvp::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void ImagePvp::ioParam_pvpFrameIdx(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "pvpFrameIdx", &pvpFrameIdx, pvpFrameIdx);
+   ioParamValue(ioFlag, name, "pvpFrameIdx", &pvpFrameIdx, pvpFrameIdx);
 }
 
 int ImagePvp::communicateInitInfo(CommunicateInitInfoMessage const * message) {

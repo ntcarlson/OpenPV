@@ -108,14 +108,14 @@ void LocalizationProbe::ioParam_displayedCategories(enum PV::ParamsIOFlag ioFlag
 void LocalizationProbe::ioParam_displayCategoryIndexStart(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "displayedCategories"));
    if (numDisplayedCategories==0) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "displayCategoryIndexStart", &displayCategoryIndexStart, -1, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "displayCategoryIndexStart", &displayCategoryIndexStart, -1, true/*warnIfAbsent*/);
    }
 }
 
 void LocalizationProbe::ioParam_displayCategoryIndexEnd(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "displayedCategories"));
    if (numDisplayedCategories==0) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "displayCategoryIndexEnd", &displayCategoryIndexEnd, -1, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "displayCategoryIndexEnd", &displayCategoryIndexEnd, -1, true/*warnIfAbsent*/);
    }
 }
 
@@ -130,7 +130,7 @@ void LocalizationProbe::ioParam_classNamesFile(enum PV::ParamsIOFlag ioFlag) {
 void LocalizationProbe::ioParam_outputPeriod(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "triggerLayer"));
    if (!triggerLayer) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "outputPeriod", &outputPeriod, outputPeriod, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "outputPeriod", &outputPeriod, outputPeriod, true/*warnIfAbsent*/);
    }
    if (ioFlag==PV::PARAMS_IO_READ) {
       nextOutputTime = outputPeriod;
@@ -138,15 +138,15 @@ void LocalizationProbe::ioParam_outputPeriod(enum PV::ParamsIOFlag ioFlag) {
 }
 
 void LocalizationProbe::ioParam_minBoundingBoxWidth(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "minBoundingBoxWidth", &minBoundingBoxWidth, minBoundingBoxWidth, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "minBoundingBoxWidth", &minBoundingBoxWidth, minBoundingBoxWidth, true/*warnIfAbsent*/);
 }
 
 void LocalizationProbe::ioParam_minBoundingBoxHeight(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "minBoundingBoxHeight", &minBoundingBoxHeight, minBoundingBoxHeight, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "minBoundingBoxHeight", &minBoundingBoxHeight, minBoundingBoxHeight, true/*warnIfAbsent*/);
 }
 
 void LocalizationProbe::ioParam_drawMontage(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "drawMontage", &drawMontage, drawMontage, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "drawMontage", &drawMontage, drawMontage, true/*warnIfAbsent*/);
 #ifdef PV_USE_GDAL
    GDALAllRegister();
 #else // PV_USE_GDAL
@@ -178,18 +178,18 @@ void LocalizationProbe::ioParam_heatMapMaximum(enum PV::ParamsIOFlag ioFlag) {
 void LocalizationProbe::ioParam_imageBlendCoeff(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "imageBlendCoeff", &imageBlendCoeff, imageBlendCoeff/*default value*/, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "imageBlendCoeff", &imageBlendCoeff, imageBlendCoeff/*default value*/, true/*warnIfAbsent*/);
    }
 }
 
 void LocalizationProbe::ioParam_maxDetections(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamValue(ioFlag, this->getName(), "maxDetections", &maxDetections, maxDetections, true/*warnIfAbsent*/);
+   this->ioParamValue(ioFlag, this->getName(), "maxDetections", &maxDetections, maxDetections, true/*warnIfAbsent*/);
 }
 
 void LocalizationProbe::ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      this->getParent()->ioParamValue(ioFlag, this->getName(), "boundingBoxLineWidth", &boundingBoxLineWidth, boundingBoxLineWidth/*default value*/, true/*warnIfAbsent*/);
+      this->ioParamValue(ioFlag, this->getName(), "boundingBoxLineWidth", &boundingBoxLineWidth, boundingBoxLineWidth/*default value*/, true/*warnIfAbsent*/);
    }
 }
 

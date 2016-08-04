@@ -121,7 +121,7 @@ void PoolingConn::unsetAccumulateType() {
 }
 
 void PoolingConn::ioParam_needPostIndexLayer(enum ParamsIOFlag ioFlag){
-   parent->ioParamValue(ioFlag, name, "needPostIndexLayer", &needPostIndexLayer, needPostIndexLayer);
+   ioParamValue(ioFlag, name, "needPostIndexLayer", &needPostIndexLayer, needPostIndexLayer);
 }
 
 void PoolingConn::ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag) {

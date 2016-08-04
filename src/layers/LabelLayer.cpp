@@ -102,15 +102,15 @@ void LabelLayer::ioParam_movieLayerName(enum ParamsIOFlag ioFlag) {
 }
 
 void LabelLayer::ioParam_labelStart(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "labelStart", &beginLabel, beginLabel);
+   ioParamValue(ioFlag, name, "labelStart", &beginLabel, beginLabel);
 }
 
 void LabelLayer::ioParam_labelLength(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "labelLength", &lenLabel, lenLabel);
+   ioParamValue(ioFlag, name, "labelLength", &lenLabel, lenLabel);
 }
 
 void LabelLayer::ioParam_echoLabelFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "echoLabelFlag", &echoLabelFlag, echoLabelFlag);
+   ioParamValue(ioFlag, name, "echoLabelFlag", &echoLabelFlag, echoLabelFlag);
 }
 
 int LabelLayer::communicateInitInfo(CommunicateInitInfoMessage const * message) {

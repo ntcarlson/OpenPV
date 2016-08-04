@@ -100,12 +100,12 @@ void BaseProbe::ioParam_energyProbe(enum ParamsIOFlag ioFlag) {
 void BaseProbe::ioParam_coefficient(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "energyProbe"));
    if (energyProbe && energyProbe[0]) {
-      parent->ioParamValue(ioFlag, name, "coefficient", &coefficient, coefficient, true/*warnIfAbsent*/);
+      ioParamValue(ioFlag, name, "coefficient", &coefficient, coefficient, true/*warnIfAbsent*/);
    }
 }
 
 void BaseProbe::ioParam_textOutputFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "textOutputFlag", &textOutputFlag, textOutputFlag);
+   ioParamValue(ioFlag, name, "textOutputFlag", &textOutputFlag, textOutputFlag);
 }
 
 void BaseProbe::ioParam_probeOutputFile(enum ParamsIOFlag ioFlag) {
@@ -131,7 +131,7 @@ void BaseProbe::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
    if (ioFlag == PARAMS_IO_READ && getParams()->present(name, "triggerFlag")) {
       bool flagFromParams = false;
-      parent->ioParamValue(ioFlag, name, "triggerFlag", &flagFromParams, flagFromParams);
+      ioParamValue(ioFlag, name, "triggerFlag", &flagFromParams, flagFromParams);
       if (getCommunicator()->commRank()==0) {
          pvWarn(triggerFlagDeprecated);
          triggerFlagDeprecated.printf("%s: triggerFlag has been deprecated.\n", getDescription_c());
@@ -152,7 +152,7 @@ void BaseProbe::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
 void BaseProbe::ioParam_triggerOffset(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "triggerFlag"));
    if (triggerFlag) {
-      parent->ioParamValue(ioFlag, name, "triggerOffset", &triggerOffset, triggerOffset);
+      ioParamValue(ioFlag, name, "triggerOffset", &triggerOffset, triggerOffset);
       if(triggerOffset < 0){
          pvError().printf("%s \"%s\" error in rank %d process: TriggerOffset (%f) must be positive\n", getParams()->groupKeywordFromName(name), name, getCommunicator()->commRank(), triggerOffset);
       }

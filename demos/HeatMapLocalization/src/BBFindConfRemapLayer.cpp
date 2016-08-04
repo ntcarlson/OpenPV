@@ -76,59 +76,59 @@ void BBFindConfRemapLayer::ioParam_imageLayer(enum PV::ParamsIOFlag ioFlag) {
 }
 
 void BBFindConfRemapLayer::ioParam_framesPerMap(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "framesPerMap", &framesPerMap, framesPerMap, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "framesPerMap", &framesPerMap, framesPerMap, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_threshold(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "threshold", &threshold, threshold, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "threshold", &threshold, threshold, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_contrast(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "contrast", &contrast, contrast, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "contrast", &contrast, contrast, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_contrastStrength(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "contrastStrength", &contrastStrength, contrastStrength, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "contrastStrength", &contrastStrength, contrastStrength, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_prevInfluence(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "prevInfluence", &prevInfluence, prevInfluence, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "prevInfluence", &prevInfluence, prevInfluence, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_accumulateAmount(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "accumulateAmount", &accumulateAmount, accumulateAmount, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "accumulateAmount", &accumulateAmount, accumulateAmount, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_prevLeakTau(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "prevLeakTau", &prevLeakTau, prevLeakTau, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "prevLeakTau", &prevLeakTau, prevLeakTau, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_minBlobSize(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "minBlobSize", &minBlobSize, minBlobSize, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "minBlobSize", &minBlobSize, minBlobSize, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_boundingboxGuessSize(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "boundingboxGuessSize", &boundingboxGuessSize, boundingboxGuessSize, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "boundingboxGuessSize", &boundingboxGuessSize, boundingboxGuessSize, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_slidingAverageSize(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "slidingAverageSize", &slidingAverageSize, slidingAverageSize, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "slidingAverageSize", &slidingAverageSize, slidingAverageSize, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_maxRectangleMemory(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "maxRectangleMemory", &maxRectangleMemory, maxRectangleMemory, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "maxRectangleMemory", &maxRectangleMemory, maxRectangleMemory, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_detectionWait(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "detectionWait", &detectionWait, detectionWait, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "detectionWait", &detectionWait, detectionWait, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_internalMapWidth(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "internalMapWidth", &internalMapWidth, internalMapWidth, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "internalMapWidth", &internalMapWidth, internalMapWidth, true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_internalMapHeight(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "internalMapHeight", &internalMapHeight, internalMapHeight, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "internalMapHeight", &internalMapHeight, internalMapHeight, true/*warnIfAbsent*/);
 }
 
 int BBFindConfRemapLayer::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
