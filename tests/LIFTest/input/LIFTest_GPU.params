@@ -13,13 +13,14 @@ HyPerCol "column" = {
 
    nx                               = 64;   
    ny                               = 64;
+   nbatch                           = 1;
    dt                               = 0.25;
-   dtAdaptController                = false;
+   dtAdaptController                = NULL;
    randomSeed                       = 1829107657; // if not set here,  clock time is used to generate seed
    startTime                        = 0.0;
    stopTime                         = 2000.0;
    progressInterval                 = 100.0;
-   writeProgressToErr               = false;
+   writeProgressToError             = false;
    verifyWrites                     = false;
    errorOnNotANumber                = false;
    outputPath                       = "output";
@@ -32,7 +33,8 @@ HyPerCol "column" = {
    checkpointWriteTriggerMode       = "time";
    checkpointWriteTimeInterval      = 100.0;
    deleteOlderCheckpoints           = false;
-   // suppressLastOutput               = false;
+   checkpointIndexWidth             = -1;
+   // suppressLastOutput            = false;
    suppressNonplasticCheckpoints    = false;
 };
 
@@ -48,6 +50,7 @@ ImagePvp "Input" = {
     nf                              = 1;
     writeStep                       = -1;
     sparseLayer                     = false;
+    updateGpu                       = false;
     phase                           = 0;
     useImageBCflag                  = false;
     mirrorBCflag                    = false;
@@ -71,6 +74,7 @@ ANNLayer "ScaledInput" = {
     valueBC                         = 0.0;
     writeStep                       = -1;
     sparseLayer                     = false;
+    updateGpu                       = false;
     phase                           = 0;
     triggerLayerName                = NULL;
 
@@ -92,6 +96,7 @@ Retina "Retina" = {
     valueBC                         = 0.0;
     writeStep                       = -1;
     sparseLayer                     = true;
+    updateGpu                       = false;
     writeSparseValues               = false;
     phase                           = 0;
     triggerLayerName                = NULL;
@@ -118,6 +123,7 @@ ANNLayer "RetinaSpikeCounter" = {
 
     writeStep                       = -1.0;
     sparseLayer                     = false;
+    updateGpu                       = false;
     phase                           = 0;
     triggerLayerName                = NULL;
 
@@ -137,6 +143,7 @@ LIFGap "LIFTest" = {
     mirrorBCflag                    = false;
     valueBC                         = 0.0;
     sparseLayer                     = true;
+    updateGpu                       = false;
     writeSparseValues               = false;
     phase                           = 0;
     triggerLayerName                = NULL;
@@ -172,6 +179,7 @@ ANNLayer "LIFTestSpikeCounter" = {
     mirrorBCflag                    = false;
     valueBC                         = 0.0;
     sparseLayer                     = false;
+    updateGpu                       = false;
     
     InitVType                       = "ConstantV";
     valueV                          = 0;
@@ -199,6 +207,7 @@ GapLayer "GapTest" = {
 
     writeStep                       = -1;
     sparseLayer                     = false;
+    updateGpu                       = false;
 
     ampSpikelet                     = 50;
 };
@@ -211,6 +220,7 @@ LIFGap "LIFGapTest" = {
     mirrorBCflag                    = false;
     valueBC                         = 0.0;
     sparseLayer                     = true;
+    updateGpu                       = false;
     writeSparseValues               = false;
     phase                           = 0;
     triggerLayerName                = NULL;
@@ -251,6 +261,7 @@ ANNLayer "LIFGapTestSpikeCounter" = {
 
     writeStep                       = -1;
     sparseLayer                     = false;
+    updateGpu                       = false;
     phase                           = 0;
     triggerLayerName                = NULL;
 
@@ -389,6 +400,7 @@ LIFTestProbe "LIFGapTestSpikeCountProbe" = {
     targetLayer                     = "LIFGapTestSpikeCounter";
     probeOutputFile                 = "SpikeRates.txt";
     message                         = "Spike Rates File               ";
+    textOutputFlag                  = true;
     triggerLayerName                = NULL;
     
     buffer                          = "Activity";
