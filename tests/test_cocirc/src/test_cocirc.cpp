@@ -11,8 +11,7 @@
 #include "layers/HyPerLayer.hpp"
 #include "connections/HyPerConn.hpp"
 #include "io/io.hpp"
-#include "utils/PVAssert.hpp"
-#include <assert.h>
+#include <utils/PVLog.hpp>
 
 using namespace PV;
 
@@ -26,7 +25,7 @@ T * createObject(char const * name, HyPerCol * hc, ObserverTable& hierarchy) {
 // First argument to check_cocirc_vs_hyper should have sharedWeights = false
 // Second argument should have sharedWeights = true
 int check_cocirc_vs_hyper(HyPerConn * cHyPer, HyPerConn * cKernel, int kPre,
-		int axonID);
+      int axonID);
 
 int main(int argc, char * argv[])
 {
@@ -64,16 +63,16 @@ int main(int argc, char * argv[])
 
    const int axonID = 0;
    int num_pre_extended = pre->clayer->numExtended;
-   assert(num_pre_extended == cHyPer->getNumWeightPatches());
+   pvErrorIf(!(num_pre_extended == cHyPer->getNumWeightPatches()), "Test failed.\n");
 
    int status = 0;
    for (int kPre = 0; kPre < num_pre_extended; kPre++) {
       status = check_cocirc_vs_hyper(cHyPer, cCocirc, kPre, axonID);
-      assert(status==0);
+      pvErrorIf(!(status==0), "Test failed.\n");
       status = check_cocirc_vs_hyper(cHyPer1to2, cCocirc1to2, kPre, axonID);
-      assert(status==0);
+      pvErrorIf(!(status==0), "Test failed.\n");
       status = check_cocirc_vs_hyper(cHyPer2to1, cCocirc2to1, kPre, axonID);
-      assert(status==0);
+      pvErrorIf(!(status==0), "Test failed.\n");
    }
 
    delete hc;
@@ -83,22 +82,22 @@ int main(int argc, char * argv[])
 
 int check_cocirc_vs_hyper(HyPerConn * cHyPer, HyPerConn * cKernel, int kPre, int axonID)
 {
-   assert(cKernel->usingSharedWeights()==true);
-   assert(cHyPer->usingSharedWeights()==false);
+   pvErrorIf(!(cKernel->usingSharedWeights()==true), "Test failed.\n");
+   pvErrorIf(!(cHyPer->usingSharedWeights()==false), "Test failed.\n");
    int status = 0;
    PVPatch * hyperPatch = cHyPer->getWeights(kPre, axonID);
    PVPatch * cocircPatch = cKernel->getWeights(kPre, axonID);
    int hyPerDataIndex = cHyPer->patchIndexToDataIndex(kPre);
    int kernelDataIndex = cKernel->patchIndexToDataIndex(kPre);
    
-   int nk = cHyPer->fPatchSize() * (int) hyperPatch->nx; //; hyperPatch->nf * hyperPatch->nx;
-   assert(nk == (cKernel->fPatchSize() * (int) cocircPatch->nx)); // assert(nk == (cocircPatch->nf * cocircPatch->nx));
+   int nk = cHyPer->fPatchSize() * (int) hyperPatch->nx;
+   pvErrorIf(!(nk == (cKernel->fPatchSize() * (int) cocircPatch->nx)), "Test failed.\n");
    int ny = hyperPatch->ny;
-   assert(ny == cocircPatch->ny);
-   int sy = cHyPer->yPatchStride(); // hyperPatch->sy;
-   assert(sy == cKernel->yPatchStride()); // assert(sy == cocircPatch->sy);
-   pvwdata_t * hyperWeights = cHyPer->get_wData(axonID, hyPerDataIndex); // hyperPatch->data;
-   pvwdata_t * cocircWeights = cKernel->get_wDataHead(axonID, kernelDataIndex)+hyperPatch->offset; // cocircPatch->data;
+   pvErrorIf(!(ny == cocircPatch->ny), "Test failed.\n");
+   int sy = cHyPer->yPatchStride();
+   pvErrorIf(!(sy == cKernel->yPatchStride()), "Test failed.\n");
+   pvwdata_t * hyperWeights = cHyPer->get_wData(axonID, hyPerDataIndex);
+   pvwdata_t * cocircWeights = cKernel->get_wDataHead(axonID, kernelDataIndex)+hyperPatch->offset;
    float test_cond = 0.0f;
    for (int y = 0; y < ny; y++) {
       for (int k = 0; k < nk; k++) {
@@ -109,7 +108,7 @@ int check_cocirc_vs_hyper(HyPerConn * cHyPer, HyPerConn * cKernel, int kPre, int
             const char * cKernel_filename = "cocirc_cocirc.txt";
             cKernel->writeTextWeights(cKernel_filename, kPre);
          }
-         assert(fabs(test_cond) <= 0.001f);
+         pvErrorIf(!(fabs(test_cond) <= 0.001f), "Test failed.\n");
       }
       // advance pointers in y
       hyperWeights += sy;

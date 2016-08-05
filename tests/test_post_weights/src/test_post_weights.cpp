@@ -17,8 +17,7 @@
 #include <connections/HyPerConn.hpp>
 #include <weightinit/InitUniformWeights.hpp>
 
-#include "utils/PVAssert.hpp"
-#include <assert.h>
+#include <utils/PVLog.hpp>
 
 using namespace PV;
 
@@ -210,7 +209,7 @@ static int set_weights_to_source_index(HyPerConn * c)
    int status = 0;
    int arbor = 0;
 
-   assert(sizeof(short) == 2);
+   pvErrorIf(!(sizeof(short) == 2), "Test failed.\n");
 
    const PVLayer * lPost = c->postSynapticLayer()->clayer;
 
@@ -233,9 +232,9 @@ static int set_weights_to_source_index(HyPerConn * c)
 
       const int nfp = c->fPatchSize(); // p->nf;
 
-      assert(nxp == p->nx);
-      assert(nyp == p->ny);
-      assert(nfp == lPost->loc.nf);
+      pvErrorIf(!(nxp == p->nx), "Test failed.\n");
+      pvErrorIf(!(nyp == p->ny), "Test failed.\n");
+      pvErrorIf(!(nfp == lPost->loc.nf), "Test failed.\n");
 
       const int sxp = c->xPatchStride(); // p->sx;
       const int syp = c->yPatchStride(); // p->sy;

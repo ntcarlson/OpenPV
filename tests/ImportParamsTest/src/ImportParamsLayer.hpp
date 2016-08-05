@@ -7,15 +7,15 @@ namespace PV {
 
 class ImportParamsLayer: public PV::ANNLayer {
 public:
-    ImportParamsLayer(const char* name, HyPerCol * hc);
-    virtual int allocateDataStructures();
+   ImportParamsLayer(const char* name, HyPerCol * hc);
 
 protected:
-    int initialize(const char * name, HyPerCol * hc);
-    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);
+   int initialize(const char * name, HyPerCol * hc);
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);
+   virtual int allocateDataStructures();
 
 private:
-    int initialize_base();
+   int initialize_base();
 };
 
 

@@ -36,7 +36,7 @@ void StochasticReleaseTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
 
 int StochasticReleaseTestProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    int status = StatsProbe::communicateInitInfo(message);
-   assert(getTargetLayer());
+   pvErrorIf(!(getTargetLayer()), "Test failed.\n");
    long int num_steps = getParent()->getFinalStep() - getParent()->getInitialStep();
    pvalues = (double *) calloc(num_steps*getTargetLayer()->getLayerLoc()->nf, sizeof(double));
    if (pvalues == NULL) {
@@ -63,26 +63,26 @@ int StochasticReleaseTestProbe::outputState(double timed) {
       int numconns = parent->numberOfConnections();
       for (int c=0; c<numconns; c++) {
          if (!strcmp(parent->getConnection(c)->getPostLayerName(),getTargetLayer()->getName())) {
-            assert(conn==NULL); // Only one connection can go to this layer for this probe to work
+            pvErrorIf(!(conn==NULL), "Test failed.\n"); // Only one connection can go to this layer for this probe to work
             BaseConnection * baseConn = parent->getConnection(c);
             conn = dynamic_cast<HyPerConn *>(baseConn);
          }
       }
-      assert(conn!=NULL);
+      pvErrorIf(!(conn!=NULL), "Test failed.\n");
    }
-   assert(conn->numberOfAxonalArborLists()==1);
-   assert(conn->xPatchSize()==1);
-   assert(conn->yPatchSize()==1);
-   assert(conn->getNumDataPatches()==conn->fPatchSize());
+   pvErrorIf(!(conn->numberOfAxonalArborLists()==1), "Test failed.\n");
+   pvErrorIf(!(conn->xPatchSize()==1), "Test failed.\n");
+   pvErrorIf(!(conn->yPatchSize()==1), "Test failed.\n");
+   pvErrorIf(!(conn->getNumDataPatches()==conn->fPatchSize()), "Test failed.\n");
    int status = StatsProbe::outputState(timed);
-   assert(status==PV_SUCCESS);
+   pvErrorIf(!(status==PV_SUCCESS), "Test failed.\n");
    HyPerLayer * l = getTargetLayer();
    int nf = l->getLayerLoc()->nf;
    if (timed>0.0) {
       for (int f=0; f < nf; f++) {
          if (computePValues(parent->getCurrentStep(), f)!=PV_SUCCESS) status = PV_FAILURE;
       }
-      assert(status == PV_SUCCESS);
+      pvErrorIf(!(status == PV_SUCCESS), "Test failed.\n");
       if (getCommunicator()->commRank()==0 && parent->simulationTime()+parent->getDeltaTime()/2>=parent->getStopTime()) {
          // This is the last timestep
          // sort the p-values and apply Holm-Bonferroni method since there is one for each timestep and each feature.
@@ -101,15 +101,15 @@ int StochasticReleaseTestProbe::outputState(double timed) {
       }
 
    }
-   assert(status==PV_SUCCESS);
+   pvErrorIf(!(status==PV_SUCCESS), "Test failed.\n");
    return status;
 }
 
 int StochasticReleaseTestProbe::computePValues(long int step, int f) {
    int status = PV_SUCCESS;
-   assert(step >=0 && step < INT_MAX);
+   pvErrorIf(!(step >=0 && step < INT_MAX), "Test failed.\n");
    int nf = getTargetLayer()->getLayerLoc()->nf;
-   assert(f >= 0 && f < nf);
+   pvErrorIf(!(f >= 0 && f < nf), "Test failed.\n");
    int idx = (step-1)*nf + f;
    pvwdata_t wgt = conn->get_wDataStart(0)[f*(nf+1)]; // weights should be one-to-one weights
 
@@ -124,7 +124,7 @@ int StochasticReleaseTestProbe::computePValues(long int step, int f) {
       pvdata_t a = preactPtr[nExt];
       if (a!=0.0f) {
          if (found) {
-            assert(preact==a);
+            pvErrorIf(!(preact==a), "Test failed.\n");
          }
          else {
             found = true;
@@ -142,7 +142,7 @@ int StochasticReleaseTestProbe::computePValues(long int step, int f) {
    const int numNeurons = getTargetLayer()->getNumNeurons();
    for (int n=f; n<numNeurons; n+=nf) {
       int nExt = kIndexExtended(n, loc->nx, loc->ny, loc->nf, loc->halo.lt, loc->halo.rt, loc->halo.dn, loc->halo.up);
-      assert(activity[nExt]==0 || activity[nExt]==wgt);
+      pvErrorIf(!(activity[nExt]==0 || activity[nExt]==wgt), "Test failed.\n");
       if (activity[nExt]!=0) nnzf++;
    }
    HyPerLayer * l = getTargetLayer();
@@ -156,7 +156,7 @@ int StochasticReleaseTestProbe::computePValues(long int step, int f) {
       outputStream->printf("    Feature %d, nnz=%5d, expectation=%7.1f, std.dev.=%5.1f, discrepancy of %f deviations, p-value %f\n",
               f, nnzf, mean, stddev, numdevs, pvalues[idx]);
    }
-   assert(status==PV_SUCCESS);
+   pvErrorIf(!(status==PV_SUCCESS), "Test failed.\n");
    return status;
 }
 

@@ -10,15 +10,14 @@
 #include "layers/HyPerLayer.hpp"
 #include "connections/HyPerConn.hpp"
 #include "io/io.hpp"
-#include "utils/PVAssert.hpp"
-#include <assert.h>
+#include <utils/PVLog.hpp>
 
 #include "Example.hpp"
 
 using namespace PV;
 
 int check_kernel_vs_hyper(HyPerConn * cHyPer, HyPerConn * cKernel, int kPre,
-		int axonID);
+      int axonID);
 
 template <typename T>
 T * createObject(char const * name, HyPerCol * hc, ObserverTable& hierarchy) {
@@ -99,22 +98,22 @@ int main(int argc, char * argv[])
 
 int check_kernel_vs_hyper(HyPerConn * cHyPer, HyPerConn * cKernel, int kPre, int axonID)
 {
-   assert(cKernel->usingSharedWeights()==true);
-   assert(cHyPer->usingSharedWeights()==false);
+   pvErrorIf(!(cKernel->usingSharedWeights()==true), "Test failed.\n");
+   pvErrorIf(!(cHyPer->usingSharedWeights()==false), "Test failed.\n");
    int status = 0;
    PVPatch * hyperPatch = cHyPer->getWeights(kPre, axonID);
    PVPatch * kernelPatch = cKernel->getWeights(kPre, axonID);
    int hyPerDataIndex = cHyPer->patchIndexToDataIndex(kPre);
    int kernelDataIndex = cKernel->patchIndexToDataIndex(kPre);
 
-   int nk = cHyPer->fPatchSize() * (int) hyperPatch->nx; // hyperPatch->nf * hyperPatch->nx;
-   assert(nk == (cKernel->fPatchSize() * (int) kernelPatch->nx));// assert(nk == (kernelPatch->nf * kernelPatch->nx));
+   int nk = cHyPer->fPatchSize() * (int) hyperPatch->nx;
+   pvErrorIf(!(nk == (cKernel->fPatchSize() * (int) kernelPatch->nx)), "Test failed.\n");
    int ny = hyperPatch->ny;
-   assert(ny == kernelPatch->ny);
-   int sy = cHyPer->yPatchStride(); // hyperPatch->sy;
-   assert(sy == cKernel->yPatchStride()); // assert(sy == kernelPatch->sy);
-   pvwdata_t * hyperWeights = cHyPer->get_wData(axonID, hyPerDataIndex); // hyperPatch->data;
-   pvwdata_t * kernelWeights = cKernel->get_wDataHead(axonID, kernelDataIndex)+hyperPatch->offset; // kernelPatch->data;
+   pvErrorIf(!(ny == kernelPatch->ny), "Test failed.\n");
+   int sy = cHyPer->yPatchStride();
+   pvErrorIf(!(sy == cKernel->yPatchStride()), "Test failed.\n");
+   pvwdata_t * hyperWeights = cHyPer->get_wData(axonID, hyPerDataIndex);
+   pvwdata_t * kernelWeights = cKernel->get_wDataHead(axonID, kernelDataIndex)+hyperPatch->offset;
    float test_cond = 0.0f;
    for (int y = 0; y < ny; y++) {
       for (int k = 0; k < nk; k++) {
