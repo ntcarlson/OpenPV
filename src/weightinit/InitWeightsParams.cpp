@@ -28,16 +28,14 @@ InitWeightsParams::InitWeightsParams(char const * name, HyPerCol * hc) {
 
 InitWeightsParams::~InitWeightsParams()
 {
-   free(this->name);
    free(this->filename);
 }
 
 int InitWeightsParams::initialize_base() {
-   this->parent = NULL;
+   this->parentConn = NULL;
    this->pre = NULL;
    this->post = NULL;
    this->channel = CHANNEL_EXC;
-   this->name = strdup("Unknown");
    this->filename = NULL;
    this->useListOfArborFiles = false;
    this->combineWeightFiles = false;
@@ -81,12 +79,7 @@ float InitWeightsParams::getWMax() {
 }
 
 int InitWeightsParams::initialize(char const * name, HyPerCol * hc) {
-   int status = PV_SUCCESS;
-
-   this->parentConn = NULL;
-   this->mParams = hc->parameters();
-   this->parent = hc;
-   this->setName(name);
+   int status = BaseObject::initialize(name, hc);
 
    return status;
 }
@@ -94,7 +87,6 @@ int InitWeightsParams::initialize(char const * name, HyPerCol * hc) {
 int InitWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Read/write any params from the params file, typically
    // parent->ioParamValue(ioFlag, name, "param_name", &param, default_value);
-   parentConn = dynamic_cast<HyPerConn *>(parent->getConnFromName(name));
    ioParam_initWeightsFile(ioFlag);
    ioParam_useListOfArborFiles(ioFlag);
    ioParam_combineWeightFiles(ioFlag);
@@ -131,14 +123,21 @@ void InitWeightsParams::ioParam_numWeightFiles(enum ParamsIOFlag ioFlag) {
    }
 }
 
-int InitWeightsParams::communicateParamsInfo() {
+int InitWeightsParams::communicateInitInfo(CommunicateInitInfoMessage const * message) {
    // to be called during communicateInitInfo stage;
    // set any member variables that depend on other objects
    // having been initialized or communicateInitInfo'd
-   assert(parentConn != NULL);
+   parentConn = message->mTable->lookup<HyPerConn>(name);
+   if (!parentConn) {
+      if (getCommunicator()->commRank()==0) {
+         pvError() << getDescription() << ": \"" << name << "\" is not a HyPerConn or HyPerConn-derived class.\n";
+      }
+      MPI_Barrier(getCommunicator()->communicator());
+      exit(EXIT_FAILURE);
+   }
    this->pre = parentConn->getPre();
    this->post = parentConn->getPost();
-   assert(this->pre && this->post);
+   pvAssert(this->pre && this->post);
    this->channel = parentConn->getChannel();
 
    return PV_SUCCESS;

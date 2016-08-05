@@ -11,9 +11,17 @@
 #include "layers/HyPerLayer.hpp"
 #include "connections/HyPerConn.hpp"
 #include "io/io.hpp"
+#include "utils/PVAssert.hpp"
 #include <assert.h>
 
 using namespace PV;
+
+template <typename T>
+T * createObject(char const * name, HyPerCol * hc, ObserverTable& hierarchy) {
+   T * newObject = new T(name, hc);
+   hierarchy.addObject(name, newObject);
+   return newObject;
+}
 
 // First argument to check_cocirc_vs_hyper should have sharedWeights = false
 // Second argument should have sharedWeights = true
@@ -24,59 +32,34 @@ int main(int argc, char * argv[])
 {
    PV_Init * initObj = new PV_Init(&argc, &argv, false/*allowUnrecognizedArguments*/);
    PV::HyPerCol * hc = new PV::HyPerCol("test_cocirc column", initObj);
+   ObserverTable hierarchy;
    
    const char * preLayerName = "test_cocirc pre";
    const char * postLayerName = "test_cocirc post";
+   PV::Example * pre = createObject<PV::Example>(preLayerName, hc, hierarchy);
+   PV::Example * post = createObject<PV::Example>(postLayerName, hc, hierarchy);
+   PV::HyPerConn * cHyPer = createObject<PV::HyPerConn>("test_cocirc hyperconn", hc, hierarchy);
+   PV::HyPerConn * cCocirc = createObject<PV::HyPerConn>("test_cocirc cocircconn", hc, hierarchy);
    
-   PV::Example * pre = new PV::Example(preLayerName, hc);
-   assert(pre);
-   PV::Example * post = new PV::Example(postLayerName, hc);
-   assert(post);
-   PV::HyPerConn * cHyPer = new HyPerConn("test_cocirc hyperconn", hc);
-   assert(cHyPer);
-   PV::HyPerConn * cCocirc = new HyPerConn("test_cocirc cocircconn", hc);
-   assert(cCocirc);
-   
-   PV::Example * pre2 = new PV::Example("test_cocirc pre 2", hc);
-   assert(pre2);
-   PV::Example * post2 = new PV::Example("test_cocirc post 2", hc);
-   assert(post2);
-   PV::HyPerConn * cHyPer1to2 = new HyPerConn("test_cocirc hyperconn 1 to 2", hc);
-   assert(cHyPer1to2);
-   PV::HyPerConn * cCocirc1to2 = new HyPerConn("test_cocirc cocircconn 1 to 2", hc);
-   assert(cCocirc1to2);
-   PV::HyPerConn * cHyPer2to1 = new HyPerConn("test_cocirc hyperconn 2 to 1", hc);
-   assert(cHyPer2to1);
-   PV::HyPerConn * cCocirc2to1 = new HyPerConn("test_cocirc cocircconn 2 to 1", hc);
-   assert(cCocirc2to1);
+   PV::Example * pre2 = createObject<PV::Example>("test_cocirc pre 2", hc, hierarchy);
+   PV::Example * post2 = createObject<PV::Example>("test_cocirc post 2", hc, hierarchy);
+   PV::HyPerConn * cHyPer1to2 = createObject<PV::HyPerConn>("test_cocirc hyperconn 1 to 2", hc, hierarchy);
+   PV::HyPerConn * cCocirc1to2 = createObject<PV::HyPerConn>("test_cocirc cocircconn 1 to 2", hc, hierarchy);
+   PV::HyPerConn * cHyPer2to1 = createObject<PV::HyPerConn>("test_cocirc hyperconn 2 to 1", hc, hierarchy);
+   PV::HyPerConn * cCocirc2to1 = createObject<PV::HyPerConn>("test_cocirc cocircconn 2 to 1", hc, hierarchy);
 
    ensureDirExists(hc->getCommunicator(), hc->getOutputPath());
    
-   auto objectHierarchy = hc->copyObjectHierarchy();
-   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(*objectHierarchy);
-   for (int l=0; l<hc->numberOfLayers(); l++) {
-      HyPerLayer * layer = hc->getLayer(l);
-      int status = layer->respond(commMessagePtr);
-      assert(status==PV_SUCCESS);
+   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(hierarchy);
+   for (auto obj : hierarchy.getObjectVector()) {
+      int status = obj->respond(commMessagePtr);
+      pvErrorIf(status!=PV_SUCCESS, "Test failed.\n");
    }
-   for (int c=0; c<hc->numberOfConnections(); c++) {
-      BaseConnection * conn = hc->getConnection(c);
-      int status = conn->respond(commMessagePtr);
-      assert(status==PV_SUCCESS);
-   }
-   delete objectHierarchy;
-   
+
    auto allocateMessagePtr = std::make_shared<AllocateDataMessage>();
-   for (int l=0; l<hc->numberOfLayers(); l++) {
-      HyPerLayer * layer = hc->getLayer(l);
-      int status = layer->respond(allocateMessagePtr);
-      assert(status==PV_SUCCESS);
-   }
-   
-   for (int c=0; c<hc->numberOfConnections(); c++) {
-      BaseConnection * conn = hc->getConnection(c);
-      int status = conn->respond(allocateMessagePtr);
-      assert(status==PV_SUCCESS);
+   for (auto obj : hierarchy.getObjectVector()) {
+      int status = obj->respond(allocateMessagePtr);
+      pvErrorIf(status!=PV_SUCCESS, "Test failed.\n");
    }
 
    const int axonID = 0;

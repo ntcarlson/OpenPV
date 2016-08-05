@@ -10,6 +10,7 @@
 #include "layers/HyPerLayer.hpp"
 #include "connections/HyPerConn.hpp"
 #include "io/io.hpp"
+#include "utils/PVAssert.hpp"
 #include <assert.h>
 
 #include "Example.hpp"
@@ -18,6 +19,13 @@ using namespace PV;
 
 int check_kernel_vs_hyper(HyPerConn * cHyPer, HyPerConn * cKernel, int kPre,
 		int axonID);
+
+template <typename T>
+T * createObject(char const * name, HyPerCol * hc, ObserverTable& hierarchy) {
+   T * newObject = new T(name, hc);
+   hierarchy.addObject(name, newObject);
+   return newObject;
+}
 
 int main(int argc, char * argv[])
 {
@@ -39,79 +47,49 @@ int main(int argc, char * argv[])
    const char * post2_layer_name = "test_gauss2d post 2";
 
    PV::HyPerCol * hc = new PV::HyPerCol("test_gauss2d column", initObj);
-   PV::Example * pre = new PV::Example(pre_layer_name, hc);
-   assert(pre);
-   PV::Example * post = new PV::Example(post_layer_name, hc);
-   assert(post);
+   ObserverTable hierarchy;
+   PV::Example * pre = createObject<PV::Example>(pre_layer_name, hc, hierarchy);
+   PV::Example * post = createObject<PV::Example>(post_layer_name, hc, hierarchy);
 
-   
-   PV::HyPerConn * cHyPer = new HyPerConn("test_gauss2d hyperconn", hc);
+   PV::HyPerConn * cHyPer = createObject<PV::HyPerConn>("test_gauss2d hyperconn", hc, hierarchy);
+   PV::HyPerConn * cKernel = createObject<PV::HyPerConn>("test_gauss2d kernelconn", hc, hierarchy);
 
-   PV::HyPerConn * cKernel = new HyPerConn("test_gauss2d kernelconn", hc);
+   PV::Example * pre2 = createObject<PV::Example>(pre2_layer_name, hc, hierarchy);
+   PV::Example * post2 = createObject<PV::Example>(post2_layer_name, hc, hierarchy);
 
-   PV::Example * pre2 = new PV::Example(pre2_layer_name, hc);
-   assert(pre2);
-   PV::Example * post2 = new PV::Example(post2_layer_name, hc);
-   assert(post2);
+   PV::HyPerConn * cHyPer1to2 = createObject<PV::HyPerConn>("test_gauss2d hyperconn 1 to 2", hc, hierarchy);
+   PV::HyPerConn * cKernel1to2 = createObject<PV::HyPerConn>("test_gauss2d kernelconn 1 to 2", hc, hierarchy);
 
-   PV::HyPerConn * cHyPer1to2 =
-         new HyPerConn("test_gauss2d hyperconn 1 to 2", hc);
-   assert(cHyPer1to2);
-
-   PV::HyPerConn * cKernel1to2 =
-         new HyPerConn("test_gauss2d kernelconn 1 to 2", hc);
-   assert(cKernel1to2);
-
-   PV::HyPerConn * cHyPer2to1 =
-         new HyPerConn("test_gauss2d hyperconn 2 to 1", hc);
-   assert(cHyPer2to1);
-
-   PV::HyPerConn * cKernel2to1 =
-         new HyPerConn("test_gauss2d kernelconn 2 to 1", hc);
-   assert(cKernel2to1);
+   PV::HyPerConn * cHyPer2to1 = createObject<PV::HyPerConn>("test_gauss2d hyperconn 2 to 1", hc, hierarchy);
+   PV::HyPerConn * cKernel2to1 = createObject<PV::HyPerConn>("test_gauss2d kernelconn 2 to 1", hc, hierarchy);
    
    int status = 0;
 
    ensureDirExists(hc->getCommunicator(), hc->getOutputPath());
 
-   auto objectHierarchy = hc->copyObjectHierarchy();
-   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(*objectHierarchy);
-   for (int l=0; l<hc->numberOfLayers(); l++) {
-      HyPerLayer * layer = hc->getLayer(l);
-      int status = layer->respond(commMessagePtr);
-      assert(status==PV_SUCCESS);
+   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(hierarchy);
+   for (auto obj : hierarchy.getObjectVector()) {
+      int status = obj->respond(commMessagePtr);
+      pvErrorIf(status!=PV_SUCCESS, "Test failed.\n");
    }
-   for (int c=0; c<hc->numberOfConnections(); c++) {
-      BaseConnection * conn = hc->getConnection(c);
-      int status = conn->respond(commMessagePtr);
-      assert(status==PV_SUCCESS);
-   }
-   delete objectHierarchy;
 
    auto allocateMessagePtr = std::make_shared<AllocateDataMessage>();
-   for (int l=0; l<hc->numberOfLayers(); l++) {
-      HyPerLayer * layer = hc->getLayer(l);
-      int status = layer->respond(allocateMessagePtr);
-      assert(status==PV_SUCCESS);
-   }
-
-   for (int c=0; c<hc->numberOfConnections(); c++) {
-      BaseConnection * conn = hc->getConnection(c);
-      int status = conn->respond(allocateMessagePtr);
-      assert(status==PV_SUCCESS);
+   for (auto obj : hierarchy.getObjectVector()) {
+      int status = obj->respond(allocateMessagePtr);
+      pvErrorIf(status!=PV_SUCCESS, "Test failed.\n");
    }
 
    const int axonID = 0;
    int num_pre_extended = pre->clayer->numExtended;
-   assert(num_pre_extended == cHyPer->getNumWeightPatches());
+   pvErrorIf(num_pre_extended != cHyPer->getNumWeightPatches(), "Test failed.\n");
 
    for (int kPre = 0; kPre < num_pre_extended; kPre++) {
      status = check_kernel_vs_hyper(cHyPer, cKernel, kPre, axonID);
-     assert(status==0);
+     pvErrorIf(status!=0, "Test failed.\n");
      status = check_kernel_vs_hyper(cHyPer1to2, cKernel1to2, kPre, axonID);
-     assert(status==0);
+     pvErrorIf(status!=0, "Test failed.\n");
      status = check_kernel_vs_hyper(cHyPer2to1, cKernel2to1, kPre, axonID);
-     assert(status==0);
+     pvErrorIf(status!=0, "Test failed.\n");
    }
 
    delete hc;

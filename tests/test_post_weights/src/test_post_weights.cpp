@@ -17,9 +17,17 @@
 #include <connections/HyPerConn.hpp>
 #include <weightinit/InitUniformWeights.hpp>
 
+#include "utils/PVAssert.hpp"
 #include <assert.h>
 
 using namespace PV;
+
+template <typename T>
+T * createObject(char const * name, HyPerCol * hc, ObserverTable& hierarchy) {
+   T * newObject = new T(name, hc);
+   hierarchy.addObject(name, newObject);
+   return newObject;
+}
 
 static int set_weights_to_source_index(HyPerConn * c);
 static int check_weights(HyPerConn * c, PVPatch ** postWeights, pvdata_t * dataStart);
@@ -35,21 +43,19 @@ int main(int argc, char * argv[])
    const char * l2name = "test_post_weights L2";
    const char * l3name = "test_post_weights L3";
    HyPerCol  * hc = new HyPerCol("column", initObj);
-   Example   * l1 = new Example(l1name, hc); assert(l1);
-   Example   * l2 = new Example(l2name, hc); assert(l2);
-   Example   * l3 = new Example(l3name, hc); assert(l3);
+   ObserverTable hierarchy;
+   Example   * l1 = createObject<Example>(l1name, hc, hierarchy);
+   Example   * l2 = createObject<Example>(l2name, hc, hierarchy);
+   Example   * l3 = createObject<Example>(l3name, hc, hierarchy);
 
-   HyPerConn * c1 = new HyPerConn("test_post_weights L1 to L1", hc);
-   assert(c1);
-   assert(c1->numberOfAxonalArborLists() == 1);
+   HyPerConn * c1 = createObject<HyPerConn>("test_post_weights L1 to L1", hc, hierarchy);
+   pvErrorIf(c1->numberOfAxonalArborLists() != 1, "Test failed.\n");
 
-   HyPerConn * c2 = new HyPerConn("test_post_weights L2 to L3", hc);
-   assert(c2);
-   assert(c2->numberOfAxonalArborLists() == 1);
+   HyPerConn * c2 = createObject<HyPerConn>("test_post_weights L2 to L3", hc, hierarchy);
+   pvErrorIf(c2->numberOfAxonalArborLists() != 1, "Test failed.\n");
 
-   HyPerConn * c3 = new HyPerConn("test_post_weights L3 to L2", hc);
-   assert(c3);
-   assert(c3->numberOfAxonalArborLists() == 1);
+   HyPerConn * c3 = createObject<HyPerConn>("test_post_weights L3 to L2", hc, hierarchy);
+   pvErrorIf(c3->numberOfAxonalArborLists() != 1, "Test failed.\n");
    
    // We're not calling hc->run() because we don't execute any timesteps.
    // But we still need to allocate the weights, so we call the
@@ -57,31 +63,16 @@ int main(int argc, char * argv[])
 
    ensureDirExists(hc->getCommunicator(), hc->getOutputPath());
 
-   auto objectHierarchy = hc->copyObjectHierarchy();
-   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(*objectHierarchy);
-   for (int l=0; l<hc->numberOfLayers(); l++) {
-      HyPerLayer * layer = hc->getLayer(l);
-      int status = layer->respond(commMessagePtr);
-      assert(status==PV_SUCCESS);
+   auto commMessagePtr = std::make_shared<CommunicateInitInfoMessage >(hierarchy);
+   for (auto obj : hierarchy.getObjectVector()) {
+      int status = obj->respond(commMessagePtr);
+      pvErrorIf(status!=PV_SUCCESS, "Test failed.\n");
    }
-   for (int c=0; c<hc->numberOfConnections(); c++) {
-      BaseConnection * conn = hc->getConnection(c);
-      int status = conn->respond(commMessagePtr);
-      assert(status==PV_SUCCESS);
-   }
-   delete objectHierarchy;
 
    auto allocateMessagePtr = std::make_shared<AllocateDataMessage>();
-   for (int l=0; l<hc->numberOfLayers(); l++) {
-      HyPerLayer * layer = hc->getLayer(l);
-      int status = layer->respond(allocateMessagePtr);
-      assert(status==PV_SUCCESS);
-   }
-
-   for (int c=0; c<hc->numberOfConnections(); c++) {
-      BaseConnection * conn = hc->getConnection(c);
-      int status = conn->respond(allocateMessagePtr);
-      assert(status==PV_SUCCESS);
+   for (auto obj : hierarchy.getObjectVector()) {
+      int status = obj->respond(allocateMessagePtr);
+      pvErrorIf(status!=PV_SUCCESS, "Test failed.\n");
    }
 
    // Don't need to call initializeState methods:

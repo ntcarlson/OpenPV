@@ -19,19 +19,16 @@
 namespace PV {
 class HyPerConn;
 
-class InitWeightsParams {
+class InitWeightsParams : public BaseObject {
 public:
    InitWeightsParams();
    InitWeightsParams(char const * name, HyPerCol * hc);
    virtual ~InitWeightsParams();
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
-   virtual int communicateParamsInfo();
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
+   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
 
    //get-set methods:
-   inline const char * getName()                {return name;}
-   inline void setName(const char * name)    {free(this->name); this->name = strdup(name);}
-   inline HyPerCol * getParent()                {return parent;}
    inline HyPerLayer * getPre()                 {return pre;}
    inline HyPerLayer * getPost()                {return post;}
    inline HyPerConn * getParentConn()           {return parentConn;}
@@ -62,11 +59,8 @@ protected:
    int initialize_base();
    int initialize(char const * name, HyPerCol * hc);
 
-   char * name; //this is actually the Connection name
    HyPerLayer     * pre;
    HyPerLayer     * post;
-   PVParams       * mParams = nullptr;
-   HyPerCol       * parent;
    HyPerConn      * parentConn;
    ChannelType channel;    // which channel of the post to update (e.g. inhibit)
    char * filename;

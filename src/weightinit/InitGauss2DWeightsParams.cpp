@@ -63,7 +63,7 @@ int InitGauss2DWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    if (ioFlag != PARAMS_IO_READ) {
       // numOrientationsPost and numOrientationsPre are only meaningful if
       // relevant layers have nf>1, so reading those params and params that
-      // depend on them is delayed until communicateParamsInfo, so that
+      // depend on them is delayed until communicateInitInfo, so that
       // pre&post will have been defined.
       ioParam_numOrientationsPost(ioFlag);
       ioParam_numOrientationsPre(ioFlag);
@@ -167,8 +167,8 @@ bool InitGauss2DWeightsParams::needAspectParams() {
    return (aspect != 1.0f && ((this->numOrientationsPre <= 1)||(this->numOrientationsPost <= 1)));
 }
 
-int InitGauss2DWeightsParams::communicateParamsInfo() {
-   int status = InitWeightsParams::communicateParamsInfo();
+int InitGauss2DWeightsParams::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+   int status = InitWeightsParams::communicateInitInfo(message);
    // Handle params that use pre and post to determine if they
    // need to be read
    ioParam_numOrientationsPost(PARAMS_IO_READ);

@@ -35,12 +35,6 @@ InitWeights::~InitWeights()
 }
 
 int InitWeights::initialize(char const * name, HyPerCol * hc) {
-   if (name==NULL) {
-      pvError().printf("InitWeights::initialize called with a name argument of null.\n");
-   }
-   if (hc==NULL) {
-      pvError().printf("InitWeights::initialize called with a HyPerCol argument of null.\n");
-   }
    int status = BaseObject::initialize(name, hc);
    callingConn = NULL; // will be set during communicateInitInfo stage.
 
@@ -105,7 +99,7 @@ int InitWeights::communicateInitInfo(CommunicateInitInfoMessage const * message)
    if (status == PV_FAILURE) {
       exit(EXIT_FAILURE);
    }
-   return weightParams->communicateParamsInfo();
+   return weightParams->communicateInitInfo(message);
 }
 
 /*This method does the three steps involved in initializing weights.  Subclasses usually don't need to override this method.
