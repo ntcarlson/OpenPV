@@ -165,11 +165,6 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
    this->gpu_update_timer->setStream(stream);
 #endif
 
-   PVParams * params = getParams();
-
-   status = ioParamsFillGroup(PARAMS_IO_READ);
-   assert(status == PV_SUCCESS);
-
    writeTime = initialWriteTime;
    writeActivityCalls = 0;
    writeActivitySparseCalls = 0;
