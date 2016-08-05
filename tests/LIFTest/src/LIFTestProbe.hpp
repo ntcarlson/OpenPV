@@ -28,7 +28,7 @@ protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_endingTime(enum ParamsIOFlag ioFlag);
    virtual void ioParam_tolerance(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message);
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message);
 
 private:
    int initialize_base();

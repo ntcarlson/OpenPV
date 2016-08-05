@@ -34,7 +34,7 @@ void StochasticReleaseTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
    requireType(BufActivity);
 }
 
-int StochasticReleaseTestProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int StochasticReleaseTestProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = StatsProbe::communicateInitInfo(message);
    pvErrorIf(!(getTargetLayer()), "Test failed.\n");
    long int num_steps = getParent()->getFinalStep() - getParent()->getInitialStep();

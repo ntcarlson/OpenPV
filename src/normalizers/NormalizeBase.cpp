@@ -76,7 +76,7 @@ void NormalizeBase::ioParam_normalizeOnWeightUpdate(enum ParamsIOFlag ioFlag) {
    ioParamValue(ioFlag, name, "normalizeOnWeightUpdate", &normalizeOnWeightUpdate, normalizeOnWeightUpdate);
 }
 
-int NormalizeBase::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int NormalizeBase::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    targetConn = message->mTable->lookup<HyPerConn>(name);
    if (targetConn==nullptr) {
       if (getCommunicator()->commRank()==0) {

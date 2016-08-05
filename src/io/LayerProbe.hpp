@@ -57,7 +57,7 @@ protected:
     * the targetLayer/targetName parameter refers to a HyPerLayer in the parent HyPerCol,
     * and then calls the layer's insertProbe method.
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    
    /**
     * Implements the needRecalc method.  Returns true if the target layer's getLastUpdateTime method

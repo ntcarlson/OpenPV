@@ -97,7 +97,7 @@ protected:
     */
    int initializeQuotientColProbe(const char * probename, HyPerCol * hc);
    
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    
    virtual bool needRecalc(double timevalue) { return true; }
    

@@ -1117,7 +1117,7 @@ int HyPerConn::setPostPatchSize() {
    return PV_SUCCESS;
 }
 
-int HyPerConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int HyPerConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    // HyPerConns need to tell the parent HyPerCol how many random number
    // seeds they need.  At the start of HyPerCol::run, the parent HyPerCol
    // calls each layer's and each connection's communicateInitInfo() sequentially in
@@ -1352,18 +1352,18 @@ void HyPerConn::addObserver(Observer * observer, BaseMessage const& message) {
    }
 }
 
-int HyPerConn::respond(std::shared_ptr<BaseMessage> message) {
+int HyPerConn::respond(std::shared_ptr<BaseMessage const> message) {
    int status = BaseConnection::respond(message);
    if (status != PV_SUCCESS) {
       return status;
    }
-   else if (ConnectionNormalizeMessage const * castMessage = dynamic_cast<ConnectionNormalizeMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<ConnectionNormalizeMessage const>(message)) {
       return respondConnectionNormalize(castMessage);
    }
    return status;
 }
 
-int HyPerConn::respondConnectionNormalize(ConnectionNormalizeMessage const * message) {
+int HyPerConn::respondConnectionNormalize(std::shared_ptr<ConnectionNormalizeMessage const> message) {
    int status = normalizer ? normalizer->normalizeWeightsWrapper() : PV_SUCCESS;
    return status;
 }

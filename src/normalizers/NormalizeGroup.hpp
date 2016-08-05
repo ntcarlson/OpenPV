@@ -49,7 +49,7 @@ protected:
     */
    virtual void ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
 
    /**
     * Overrides normalizeWeights to do nothing.

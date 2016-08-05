@@ -46,7 +46,7 @@ public:
    inline HyPerCol * getParent() const { return parent; }
    inline char const * getDescription_c() const { return description.c_str(); }
    char const * getKeyword() const;
-   virtual int respond(std::shared_ptr<BaseMessage> message) override; // TODO: should return enum with values corresponding to PV_SUCCESS, PV_FAILURE, PV_POSTPONE
+   virtual int respond(std::shared_ptr<BaseMessage const> message) override; // TODO: should return enum with values corresponding to PV_SUCCESS, PV_FAILURE, PV_POSTPONE
    virtual ~BaseObject();
 
    /**
@@ -76,14 +76,14 @@ protected:
    int setParent(HyPerCol * hc);
    virtual int setDescription();
 
-   int respondReadParams(ReadParamsMessage const * message);
-   int respondCommunicateInitInfo(CommunicateInitInfoMessage const * message);
-   int respondWriteParams(WriteParamsMessage const * message);
-   int respondAllocateData(AllocateDataMessage const * message);
-   int respondInitializeState(InitializeStateMessage const * message);
+   int respondReadParams(std::shared_ptr<ReadParamsMessage const> message);
+   int respondCommunicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message);
+   int respondWriteParams(std::shared_ptr<WriteParamsMessage const> message);
+   int respondAllocateData(std::shared_ptr<AllocateDataMessage const> message);
+   int respondInitializeState(std::shared_ptr<InitializeStateMessage const> message);
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) { return PV_SUCCESS; }
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) { return PV_SUCCESS; }
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
    virtual int initializeState() { return PV_SUCCESS; }
 

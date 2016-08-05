@@ -18,7 +18,7 @@ class Observer {
 public:
    Observer() {}
    virtual ~Observer() {}
-   virtual int respond(std::shared_ptr<BaseMessage> message) { return PV_SUCCESS; }
+   virtual int respond(std::shared_ptr<BaseMessage const> message) { return PV_SUCCESS; }
    inline std::string const& getDescription() const { return description; }
 
 // Data members

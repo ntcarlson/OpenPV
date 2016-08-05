@@ -68,7 +68,7 @@ protected:
 public:
    InitV(char const * name, HyPerCol * hc);
    virtual ~InitV();
-   virtual int respond(std::shared_ptr<BaseMessage> message) override;
+   virtual int respond(std::shared_ptr<BaseMessage const> message) override;
    virtual int calcV(pvdata_t * V, PVLayerLoc const * loc);
 
 protected:

@@ -103,7 +103,7 @@ protected:
    virtual void ioParam_endFrame(enum ParamsIOFlag ioFlag);
    virtual void ioParam_patternsOutputPath(enum ParamsIOFlag ioFlag);
    virtual void ioParam_displayPeriod(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
 
    int stringMatch(const char ** allowed_values, const char * stopstring, const char * string_to_match);
    int drawPattern(float val);

@@ -294,7 +294,7 @@ public:
    virtual double getTimeScale(int batchIdx)      {return -1.0;};
    virtual bool activityIsSpiking() { return false; }
    PVDataType getDataType()          {return dataType;}
-   virtual int respond(std::shared_ptr<BaseMessage> message) override;
+   virtual int respond(std::shared_ptr<BaseMessage const> message) override;
    virtual void addObserver(Observer * observer, BaseMessage const& message) override;
 protected:
 
@@ -356,15 +356,15 @@ public:
     * A function to update the time that the next trigger is expected to occur.
     */
    virtual int updateNextTriggerTime();
-   virtual int respondLayerRecvSynapticInput(LayerRecvSynapticInputMessage const * message);
-   virtual int respondLayerUpdateState(LayerUpdateStateMessage const * message);
+   virtual int respondLayerRecvSynapticInput(std::shared_ptr<LayerRecvSynapticInputMessage const> message);
+   virtual int respondLayerUpdateState(std::shared_ptr<LayerUpdateStateMessage const> message);
 #ifdef PV_USE_CUDA
-   virtual int respondLayerCopyFromGpu(LayerCopyFromGpuMessage const * message);
+   virtual int respondLayerCopyFromGpu(std::shared_ptr<LayerCopyFromGpuMessage const> message);
 #endif // PV_USE_CUDA
-   virtual int respondLayerPublish(LayerPublishMessage const * message);
-   virtual int respondLayerCheckNotANumber(LayerCheckNotANumberMessage const * message);
-   virtual int respondLayerUpdateActiveIndices(LayerUpdateActiveIndicesMessage const * message);
-   virtual int respondLayerOutputState(LayerOutputStateMessage const * message);
+   virtual int respondLayerPublish(std::shared_ptr<LayerPublishMessage const> message);
+   virtual int respondLayerCheckNotANumber(std::shared_ptr<LayerCheckNotANumberMessage const> message);
+   virtual int respondLayerUpdateActiveIndices(std::shared_ptr<LayerUpdateActiveIndicesMessage const> message);
+   virtual int respondLayerOutputState(std::shared_ptr<LayerOutputStateMessage const> message);
    virtual int publish(Communicator * comm, double time);
    virtual int resetGSynBuffers(double timef, double dt);
    // ************************************************************************************//
@@ -464,7 +464,7 @@ public:
    Publisher * getPublisher() { return publisher; }
 
 protected:
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int allocateDataStructures() override;
    virtual int initializeState() final; // Not overridable since all layers should respond to initializeFromCheckpointFlag and (deprecated) restartFlag in the same way.
                           // initializeState calls the virtual methods readStateFromCheckpoint(), and setInitialValues().

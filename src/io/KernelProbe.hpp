@@ -29,7 +29,7 @@ protected:
    virtual void ioParam_outputWeights(enum ParamsIOFlag ioFlag);
    virtual void ioParam_outputPlasticIncr(enum ParamsIOFlag ioFlag);
    virtual void ioParam_outputPatchIndices(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    int patchIndices(HyPerConn * conn);
    
    virtual int initNumValues();

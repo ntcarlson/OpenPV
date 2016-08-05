@@ -53,7 +53,7 @@ int ColProbe::initOutputStream(const char * filename) {
    return status;
 }
 
-int ColProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int ColProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = BaseProbe::communicateInitInfo(message);
    if (status==PV_SUCCESS) {
       this->getParent()->insertProbe(this);

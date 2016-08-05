@@ -54,7 +54,7 @@ void AbstractNormProbe::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
    parent->ioParamString(ioFlag, name, "maskLayerName", &maskLayerName, NULL, false/*warnIfAbsent*/);
 }
 
-int AbstractNormProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int AbstractNormProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = LayerProbe::communicateInitInfo(message);
    assert(targetLayer);
    if (maskLayerName && maskLayerName[0]) {

@@ -55,7 +55,7 @@ protected:
     * In particular, NormalizeGroup calls its group head's addConnToList
     * method from NormalizeGroup::communicateInitInfo method.
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
 
    virtual int normalizeWeights();
    int accumulateSum(pvwdata_t * dataPatchStart, int weights_in_patch, double * sum);

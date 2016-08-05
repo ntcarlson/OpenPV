@@ -29,7 +29,7 @@ protected:
    virtual void ioParam_readFreqFromFile(enum ParamsIOFlag ioFlag);
    virtual void ioParam_freqFilename(enum ParamsIOFlag ioFlag);
    virtual void ioParam_freqCollectTime(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
 
    void randomShuffle(const pvdata_t * sourceData, pvdata_t * activity);
    void rejectionShuffle(const pvdata_t * sourceData, pvdata_t * activity);

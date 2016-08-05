@@ -167,7 +167,7 @@ bool InitGauss2DWeightsParams::needAspectParams() {
    return (aspect != 1.0f && ((this->numOrientationsPre <= 1)||(this->numOrientationsPost <= 1)));
 }
 
-int InitGauss2DWeightsParams::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int InitGauss2DWeightsParams::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = InitWeightsParams::communicateInitInfo(message);
    // Handle params that use pre and post to determine if they
    // need to be read

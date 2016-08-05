@@ -46,7 +46,7 @@ void NormalizeGroup::ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "normalizeGroupName", &normalizeGroupName);
 }
 
-int NormalizeGroup::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int NormalizeGroup::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = NormalizeBase::communicateInitInfo(message);
    pvAssert(targetConn);
 

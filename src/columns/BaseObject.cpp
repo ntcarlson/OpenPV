@@ -78,24 +78,24 @@ int BaseObject::setDescription() {
    return PV_SUCCESS;
 }
 
-int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
+int BaseObject::respond(std::shared_ptr<BaseMessage const> message) {
    // TODO: convert PV_SUCCESS, PV_FAILURE, etc. to enum
    if (message==nullptr) {
       return PV_SUCCESS;
    }
-   else if (auto castMessage = dynamic_cast<ReadParamsMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<ReadParamsMessage const>(message)) {
       return respondReadParams(castMessage);
    }
-   else if (auto castMessage = dynamic_cast<CommunicateInitInfoMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<CommunicateInitInfoMessage const>(message)) {
       return respondCommunicateInitInfo(castMessage);
    }
-   else if (auto castMessage = dynamic_cast<WriteParamsMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<WriteParamsMessage const>(message)) {
       return respondWriteParams(castMessage);
    }
-   else if (auto castMessage = dynamic_cast<AllocateDataMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<AllocateDataMessage const>(message)) {
       return respondAllocateData(castMessage);
    }
-   else if (auto * castMessage = dynamic_cast<InitializeStateMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<InitializeStateMessage const>(message)) {
       return respondInitializeState(castMessage);
    }
    else {
@@ -103,11 +103,11 @@ int BaseObject::respond(std::shared_ptr<BaseMessage> message) {
    }
 }
 
-int BaseObject::respondReadParams(ReadParamsMessage const * message) {
+int BaseObject::respondReadParams(std::shared_ptr<ReadParamsMessage const> message) {
    return ioParamsFillGroup(PARAMS_IO_READ);
 }
 
-int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * message) {
+int BaseObject::respondCommunicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = PV_SUCCESS;
    if (getInitInfoCommunicatedFlag()) { return status; }
    status = communicateInitInfo(message);
@@ -115,7 +115,7 @@ int BaseObject::respondCommunicateInitInfo(CommunicateInitInfoMessage const * me
    return status;
 }
 
-int BaseObject::respondWriteParams(WriteParamsMessage const * message) {
+int BaseObject::respondWriteParams(std::shared_ptr<WriteParamsMessage const> message) {
    mPrintParamsStream = message->mPrintParamsStream;
    mPrintLuaParamsStream = message->mPrintLuaParamsStream;
    bool includeHeaderFooter = message->mIncludeHeaderFooter;
@@ -125,7 +125,7 @@ int BaseObject::respondWriteParams(WriteParamsMessage const * message) {
    return status;
 }
 
-int BaseObject::respondAllocateData(AllocateDataMessage const * message) {
+int BaseObject::respondAllocateData(std::shared_ptr<AllocateDataMessage const> message) {
    int status = PV_SUCCESS;
    if (getDataStructuresAllocatedFlag()) { return status; }
    status = allocateDataStructures();
@@ -133,7 +133,7 @@ int BaseObject::respondAllocateData(AllocateDataMessage const * message) {
    return status;
 }
 
-int BaseObject::respondInitializeState(InitializeStateMessage const * message) {
+int BaseObject::respondInitializeState(std::shared_ptr<InitializeStateMessage const> message) {
    int status = PV_SUCCESS;
    if (getInitialValuesSetFlag()) { return status; }
    status = initializeState();

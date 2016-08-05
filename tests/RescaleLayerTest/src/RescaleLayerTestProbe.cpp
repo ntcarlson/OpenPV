@@ -31,7 +31,7 @@ void RescaleLayerTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
    requireType(BufActivity);
 }
 
-int RescaleLayerTestProbe::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int RescaleLayerTestProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = StatsProbe::communicateInitInfo(message);
    pvErrorIf(!(getTargetLayer()), "Test failed.\n");
    RescaleLayer * targetRescaleLayer = dynamic_cast<RescaleLayer *>(getTargetLayer());

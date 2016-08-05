@@ -83,7 +83,7 @@ public:
 
    virtual void addObserver(Observer * observer, BaseMessage const& message) override;
 
-   virtual int respond(std::shared_ptr<BaseMessage> message);
+   virtual int respond(std::shared_ptr<BaseMessage const> message);
 
    virtual int checkpointRead(const char * cpDir, double* timef);
    virtual int checkpointWrite(const char * cpDir);
@@ -512,8 +512,8 @@ protected:
 
 protected:
    HyPerConn();
-   int respondConnectionNormalize(ConnectionNormalizeMessage const * message);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   int respondConnectionNormalize(std::shared_ptr<ConnectionNormalizeMessage const> message);
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int initNumWeightPatches();
    virtual int initNumDataPatches();
 

@@ -81,7 +81,7 @@ protected:
     virtual void ioParam_shrinkPatches(enum ParamsIOFlag ioFlag);
     virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
     virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
-    virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
     virtual int setPatchSize();
     virtual int setNeededRNGSeeds() {return 0;}
     virtual int setInitialValues();

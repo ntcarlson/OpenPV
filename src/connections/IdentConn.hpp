@@ -55,7 +55,7 @@ protected:
    void ioParam_weightUpdatePeriod(enum ParamsIOFlag ioFlag);
    void ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag);
 
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int setWeightInitializer();
 
    // IdentConn does not need to checkpoint

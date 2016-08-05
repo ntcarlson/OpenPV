@@ -388,21 +388,21 @@ int BaseConnection::insertProbe(BaseConnectionProbe * p)
 
    return ++numProbes;
 }
-int BaseConnection::respond(std::shared_ptr<BaseMessage> message) {
+int BaseConnection::respond(std::shared_ptr<BaseMessage const> message) {
    int status = BaseObject::respond(message);
    if (status != PV_SUCCESS) {
       return status;
    }
-   else if (ConnectionUpdateMessage const * castMessage = dynamic_cast<ConnectionUpdateMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<ConnectionUpdateMessage const>(message)) {
       return respondConnectionUpdate(castMessage);
    }
-   else if (ConnectionFinalizeUpdateMessage const * castMessage = dynamic_cast<ConnectionFinalizeUpdateMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<ConnectionFinalizeUpdateMessage const>(message)) {
       return respondConnectionFinalizeUpdate(castMessage);
    }
-   else if (ConnectionOutputMessage const * castMessage = dynamic_cast<ConnectionOutputMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<ConnectionOutputMessage const>(message)) {
       return respondConnectionOutput(castMessage);
    }
-   else if (DeliverInputMessage const * castMessage = dynamic_cast<DeliverInputMessage const*>(message.get())) {
+   else if (auto castMessage = std::dynamic_pointer_cast<DeliverInputMessage const>(message)) {
       return respondDeliverInput(castMessage);
    }
    else {
@@ -412,7 +412,7 @@ int BaseConnection::respond(std::shared_ptr<BaseMessage> message) {
 
 //outputProbeParams removed Aug 3, 2016.  HyPerCol sends a WriteParamsMessage instead.
 
-int BaseConnection::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int BaseConnection::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = PV_SUCCESS;
 
    if (this->getPreLayerName()==NULL) {

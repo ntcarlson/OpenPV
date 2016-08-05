@@ -70,7 +70,7 @@ int privateTransposeConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 
-int privateTransposeConn::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int privateTransposeConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    //Should never be called
    pvError() << "Fatal: privateTransposeConn communicate called\n";
    return PV_FAILURE; // never returns since pvError exits

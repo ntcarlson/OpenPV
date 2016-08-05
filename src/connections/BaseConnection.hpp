@@ -31,7 +31,7 @@ public:
     */
    virtual ~BaseConnection();
 
-   virtual int respond(std::shared_ptr<BaseMessage> message) override;
+   virtual int respond(std::shared_ptr<BaseMessage const> message) override;
 
    /**
     * allocateDataStructures is used to allocate blocks of memory whose size and arrangement depend on parameters.
@@ -229,7 +229,7 @@ protected:
     * communicateInitInfo() is called by passing a CommunicateInitInfoMessage to respond(), which is
     * usually done in HyPerCol::run.
     */
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
 
    /**
     * Sets the pre- and post-synaptic layer names according to the parent HyPerCol's params.
@@ -417,13 +417,13 @@ protected:
     */
    virtual int setInitialValues() = 0;
 
-   int respondConnectionUpdate(ConnectionUpdateMessage const * message) { return updateState(message->mTime, message->mDeltaT);  }
+   int respondConnectionUpdate(std::shared_ptr<ConnectionUpdateMessage const> message) { return updateState(message->mTime, message->mDeltaT);  }
 
-   int respondConnectionFinalizeUpdate(ConnectionFinalizeUpdateMessage const * message) { return finalizeUpdate(message->mTime, message->mDeltaT);  }
+   int respondConnectionFinalizeUpdate(std::shared_ptr<ConnectionFinalizeUpdateMessage const> message) { return finalizeUpdate(message->mTime, message->mDeltaT);  }
 
-   int respondConnectionOutput(ConnectionOutputMessage const * message) { return outputState(message->mTime);  }
+   int respondConnectionOutput(std::shared_ptr<ConnectionOutputMessage const> message) { return outputState(message->mTime);  }
 
-   int respondDeliverInput(DeliverInputMessage const * message) { return deliver(); }
+   int respondDeliverInput(std::shared_ptr<DeliverInputMessage const> message) { return deliver(); }
 
    /**
     * A pure virtual method whose implementation returns true

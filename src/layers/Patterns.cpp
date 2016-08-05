@@ -479,7 +479,7 @@ void Patterns::ioParam_displayPeriod(enum ParamsIOFlag ioFlag) {
    ioParamValue(ioFlag, name, "displayPeriod", &displayPeriod, 0.0);
 }
 
-int Patterns::communicateInitInfo(CommunicateInitInfoMessage const * message) {
+int Patterns::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = BaseInput::communicateInitInfo(message);
 
    patternRandState = new Random(1);

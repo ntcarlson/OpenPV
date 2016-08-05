@@ -45,7 +45,7 @@ int InitV::setDescription() {
    return PV_SUCCESS;
 }
 
-int InitV::respond(std::shared_ptr<BaseMessage> message) {
+int InitV::respond(std::shared_ptr<BaseMessage const> message) {
    int status = BaseObject::respond(message);
    if (status != PV_SUCCESS) {
       return status;

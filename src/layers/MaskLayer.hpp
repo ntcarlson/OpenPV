@@ -23,7 +23,7 @@ protected:
    virtual void ioParam_maskMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_maskLayerName(enum ParamsIOFlag ioFlag);
    virtual void ioParam_featureIdxs(enum ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    char* maskMethod;
    char* maskLayerName;
    int* features;
