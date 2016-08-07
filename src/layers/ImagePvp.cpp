@@ -78,7 +78,7 @@ int ImagePvp::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage con
 
 int ImagePvp::getFrame(double timef, double dt) {
    int status = PV_SUCCESS;
-   for(int b = 0; b < parent->getNBatch(); b++) {
+   for(int b = 0; b < mBatchWidth; b++) {
       if (status == PV_SUCCESS) { status = retrieveData(timef, dt, b); }
       if (status == PV_SUCCESS) { status = scatterInput(b); }
    }

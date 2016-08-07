@@ -187,7 +187,7 @@ int BaseProbe::initOutputStream(const char * filename) {
 }
 
 int BaseProbe::initNumValues() {
-   return setNumValues(parent->getNBatch());
+   return setNumValues(mBatchWidth);
 }
 
 int BaseProbe::setNumValues(int n) {

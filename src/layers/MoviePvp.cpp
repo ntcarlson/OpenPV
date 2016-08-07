@@ -52,7 +52,7 @@ int MoviePvp::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int MoviePvp::readFrameNumStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
-   readArrayFromFile(cpDir, getName(), "FrameNumState", getCommunicator(), frameNumbers, parent->getNBatch());
+   readArrayFromFile(cpDir, getName(), "FrameNumState", getCommunicator(), frameNumbers, mBatchWidth);
    return status;
 }
 
@@ -78,7 +78,7 @@ int MoviePvp::checkpointWrite(const char * cpDir){
    int status = ImagePvp::checkpointWrite(cpDir);
 
    writeArrayToFile(cpDir, getName(), "FrameNumbers", getCommunicator(),
-         frameNumbers, parent->getNBatch(), parent->getVerifyWrites());
+         frameNumbers, mBatchWidth, parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file
    if (timestampFile) {
@@ -217,12 +217,12 @@ int MoviePvp::allocateDataStructures() {
    //Get file information
    Communicator* comm = getCommunicator();
 
-   startFrameIndex = (int*)calloc(parent->getNBatch(), sizeof(int));
+   startFrameIndex = (int*)calloc(mBatchWidth, sizeof(int));
    assert(startFrameIndex);
-   skipFrameIndex = (int*)calloc(parent->getNBatch(), sizeof(int));
+   skipFrameIndex = (int*)calloc(mBatchWidth, sizeof(int));
    assert(skipFrameIndex);
 
-   int nbatch = parent->getNBatch();
+   int nbatch = mBatchWidth;
    assert(batchMethod);
 
    if(strcmp(batchMethod, "byImage") == 0){
@@ -283,7 +283,7 @@ int MoviePvp::allocateDataStructures() {
       }
    }
    else if(strcmp(batchMethod, "bySpecified") == 0){
-      int nbatchGlobal = parent->getNBatchGlobal();
+      int nbatchGlobal = mBatchWidthGlobal;
       int commBatch = getCommunicator()->commBatch();
       int numBatchPerProc = getCommunicator()->numCommBatches();
 
@@ -323,7 +323,7 @@ int MoviePvp::allocateDataStructures() {
    }
 
    //Allocate and set frameNumbers
-   frameNumbers = (int*) malloc(parent->getNBatch() * sizeof(int));
+   frameNumbers = (int*) malloc(mBatchWidth * sizeof(int));
    for(int b = 0; b < nbatch; b++){
       frameNumbers[b] = startFrameIndex[b];
    }
@@ -422,7 +422,7 @@ bool MoviePvp::updateImage(double time, double dt)
              std::ostringstream outStrStream;
              outStrStream.precision(15);
              int kb0 = getLayerLoc()->kb0;
-             for(int b = 0; b < parent->getNBatch(); b++){
+             for(int b = 0; b < mBatchWidth; b++){
                 outStrStream << time << "," << b+kb0 << "," << frameNumbers[b] << "," << inputPath << "\n";
              }
              size_t len = outStrStream.str().length();
@@ -442,7 +442,7 @@ int MoviePvp::outputState(double timed, bool last)
 {
    if (writeImages) {
       char basicFilename[PV_PATH_MAX + 1];
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          snprintf(basicFilename, PV_PATH_MAX, "%s/%s_%d_%.2f.%s", movieOutputPath, name, b, timed, writeImagesExtension);
          writeImage(basicFilename, b);
       }

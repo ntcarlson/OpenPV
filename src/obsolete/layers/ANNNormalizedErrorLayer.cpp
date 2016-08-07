@@ -66,12 +66,12 @@ int ANNNormalizedErrorLayer::initialize(const char * name, HyPerCol * hc)
 }
 
 double ANNNormalizedErrorLayer::getTimeScale(int batchIdx){
-   assert(batchIdx >= 0 && batchIdx < parent->getNBatch());
+   assert(batchIdx >= 0 && batchIdx < mBatchWidth);
    return timeScale[batchIdx];
 }
 
 double ANNNormalizedErrorLayer::calcTimeScale(int batchIdx){
-   assert(batchIdx >= 0 && batchIdx < parent->getNBatch());
+   assert(batchIdx >= 0 && batchIdx < mBatchWidth);
    if (parent->getDtAdaptFlag()){
       timescale_timer->start();
       InterColComm * icComm = parent->icCommunicator();
@@ -180,10 +180,10 @@ int ANNNormalizedErrorLayer::updateState(double time, double dt){
 
 int ANNNormalizedErrorLayer::allocateDataStructures() {
    int status = ANNErrorLayer::allocateDataStructures();
-   timeScale = (double*) malloc(sizeof(double) * parent->getNBatch());
+   timeScale = (double*) malloc(sizeof(double) * mBatchWidth);
    assert(timeScale);
    //Initialize timeScales to 1
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       timeScale[b] = 1;
    }
    return status;

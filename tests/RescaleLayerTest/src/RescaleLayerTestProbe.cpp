@@ -62,7 +62,7 @@ int RescaleLayerTestProbe::outputState(double timed)
    }
    else if (!strcmp(targetRescaleLayer->getRescaleMethod(), "maxmin")) {
       if (!isRoot) { return PV_SUCCESS; }
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          float targetMax = targetRescaleLayer->getTargetMax();
          if (fabs(fMax[b]-targetMax)>tolerance) {
             pvErrorNoExit().printf("RescaleLayerTestProbe \"%s\": RescaleLayer \"%s\" has max %f instead of target max %f\n", getName(), targetRescaleLayer->getName(), fMax[b], targetMax);
@@ -100,7 +100,7 @@ int RescaleLayerTestProbe::outputState(double timed)
    //l2 norm with a patch size of 1 (default) should be the same as rescaling with meanstd with target mean 0 and std of 1/sqrt(patchsize)
    else if (!strcmp(targetRescaleLayer->getRescaleMethod(), "meanstd") || !strcmp(targetRescaleLayer->getRescaleMethod(), "l2")) {
       if (!isRoot) { return PV_SUCCESS; }
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          float targetMean, targetStd;
          if(!strcmp(targetRescaleLayer->getRescaleMethod(), "meanstd")){
             targetMean = targetRescaleLayer->getTargetMean();
@@ -151,7 +151,7 @@ int RescaleLayerTestProbe::outputState(double timed)
       float targetMean = targetRescaleLayer->getTargetMean();
       float targetStd = targetRescaleLayer->getTargetStd();
       int numNeurons = targetRescaleLayer->getNumNeurons();
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          pvpotentialdata_t const * originalData = targetRescaleLayer->getV() + b*targetRescaleLayer->getNumNeurons();
          pvadata_t const * rescaledData = targetRescaleLayer->getLayerData() + b*targetRescaleLayer->getNumExtended();
          for (int k=0; k<numNeurons; k+=nf) {
@@ -198,7 +198,7 @@ int RescaleLayerTestProbe::outputState(double timed)
       PVHalo const * origHalo = &origLoc->halo;
       pvErrorIf(!(origLoc->nf == nf), "Test failed.\n");
 
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          pvadata_t const * rescaledData = targetRescaleLayer->getLayerData() + b * targetRescaleLayer->getNumExtended();
          pvadata_t const * originalData = originalLayer->getLayerData() + b * originalLayer->getNumExtended();
          for (int k=0; k<numNeurons; k++) {

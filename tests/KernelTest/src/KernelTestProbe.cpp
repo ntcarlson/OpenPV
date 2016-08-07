@@ -38,7 +38,7 @@ int KernelTestProbe::outputState(double timed)
    if( icComm->commRank() != rcvProc ) {
       return 0;
    }
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if(timed>2.0f){
          pvErrorIf(!((fMin[b]>0.99)&&(fMin[b]<1.010)), "Test failed.\n");
          pvErrorIf(!((fMax[b]>0.99)&&(fMax[b]<1.010)), "Test failed.\n");

@@ -1316,7 +1316,7 @@ int HyPerConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
 #endif
 
    //No batches with non-shared weights
-   if(parent->getNBatch() > 1 && !sharedWeights){
+   if(mBatchWidth > 1 && !sharedWeights){
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s error: Non-shared weights with batches not implemented yet.\n",
                getDescription_c());
@@ -1539,9 +1539,9 @@ int HyPerConn::allocateDataStructures() {
    }
 
    //Allocate batchSkip buffer
-   batchSkip = (bool*) pvMallocError(parent->getNBatch() * sizeof(bool), "%s: rank %d unable to allocate %zu memory for batchSkip", getDescription_c(), getCommunicator()->commRank(), sizeof(bool) * parent->getNBatch());
+   batchSkip = (bool*) pvMallocError(mBatchWidth * sizeof(bool), "%s: rank %d unable to allocate %zu memory for batchSkip", getDescription_c(), getCommunicator()->commRank(), sizeof(bool) * mBatchWidth);
 
-   for(int i = 0; i < parent->getNBatch(); i++){
+   for(int i = 0; i < mBatchWidth; i++){
       batchSkip[i] = false;
    }
 
@@ -2322,7 +2322,7 @@ int HyPerConn::updateState(double time, double dt){
       //Doing both in case of multiple gpus running
 
       //TODO: commented out to compile, but we'll want to average across only batches where timeScale >= timeScaleMin.
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          double preTimeScale = pre->getTimeScale(b); 
          double postTimeScale = post->getTimeScale(b);
          double colTimeScale = parent->getTimeScale(b);
@@ -2576,7 +2576,7 @@ int HyPerConn::update_dW(int arbor_ID) {
    //Updates on all PlasticClones
    for(int clonei = 0; clonei < clones.size(); clonei++){
       pvAssert(clones[clonei]->preSynapticLayer()->getNumExtended() == nExt);
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          for(int kExt=0; kExt<nExt;kExt++) {
             clones[clonei]->updateInd_dW(arbor_ID, b, kExt);
          }
@@ -2856,7 +2856,7 @@ int HyPerConn::deliverPresynapticPerspectiveConvolve(PVLayerCube const * activit
    pvAssert(arbor >= 0);
    const int numExtended = activity->numItems;
 
-   int nbatch = parent->getNBatch();
+   int nbatch = mBatchWidth;
    const int sy  = getPostNonextStrides()->sy;       // stride in layer
    const int syw = yPatchStride();                   // stride in patch
 
@@ -2968,7 +2968,7 @@ int HyPerConn::deliverPresynapticPerspectiveStochastic(PVLayerCube const * activ
    pvAssert(arbor >= 0);
    const int numExtended = activity->numItems;
 
-   int nbatch = parent->getNBatch();
+   int nbatch = mBatchWidth;
    const int sy  = getPostNonextStrides()->sy;       // stride in layer
    const int syw = yPatchStride();                   // stride in patch
 
@@ -3362,9 +3362,9 @@ int HyPerConn::deliverPresynapticPerspectiveGPU(PVLayerCube const * activity, in
 
    //X direction is active neuron
    //Y direction is post patch size
-   long totActiveNeuron[parent->getNBatch()];
+   long totActiveNeuron[mBatchWidth];
    long maxTotalActiveNeuron = 0;
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if(activity->isSparse){
          totActiveNeuron[b] = activity->numActive[b];
       }

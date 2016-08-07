@@ -199,7 +199,7 @@ int PtwiseLinearTransferLayer::resetGSynBuffers(double timef, double dt) {
    if (GSyn == NULL) return PV_SUCCESS;
    bool clearNow = clearGSynInterval <= 0 || timef >= nextGSynClearTime;
    if (clearNow) {
-      resetGSynBuffers_HyPerLayer(parent->getNBatch(), this->getNumNeurons(), getNumChannels(), GSyn[0]);
+      resetGSynBuffers_HyPerLayer(mBatchWidth, this->getNumNeurons(), getNumChannels(), GSyn[0]);
    }
    if (clearNow > 0) {
       nextGSynClearTime += clearGSynInterval;   

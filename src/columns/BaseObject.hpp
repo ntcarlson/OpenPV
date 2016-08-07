@@ -129,6 +129,8 @@ protected:
    PV_Stream* mPrintLuaParamsStream = nullptr; // file pointer associated with the output lua file
 
    ObserverTable mParameterDependencies;
+   int mBatchWidth = 1;
+   int mBatchWidthGlobal = 1;
 
 private:
    int initialize_base();

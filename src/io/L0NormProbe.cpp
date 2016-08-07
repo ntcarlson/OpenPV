@@ -38,7 +38,7 @@ void L0NormProbe::ioParam_nnzThreshold(enum ParamsIOFlag ioFlag) {
 }
 
 double L0NormProbe::getValueInternal(double timevalue, int index) {
-   if (index < 0 || index >= getParent()->getNBatch()) { return PV_FAILURE; }
+   if (index < 0 || index >= mBatchWidth) { return PV_FAILURE; }
    PVLayerLoc const * loc = getTargetLayer()->getLayerLoc();
    int const nx = loc->nx;
    int const ny = loc->ny;

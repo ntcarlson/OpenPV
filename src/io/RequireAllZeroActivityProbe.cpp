@@ -54,7 +54,7 @@ void RequireAllZeroActivityProbe::ioParam_immediateExitOnFailure(enum ParamsIOFl
 
 int RequireAllZeroActivityProbe::outputState(double timed) {
    int status = StatsProbe::outputState(timed);
-   for(int b = 0; b < getParent()->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if (nnz[b]!=0) {
          if (!nonzeroFound) {
             nonzeroTime = timed;

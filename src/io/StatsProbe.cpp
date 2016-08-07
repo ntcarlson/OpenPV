@@ -82,22 +82,20 @@ int StatsProbe::initStatsProbe(const char * probeName, HyPerCol * hc) {
    assert(charsneeded<=timermessagelen);
    comptimer = new Timer(timermessage);
 
-   int nbatch = hc->getNBatch();
-
-   fMin = (float*) malloc(sizeof(float) * nbatch);
-   fMax = (float*) malloc(sizeof(float) * nbatch);
-   sum  = (double*) malloc(sizeof(double) * nbatch);
-   sum2 = (double*) malloc(sizeof(double) * nbatch);
-   avg  = (float*) malloc(sizeof(float) * nbatch);
-   sigma = (float*) malloc(sizeof(float) * nbatch);
-   nnz  = (int*) malloc(sizeof(int) * nbatch);
+   fMin = (float*) malloc(sizeof(float) * mBatchWidth);
+   fMax = (float*) malloc(sizeof(float) * mBatchWidth);
+   sum  = (double*) malloc(sizeof(double) * mBatchWidth);
+   sum2 = (double*) malloc(sizeof(double) * mBatchWidth);
+   avg  = (float*) malloc(sizeof(float) * mBatchWidth);
+   sigma = (float*) malloc(sizeof(float) * mBatchWidth);
+   nnz  = (int*) malloc(sizeof(int) * mBatchWidth);
    resetStats();
 
    return status;
 }
 
 void StatsProbe::resetStats(){
-   for(int b = 0; b < getParent()->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       fMin[b] = FLT_MAX;
       fMax[b] = -FLT_MAX;
       sum[b] = 0.0f;
@@ -211,12 +209,12 @@ int StatsProbe::outputState(double timed)
 
    nk = getTargetLayer()->getNumNeurons();
 
-   int nbatch = getTargetLayer()->getParent()->getNBatch();
+   int nbatch = mBatchWidth;
 
    switch (type) {
    case BufV:
       comptimer->start();
-      for(int b = 0; b < nbatch; b++){
+      for(int b = 0; b < mBatchWidth; b++){
          buf = getTargetLayer()->getV() + b * getTargetLayer()->getNumNeurons();
          if( buf == NULL ) {
 #ifdef PV_USE_MPI
@@ -240,7 +238,7 @@ int StatsProbe::outputState(double timed)
       break;
    case BufActivity:
       comptimer->start();
-      for(int b = 0; b < nbatch; b++){
+      for(int b = 0; b < mBatchWidth; b++){
          buf = getTargetLayer()->getLayerData() + b * getTargetLayer()->getNumExtended();
          assert(buf != NULL);
          for( int k=0; k<nk; k++ ) {
@@ -269,19 +267,19 @@ int StatsProbe::outputState(double timed)
 
    //In place reduction to prevent allocating a temp recv buffer
    if(rank == rcvProc){
-      ierr = MPI_Reduce(MPI_IN_PLACE, sum,  nbatch, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
-      ierr = MPI_Reduce(MPI_IN_PLACE, sum2, nbatch, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
-      ierr = MPI_Reduce(MPI_IN_PLACE, nnz,  nbatch, MPI_INT, MPI_SUM, rcvProc, comm);
-      ierr = MPI_Reduce(MPI_IN_PLACE, fMin,  nbatch, MPI_FLOAT, MPI_MIN, rcvProc, comm);
-      ierr = MPI_Reduce(MPI_IN_PLACE, fMax,  nbatch, MPI_FLOAT, MPI_MAX, rcvProc, comm);
+      ierr = MPI_Reduce(MPI_IN_PLACE, sum,  mBatchWidth, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
+      ierr = MPI_Reduce(MPI_IN_PLACE, sum2, mBatchWidth, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
+      ierr = MPI_Reduce(MPI_IN_PLACE, nnz,  mBatchWidth, MPI_INT, MPI_SUM, rcvProc, comm);
+      ierr = MPI_Reduce(MPI_IN_PLACE, fMin,  mBatchWidth, MPI_FLOAT, MPI_MIN, rcvProc, comm);
+      ierr = MPI_Reduce(MPI_IN_PLACE, fMax,  mBatchWidth, MPI_FLOAT, MPI_MAX, rcvProc, comm);
       ierr = MPI_Reduce(MPI_IN_PLACE, &nk,   1, MPI_INT, MPI_SUM, rcvProc, comm);
    }
    else{
-      ierr = MPI_Reduce(sum, sum, nbatch, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
-      ierr = MPI_Reduce(sum2, sum2, nbatch, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
-      ierr = MPI_Reduce(nnz, nnz, nbatch, MPI_INT, MPI_SUM, rcvProc, comm);
-      ierr = MPI_Reduce(fMin, fMin, nbatch, MPI_FLOAT, MPI_MIN, rcvProc, comm);
-      ierr = MPI_Reduce(fMax, fMax, nbatch, MPI_FLOAT, MPI_MAX, rcvProc, comm);
+      ierr = MPI_Reduce(sum, sum, mBatchWidth, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
+      ierr = MPI_Reduce(sum2, sum2, mBatchWidth, MPI_DOUBLE, MPI_SUM, rcvProc, comm);
+      ierr = MPI_Reduce(nnz, nnz, mBatchWidth, MPI_INT, MPI_SUM, rcvProc, comm);
+      ierr = MPI_Reduce(fMin, fMin, mBatchWidth, MPI_FLOAT, MPI_MIN, rcvProc, comm);
+      ierr = MPI_Reduce(fMax, fMax, mBatchWidth, MPI_FLOAT, MPI_MAX, rcvProc, comm);
       ierr = MPI_Reduce(&nk, &nk, 1, MPI_INT, MPI_SUM, rcvProc, comm);
       return 0;
    }
@@ -291,7 +289,7 @@ int StatsProbe::outputState(double timed)
    double divisor = nk;
 
    iotimer->start();
-   for(int b = 0; b < nbatch; b++){
+   for(int b = 0; b < mBatchWidth; b++){
       avg[b] = sum[b]/divisor;
       sigma[b] = sqrt(sum2[b]/divisor - avg[b]*avg[b]);
       double avgval = 0.0;

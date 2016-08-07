@@ -162,7 +162,7 @@ int LabelLayer::initializeActivity() {
 
 int LabelLayer::updateLabels(){
    int status = PV_SUCCESS;
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       filename = movie->getFilename(b);
       char tmp[lenLabel];
       for (int i=0; i<lenLabel; i++){

@@ -26,7 +26,7 @@ int TestAllZerosProbe::outputState(double timed) {
    if( icComm->commRank() != rcvProc ) {
       return 0;
    }
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if (nnz[b] != 0) {
          pvError().printf("!!Time %f batch %d: %s is not all zeroes.\n", timed, b, getTargetLayer()->getDescription_c());
       }

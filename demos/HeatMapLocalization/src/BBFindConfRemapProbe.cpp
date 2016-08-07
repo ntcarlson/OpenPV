@@ -343,7 +343,7 @@ int BBFindConfRemapProbe::outputState(double timevalue) {
    int status = getValues(timevalue); // all processes must call getValues in parallel.
    if (getTextOutputFlag() && getOutputStream()) {
       assert(getCommunicator()->commRank()==0);
-      int const nbatch = parent->getNBatch();
+      int const nbatch = mBatchWidth;
       for (int b=0; b<nbatch; b++) {
          if (nbatch>1) {
             getOutputStream()->printf("  Batch element %d\n", b);

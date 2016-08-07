@@ -22,7 +22,7 @@ int SumPoolTestLayer::updateState(double timef, double dt){
 
    bool isCorrect = true;
    //Grab the activity layer of current layer
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       const pvdata_t * A = getActivity() + b * getNumExtended();
       //We only care about restricted space, but iY and iX are extended
       for(int iY = loc->halo.up; iY < ny + loc->halo.up; iY++){

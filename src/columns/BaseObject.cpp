@@ -35,6 +35,11 @@ int BaseObject::initialize(const char * name, HyPerCol * hc) {
    if (status==PV_SUCCESS) { status = setParent(hc); }
    if (status==PV_SUCCESS) { status = setDescription(); }
    if (status==PV_SUCCESS) { status = ioParamsFillGroup(PARAMS_IO_READ); }
+   if (status==PV_SUCCESS) {
+      mBatchWidth = hc->getNBatch();
+      mBatchWidthGlobal = hc->getNBatchGlobal();
+
+   }
    return status;
 }
 

@@ -59,7 +59,7 @@ int ArborTestProbe::outputState(double timed)
    if( icComm->commRank() != rcvProc ) {
       return 0;
    }
-   for(int b = 0; b < getParent()->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if(timed==1.0f){
          pvErrorIf(!((avg[b]>0.2499)&&(avg[b]<0.2501)), "Test failed.\n");
       }

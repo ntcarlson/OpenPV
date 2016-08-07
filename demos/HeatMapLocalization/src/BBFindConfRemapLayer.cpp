@@ -192,7 +192,7 @@ void BBFindConfRemapLayer::setBoundingBoxFinderParams(BBFind& bbf) {
 }
 
 int BBFindConfRemapLayer::allocateDataStructures() {
-   int const nbatch = parent->getNBatch();
+   int const nbatch = mBatchWidth;
    boundingboxFinder.resize(nbatch);
    for (int b=0; b<nbatch; b++) {
       BBFind& bbf1 = boundingboxFinder[b];
@@ -228,7 +228,7 @@ int BBFindConfRemapLayer::updateState(double t, double dt) {
    int const ny = loc->ny;
    int const nf = loc->nf;
    int const rootProcess = 0;
-   for (int b=0; b<parent->getNBatch(); b++) {
+   for (int b=0; b<mBatchWidth; b++) {
       memset(confidenceLocal, 0, sizeof(*confidenceLocal)*getNumNeurons());
       if (getCommunicator()->commRank()==rootProcess) {
          int const nxGlobal = loc->nxGlobal;

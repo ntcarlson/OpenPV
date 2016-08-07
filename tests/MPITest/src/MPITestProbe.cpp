@@ -66,7 +66,7 @@ int MPITestProbe::outputState(double timed) {
    outputStream->printf("%s min_global_xpos==%f ave_global_xpos==%f max_global_xpos==%f",
          getMessage(), min_global_xpos, ave_global_xpos, max_global_xpos);
    output() << std::endl;
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if (timed > 3.0f) {
          pvErrorIf(!((fMin[b]/min_global_xpos > (1 - tol)) && (fMin[b]/min_global_xpos < (1 + tol))), "Test failed.\n");
          pvErrorIf(!((fMax[b]/max_global_xpos > (1 - tol)) && (fMax[b]/max_global_xpos < (1 + tol))), "Test failed.\n");

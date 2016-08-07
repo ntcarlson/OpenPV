@@ -407,7 +407,7 @@ int BaseInput::allocateDataStructures() {
 //This function is only being called here from allocate. Subclasses will call this function when a new frame is nessessary
 int BaseInput::getFrame(double timef, double dt) {
    int status = PV_SUCCESS;
-   for(int b = 0; b < parent->getNBatch(); b++) {
+   for(int b = 0; b < mBatchWidth; b++) {
       if (getCommunicator()->commRank()==0) {
          if (status == PV_SUCCESS) { status = retrieveData(timef, dt, b); }
       }
@@ -782,7 +782,7 @@ int BaseInput::postProcess(double timef, double dt){
    //     if normalizeStdDev is true, then scale so that average luminance to be 0 and std. dev. of luminance to be 1.
    //     if normalizeStdDev is false, then scale so that minimum is 0 and maximum is 1
    // if normalizeLuminanceFlag == true and the image in buffer is completely flat, force all values to zero
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       float* buf = data + b * numExtended;
       if(normalizeLuminanceFlag){
          if (normalizeStdDev){

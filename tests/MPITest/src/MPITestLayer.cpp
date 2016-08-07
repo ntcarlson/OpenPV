@@ -17,7 +17,7 @@ MPITestLayer::MPITestLayer(const char * name, HyPerCol * hc) : ANNLayer() {
 
 // set V to global x/y/f position
 int MPITestLayer::setVtoGlobalPos(){
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       for (int kLocal = 0; kLocal < clayer->numNeurons; kLocal++){
          int kGlobal = globalIndexFromLocal(kLocal, clayer->loc);
          int kxGlobal = kxPos(kGlobal, clayer->loc.nxGlobal, clayer->loc.nyGlobal, clayer->loc.nf);
@@ -34,7 +34,7 @@ int MPITestLayer::setVtoGlobalPos(){
 
 // set activity to global x/y/f position, using position in border/margin as required
 int MPITestLayer::setActivitytoGlobalPos(){
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       for (int kLocalExt = 0; kLocalExt < clayer->numExtended; kLocalExt++){
          int kxLocalExt = kxPos(kLocalExt, clayer->loc.nx + clayer->loc.halo.lt + clayer->loc.halo.rt, clayer->loc.ny + clayer->loc.halo.dn + clayer->loc.halo.up, clayer->loc.nf) - clayer->loc.halo.lt;
          int kxGlobalExt = kxLocalExt + clayer->loc.kx0;

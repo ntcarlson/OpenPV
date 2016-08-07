@@ -35,7 +35,7 @@ int CloneKernelConnTestProbe::outputState(double timed)
       return 0;
    }
 
-   for(int b = 0; b < getParent()->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       if(timed>2.0f){
          pvErrorIf(!(fabs(fMin[b]) < 1e-6), "Test failed.\n");
          pvErrorIf(!(fabs(fMax[b]) < 1e-6), "Test failed.\n");

@@ -39,7 +39,7 @@ Movie::~Movie()
       free(movieOutputPath);
    }
    if(framePath){
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          if(framePath[b]){
             free(framePath[b]);
          }
@@ -103,10 +103,10 @@ int Movie::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
 
 int Movie::readFrameNumStateFromCheckpoint(const char * cpDir) {
    int status = PV_SUCCESS;
-   int nbatch = parent->getNBatch();
+   int nbatch = mBatchWidth;
 
    readArrayFromFile(cpDir, getName(), "FilenamePos", getCommunicator(), batchPos, nbatch);
-   readArrayFromFile(cpDir, getName(), "FrameNumbers", getCommunicator(), frameNumbers, parent->getNBatch());
+   readArrayFromFile(cpDir, getName(), "FrameNumbers", getCommunicator(), frameNumbers, mBatchWidth);
 
    return status;
 }
@@ -133,9 +133,9 @@ int Movie::checkpointWrite(const char * cpDir){
    int status = Image::checkpointWrite(cpDir);
 
    writeArrayToFile(cpDir, getName(), "FilenamePos", getCommunicator(),
-         batchPos, parent->getNBatch(), parent->getVerifyWrites());
+         batchPos, mBatchWidth, parent->getVerifyWrites());
    writeArrayToFile(cpDir, getName(), "FrameNumbers", getCommunicator(),
-         frameNumbers, parent->getNBatch(), parent->getVerifyWrites());
+         frameNumbers, mBatchWidth, parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file
    if (timestampFile) {
@@ -275,37 +275,37 @@ int Movie::allocateDataStructures() {
    //Allocate framePaths here before image, since allocate call will call getFrame
 
    if(getCommunicator()->commRank()==0){
-      framePath = (char**) malloc(parent->getNBatch() * sizeof(char*));
+      framePath = (char**) malloc(mBatchWidth * sizeof(char*));
       assert(framePath);
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          framePath[b] = NULL;
       }
    }
    
-   batchPos = (long*) malloc(parent->getNBatch() * sizeof(long));
+   batchPos = (long*) malloc(mBatchWidth * sizeof(long));
    if(batchPos==NULL) {
       pvError().printf("%s: unable to allocate memory for batchPos (batch size %d): %s\n",
-            getDescription_c(), parent->getNBatch(), strerror(errno));
+            getDescription_c(), mBatchWidth, strerror(errno));
    }
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       batchPos[b] = 0L;
    }
-   frameNumbers = (int*) calloc(parent->getNBatch(), sizeof(int));
+   frameNumbers = (int*) calloc(mBatchWidth, sizeof(int));
    if (frameNumbers==NULL) {
       pvError().printf("%s: unable to allocate memory for frameNumbers (batch size %d): %s\n",
-            getDescription_c(), parent->getNBatch(), strerror(errno));
+            getDescription_c(), mBatchWidth, strerror(errno));
    }
 
    //Calculate file positions for beginning of each frame
    numFrames = getNumFrames();
    pvInfo() << "File " << inputPath << " contains " << numFrames << " frames\n";
 
-   startFrameIndex = (int*)calloc(parent->getNBatch(), sizeof(int));
+   startFrameIndex = (int*)calloc(mBatchWidth, sizeof(int));
    assert(startFrameIndex);
-   skipFrameIndex = (int*)calloc(parent->getNBatch(), sizeof(int));
+   skipFrameIndex = (int*)calloc(mBatchWidth, sizeof(int));
    assert(skipFrameIndex);
 
-   int nbatch = parent->getNBatch();
+   int nbatch = mBatchWidth;
    assert(batchMethod);
 
    if(strcmp(batchMethod, "byImage") == 0){
@@ -366,7 +366,7 @@ int Movie::allocateDataStructures() {
       }
    }
    else if(strcmp(batchMethod, "bySpecified") == 0){
-      int nbatchGlobal = parent->getNBatchGlobal();
+      int nbatchGlobal = mBatchWidthGlobal;
       int commBatch = getCommunicator()->commBatch();
       int numBatchPerProc = getCommunicator()->numCommBatches();
 
@@ -405,7 +405,7 @@ int Movie::allocateDataStructures() {
       assert(0);
    }
    if (getCommunicator()->commRank()==0) {
-      for (int b=0; b<parent->getNBatch(); b++) {
+      for (int b=0; b<mBatchWidth; b++) {
          frameNumbers[b] = -1;
       }
    }
@@ -525,7 +525,7 @@ bool Movie::updateImage(double time, double dt)
             std::ostringstream outStrStream;
             outStrStream.precision(15);
             int kb0 = getLayerLoc()->kb0;
-            for(int b = 0; b < parent->getNBatch(); b++){
+            for(int b = 0; b < mBatchWidth; b++){
                outStrStream << time << "," << b+kb0 << "," << frameNumbers[b] << "," << framePath[b] << "\n";
             }
 
@@ -547,7 +547,7 @@ int Movie::outputState(double timed, bool last)
 {
    if (writeImages) {
       char basicFilename[PV_PATH_MAX + 1];
-      for(int b = 0; b < parent->getNBatch(); b++){
+      for(int b = 0; b < mBatchWidth; b++){
          snprintf(basicFilename, PV_PATH_MAX, "%s/%s_%d_%.2f.%s", movieOutputPath, name, b, timed, writeImagesExtension);
          writeImage(basicFilename, b);
       }

@@ -192,7 +192,7 @@ int HyPerLayer::initClayer() {
    }
 
    PVLayerLoc * loc = &clayer->loc;
-   setLayerLoc(loc, nxScale, nyScale, numFeatures, parent->getNBatch());
+   setLayerLoc(loc, nxScale, nyScale, numFeatures, mBatchWidth);
    assert(loc->halo.lt==0 && loc->halo.rt==0 && loc->halo.dn==0 && loc->halo.up==0);
 
    clayer->numNeurons  = loc->nx * loc->ny * loc->nf;
@@ -1002,7 +1002,7 @@ int HyPerLayer::allocateDeviceBuffers()
    }
 
    if(allocDeviceActiveIndices){
-      d_numActive = new PVCuda::CudaBuffer(parent->getNBatch() * sizeof(long), device);
+      d_numActive = new PVCuda::CudaBuffer(mBatchWidth * sizeof(long), device);
       d_ActiveIndices= new PVCuda::CudaBuffer(size_ex, device);
       assert(d_ActiveIndices);
    }
@@ -1675,7 +1675,7 @@ int HyPerLayer::resetStateOnTrigger() {
       pvadata_t const * resetA = triggerResetLayer->getActivity();
       PVLayerLoc const * loc = triggerResetLayer->getLayerLoc();
       PVHalo const * halo = &loc->halo;
-      for (int b = 0; b < parent->getNBatch(); b++){
+      for (int b = 0; b < mBatchWidth; b++){
           pvadata_t const * resetABatch = resetA + (b*triggerResetLayer->getNumExtended());
           pvpotentialdata_t * VBatch = V + (b*triggerResetLayer->getNumNeurons());
           #ifdef PV_USE_OPENMP_THREADS
@@ -1711,7 +1711,7 @@ int HyPerLayer::resetStateOnTrigger() {
 int HyPerLayer::resetGSynBuffers(double timef, double dt) {
    int status = PV_SUCCESS;
    if (GSyn == NULL) return PV_SUCCESS;
-   resetGSynBuffers_HyPerLayer(parent->getNBatch(), this->getNumNeurons(), getNumChannels(), GSyn[0]); // resetGSynBuffers();
+   resetGSynBuffers_HyPerLayer(mBatchWidth, this->getNumNeurons(), getNumChannels(), GSyn[0]); // resetGSynBuffers();
    return status;
 }
 
@@ -2333,7 +2333,7 @@ int HyPerLayer::incrementNBands(int * numCalls) {
    int status;
    if( getCommunicator()->commRank() == 0 ) {
       assert(outputStateStream!=NULL);
-      (*numCalls) = (*numCalls) + parent->getNBatch();
+      (*numCalls) = (*numCalls) + mBatchWidth;
       long int fpos = getPV_StreamFilepos(outputStateStream);
       PV_fseek(outputStateStream, sizeof(int)*INDEX_NBANDS, SEEK_SET);
       int intswritten = PV_fwrite(numCalls, sizeof(int), 1, outputStateStream);

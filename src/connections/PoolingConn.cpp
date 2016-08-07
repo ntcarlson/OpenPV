@@ -264,7 +264,7 @@ int PoolingConn::finalizeUpdate(double time, double dt) {
 void PoolingConn::clearGateIdxBuffer(){
    if(needPostIndexLayer){
       //Reset postIndexLayer's gsyn
-      resetGSynBuffers_PoolingIndexLayer(parent->getNBatch(), postIndexLayer->getNumNeurons(), postIndexLayer->getNumChannels(), postIndexLayer->getChannel(CHANNEL_EXC)); // resetGSynBuffers();
+      resetGSynBuffers_PoolingIndexLayer(mBatchWidth, postIndexLayer->getNumNeurons(), postIndexLayer->getNumChannels(), postIndexLayer->getChannel(CHANNEL_EXC)); // resetGSynBuffers();
    }
 }
 
@@ -427,7 +427,7 @@ int PoolingConn::deliverPresynapticPerspective(PVLayerCube const * activity, int
 
    clearGateIdxBuffer();
 
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
       pvdata_t * activityBatch = activity->data + b * (preLoc->nx + preLoc->halo.rt + preLoc->halo.lt) * (preLoc->ny + preLoc->halo.up + preLoc->halo.dn) * preLoc->nf;
       pvdata_t * gSynPatchHeadBatch = post->getChannel(getChannel()) + b * postLoc->nx * postLoc->ny * postLoc->nf;
       int* gatePatchHeadBatch = NULL;
@@ -650,7 +650,7 @@ int PoolingConn::deliverPostsynapticPerspective(PVLayerCube const * activity, in
    }
 
 
-   for(int b = 0; b < parent->getNBatch(); b++){
+   for(int b = 0; b < mBatchWidth; b++){
 #ifdef PV_USE_OPENMP_THREADS
 #pragma omp parallel for
 #endif

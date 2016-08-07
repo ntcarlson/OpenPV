@@ -99,7 +99,7 @@ int LayerFunctionProbe::communicateInitInfo() {
 }
 
 int LayerFunctionProbe::outputState(double timef) {
-   for(int b = 0; b < getTargetLayer()->getParent()->getNBatch(); b++){
+   for(int b = 0; b < getTargetLayer()->mBatchWidth; b++){
       pvdata_t val = function->evaluate(timef, getTargetLayer(), b);
 #ifdef PV_USE_MPI
       if( getTargetLayer()->getParent()->icCommunicator()->commRank() != 0 ) return PV_SUCCESS;
