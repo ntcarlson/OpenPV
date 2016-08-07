@@ -219,7 +219,7 @@ void LIF::ioParam_noiseFreqIB(enum ParamsIOFlag ioFlag) {
 void LIF::ioParam_method(enum ParamsIOFlag ioFlag) {
    // Read the integration method: one of 'arma' (preferred), 'beginning' (deprecated), or 'original' (deprecated).
    const char * default_method = "arma";
-   parent->ioParamString(ioFlag, name, "method", &methodString, default_method, true/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "method", &methodString, default_method, true/*warnIfAbsent*/);
    if (ioFlag != PARAMS_IO_READ) return;
 
    assert(methodString);

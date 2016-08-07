@@ -159,7 +159,7 @@ void TransposeConn::ioParam_shrinkPatches(enum ParamsIOFlag ioFlag) {
 }
 
 void TransposeConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
+   ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
 void TransposeConn::setWeightInitializer() {

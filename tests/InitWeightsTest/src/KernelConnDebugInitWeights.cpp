@@ -59,7 +59,7 @@ void KernelConnDebugInitWeights::ioParam_sharedWeights(enum ParamsIOFlag ioFlag)
 }
 
 void KernelConnDebugInitWeights::ioParam_copiedConn(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "copiedConn", &otherConnName);
+   ioParamStringRequired(ioFlag, name, "copiedConn", &otherConnName);
 }
 
 int KernelConnDebugInitWeights::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {

@@ -43,7 +43,7 @@ void NormalizeGroup::ioParam_normalizeOnInitialize(enum ParamsIOFlag ioFlag) {}
 void NormalizeGroup::ioParam_normalizeOnWeightUpdate(enum ParamsIOFlag ioFlag) {}
 
 void NormalizeGroup::ioParam_normalizeGroupName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "normalizeGroupName", &normalizeGroupName);
+   ioParamStringRequired(ioFlag, name, "normalizeGroupName", &normalizeGroupName);
 }
 
 int NormalizeGroup::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {

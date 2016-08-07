@@ -123,7 +123,7 @@ void CopyConn::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
 }
 
 void CopyConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
+   ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
 void CopyConn::setWeightInitializer() {

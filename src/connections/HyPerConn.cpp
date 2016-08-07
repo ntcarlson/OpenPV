@@ -701,7 +701,7 @@ void HyPerConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
 void HyPerConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
    pvAssert(!getParams()->presentAndNotBeenRead(name, "plasticityFlag"));
    if (plasticityFlag) {
-      parent->ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
+      ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
       if (ioFlag==PARAMS_IO_READ) {
          triggerFlag = (triggerLayerName!=NULL && triggerLayerName[0]!='\0');
       }
@@ -783,7 +783,7 @@ void HyPerConn::ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag) {
 
 void HyPerConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
    PVParams * params = getParams();
-   parent->ioParamString(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString, "convolve");
+   ioParamString(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString, "convolve");
    if (ioFlag==PARAMS_IO_READ) {
       if (pvpatchAccumulateTypeString==NULL) {
          unsetAccumulateType();
@@ -1058,7 +1058,7 @@ void HyPerConn::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
    if(plasticityFlag){
       pvAssert(!getParams()->presentAndNotBeenRead(name, "useMask"));
       if(useMask){
-         parent->ioParamStringRequired(ioFlag, name, "maskLayerName", &maskLayerName);
+         ioParamStringRequired(ioFlag, name, "maskLayerName", &maskLayerName);
       }
    }
 }

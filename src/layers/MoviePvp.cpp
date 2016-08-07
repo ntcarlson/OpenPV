@@ -166,7 +166,7 @@ void MoviePvp::ioParam_displayPeriod(enum ParamsIOFlag ioFlag) {
 }
 
 void MoviePvp::ioParam_batchMethod(enum ParamsIOFlag ioFlag){
-   parent->ioParamString(ioFlag, name, "batchMethod", &batchMethod, "bySpecified");
+   ioParamString(ioFlag, name, "batchMethod", &batchMethod, "bySpecified");
    if(strcmp(batchMethod, "byImage") == 0 || strcmp(batchMethod, "byMovie") == 0 || strcmp(batchMethod, "bySpecified") == 0){
       //Correct
    }
@@ -186,7 +186,7 @@ void MoviePvp::ioParam_skip_frame_index(enum ParamsIOFlag ioFlag) {
 void MoviePvp::ioParam_movieOutputPath(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages){
-      parent->ioParamString(ioFlag, name, "movieOutputPath", &movieOutputPath, parent->getOutputPath());
+      ioParamString(ioFlag, name, "movieOutputPath", &movieOutputPath, parent->getOutputPath());
    }
 }
 

@@ -157,7 +157,7 @@ void StatsProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
          buffer = strdup("Activity");
       }
    }
-   getParent()->ioParamString(ioFlag, getName(), "buffer", &buffer, "Activity", true/*warnIfAbsent*/);
+   ioParamString(ioFlag, getName(), "buffer", &buffer, "Activity", true/*warnIfAbsent*/);
    if (ioFlag == PARAMS_IO_READ) {
       assert(buffer);
       size_t len = strlen(buffer);

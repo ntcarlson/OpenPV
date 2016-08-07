@@ -65,7 +65,7 @@ void PoolingConn::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
 void PoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
    PVParams * params = getParams();
 
-   parent->ioParamStringRequired(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString);
+   ioParamStringRequired(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString);
    if (ioFlag==PARAMS_IO_READ) {
       if (pvpatchAccumulateTypeString==NULL) {
          unsetAccumulateType();
@@ -120,7 +120,7 @@ void PoolingConn::ioParam_needPostIndexLayer(enum ParamsIOFlag ioFlag){
 
 void PoolingConn::ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag) {
    if(needPostIndexLayer){
-      parent->ioParamStringRequired(ioFlag, name, "postIndexLayerName", &postIndexLayerName);
+      ioParamStringRequired(ioFlag, name, "postIndexLayerName", &postIndexLayerName);
    }
 }
 

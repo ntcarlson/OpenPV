@@ -615,7 +615,7 @@ int HyPerLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLayer::ioParam_dataType(enum ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamString(ioFlag, this->getName(), "dataType", &dataTypeString, NULL, false/*warnIfAbsent*/);
+   this->ioParamString(ioFlag, this->getName(), "dataType", &dataTypeString, NULL, false/*warnIfAbsent*/);
    if(dataTypeString == NULL){
       //Default value
       dataType = PV_FLOAT;
@@ -697,7 +697,7 @@ void HyPerLayer::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLayer::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
    if (ioFlag==PARAMS_IO_READ) {
       if (triggerLayerName && !strcmp(name, triggerLayerName)) {
          if (getCommunicator()->commRank()==0) {
@@ -758,7 +758,7 @@ void HyPerLayer::ioParam_triggerOffset(enum ParamsIOFlag ioFlag) {
 void HyPerLayer::ioParam_triggerBehavior(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
    if (triggerFlag) {
-      parent->ioParamString(ioFlag, name, "triggerBehavior", &triggerBehavior, "updateOnlyOnTrigger", true/*warnIfAbsent*/);
+      ioParamString(ioFlag, name, "triggerBehavior", &triggerBehavior, "updateOnlyOnTrigger", true/*warnIfAbsent*/);
       if (triggerBehavior==NULL || !strcmp(triggerBehavior, "")) {
          free(triggerBehavior);
          triggerBehavior = strdup("updateOnlyOnTrigger");
@@ -790,7 +790,7 @@ void HyPerLayer::ioParam_triggerResetLayerName(enum ParamsIOFlag ioFlag) {
    if (triggerFlag) {
       assert(!getParams()->presentAndNotBeenRead(name, "triggerBehavior"));
       if (!strcmp(triggerBehavior, "resetStateOnTrigger")) {
-         parent->ioParamStringRequired(ioFlag, name, "triggerResetLayerName", &triggerResetLayerName);
+         ioParamStringRequired(ioFlag, name, "triggerResetLayerName", &triggerResetLayerName);
       }
    }
 }

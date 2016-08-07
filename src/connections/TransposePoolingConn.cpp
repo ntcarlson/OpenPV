@@ -151,7 +151,7 @@ void TransposePoolingConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
 void TransposePoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
    PVParams * params = getParams();
 
-   parent->ioParamStringRequired(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString);
+   ioParamStringRequired(ioFlag, name, "pvpatchAccumulateType", &pvpatchAccumulateTypeString);
    if (ioFlag==PARAMS_IO_READ) {
       if (pvpatchAccumulateTypeString==NULL) {
          unsetAccumulateType();
@@ -258,7 +258,7 @@ void TransposePoolingConn::ioParam_shrinkPatches(enum ParamsIOFlag ioFlag) {
 }
 
 void TransposePoolingConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
+   ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
 void TransposePoolingConn::setWeightInitializer() {

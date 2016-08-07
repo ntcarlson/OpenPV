@@ -62,7 +62,7 @@ int NormalizeBase::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void NormalizeBase::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "normalizeMethod", &normalizeMethod);
+   ioParamStringRequired(ioFlag, name, "normalizeMethod", &normalizeMethod);
    if (ioFlag==PARAMS_IO_READ) {
       if (!strcmp(normalizeMethod, "")) {
          free(normalizeMethod);

@@ -241,11 +241,11 @@ int BaseConnection::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseConnection::ioParam_preLayerName(enum ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamString(ioFlag, this->getName(), "preLayerName", &preLayerName, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, this->getName(), "preLayerName", &preLayerName, NULL, false/*warnIfAbsent*/);
 }
 
 void BaseConnection::ioParam_postLayerName(enum ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamString(ioFlag, this->getName(), "postLayerName", &postLayerName, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, this->getName(), "postLayerName", &postLayerName, NULL, false/*warnIfAbsent*/);
 }
 
 void BaseConnection::ioParam_channelCode(enum ParamsIOFlag ioFlag) {

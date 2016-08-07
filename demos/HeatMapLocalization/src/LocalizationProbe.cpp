@@ -94,11 +94,11 @@ int LocalizationProbe::ioParamsFillGroup(enum PV::ParamsIOFlag ioFlag) {
 }
 
 void LocalizationProbe::ioParam_imageLayer(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "imageLayer", &imageLayerName);
+   ioParamStringRequired(ioFlag, name, "imageLayer", &imageLayerName);
 }
 
 void LocalizationProbe::ioParam_reconLayer(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "reconLayer", &reconLayerName);
+   ioParamStringRequired(ioFlag, name, "reconLayer", &reconLayerName);
 }
 
 void LocalizationProbe::ioParam_displayedCategories(enum PV::ParamsIOFlag ioFlag) {
@@ -124,7 +124,7 @@ void LocalizationProbe::ioParam_detectionThreshold(enum PV::ParamsIOFlag ioFlag)
 }
 
 void LocalizationProbe::ioParam_classNamesFile(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "classNamesFile", &classNamesFile, "");
+   ioParamString(ioFlag, name, "classNamesFile", &classNamesFile, "");
 }
 
 void LocalizationProbe::ioParam_outputPeriod(enum PV::ParamsIOFlag ioFlag) {
@@ -164,7 +164,7 @@ void LocalizationProbe::ioParam_drawMontage(enum PV::ParamsIOFlag ioFlag) {
 void LocalizationProbe::ioParam_heatMapMontageDir(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      this->getParent()->ioParamStringRequired(ioFlag, this->getName(), "heatMapMontageDir", &heatMapMontageDir);
+      this->ioParamStringRequired(ioFlag, this->getName(), "heatMapMontageDir", &heatMapMontageDir);
    }
 }
 
@@ -196,7 +196,7 @@ void LocalizationProbe::ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFla
 void LocalizationProbe::ioParam_displayCommand(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      this->getParent()->ioParamString(ioFlag, this->getName(), "displayCommand", &displayCommand, NULL, true/*warnIfAbsent*/);     
+      this->ioParamString(ioFlag, this->getName(), "displayCommand", &displayCommand, NULL, true/*warnIfAbsent*/);     
    }
 }
 

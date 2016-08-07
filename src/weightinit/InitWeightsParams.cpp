@@ -102,11 +102,11 @@ int InitWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void InitWeightsParams::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "weightInitType", &weightInitTypeString, NULL, true/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "weightInitType", &weightInitTypeString, NULL, true/*warnIfAbsent*/);
 }
 
 void InitWeightsParams::ioParam_initWeightsFile(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "initWeightsFile", &filename, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "initWeightsFile", &filename, NULL, false/*warnIfAbsent*/);
 }
 
 void InitWeightsParams::ioParam_useListOfArborFiles(enum ParamsIOFlag ioFlag) {

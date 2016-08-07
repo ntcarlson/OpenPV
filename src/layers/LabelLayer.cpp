@@ -98,7 +98,7 @@ void LabelLayer::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
 }
 
 void LabelLayer::ioParam_movieLayerName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "movieLayerName", &movieLayerName);
+   ioParamStringRequired(ioFlag, name, "movieLayerName", &movieLayerName);
 }
 
 void LabelLayer::ioParam_labelStart(enum ParamsIOFlag ioFlag) {

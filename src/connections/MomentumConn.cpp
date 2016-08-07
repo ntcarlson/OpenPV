@@ -99,7 +99,7 @@ void MomentumConn::ioParam_momentumTau(enum ParamsIOFlag ioFlag){
  */
 void MomentumConn::ioParam_momentumMethod(enum ParamsIOFlag ioFlag){
    if(plasticityFlag){
-      parent->ioParamStringRequired(ioFlag, name, "momentumMethod", &momentumMethod);
+      ioParamStringRequired(ioFlag, name, "momentumMethod", &momentumMethod);
       if(strcmp(momentumMethod, "simple") != 0 &&
          strcmp(momentumMethod, "viscosity") != 0 &&
          strcmp(momentumMethod, "alex")){

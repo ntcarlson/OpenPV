@@ -56,7 +56,7 @@ void FilenameParsingGroundTruthLayer::ioParam_gtClassFalseValue(enum ParamsIOFla
 }
 
 void FilenameParsingGroundTruthLayer::ioParam_movieLayerName(enum ParamsIOFlag ioFlag) {
-      parent->ioParamStringRequired(ioFlag, name, "movieLayerName", &movieLayerName);
+      ioParamStringRequired(ioFlag, name, "movieLayerName", &movieLayerName);
 }
 
 void FilenameParsingGroundTruthLayer::ioParam_classes(enum ParamsIOFlag ioFlag) {

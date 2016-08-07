@@ -121,7 +121,7 @@ int BaseInput::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_inputPath(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "inputPath", &inputPath);
+   ioParamStringRequired(ioFlag, name, "inputPath", &inputPath);
 }
 
 void BaseInput::ioParam_useImageBCflag(enum ParamsIOFlag ioFlag) {
@@ -136,7 +136,7 @@ int BaseInput::ioParam_offsets(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseInput::ioParam_offsetAnchor(enum ParamsIOFlag ioFlag){
-   parent->ioParamString(ioFlag, name, "offsetAnchor", &offsetAnchor, "tl");
+   ioParamString(ioFlag, name, "offsetAnchor", &offsetAnchor, "tl");
    if (ioFlag==PARAMS_IO_READ) {
       int status = checkValidAnchorString();
       if (status != PV_SUCCESS) {
@@ -156,7 +156,7 @@ void BaseInput::ioParam_writeImages(enum ParamsIOFlag ioFlag) {
 void BaseInput::ioParam_writeImagesExtension(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages) {
-      parent->ioParamString(ioFlag, name, "writeImagesExtension", &writeImagesExtension, "tif");
+      ioParamString(ioFlag, name, "writeImagesExtension", &writeImagesExtension, "tif");
    }
 }
 
@@ -167,7 +167,7 @@ void BaseInput::ioParam_autoResizeFlag(enum ParamsIOFlag ioFlag) {
 void BaseInput::ioParam_aspectRatioAdjustment(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "autoResizeFlag"));
    if (autoResizeFlag) {
-      parent->ioParamString(ioFlag, name, "aspectRatioAdjustment", &aspectRatioAdjustment, "crop"/*default*/);
+      ioParamString(ioFlag, name, "aspectRatioAdjustment", &aspectRatioAdjustment, "crop"/*default*/);
       if (ioFlag == PARAMS_IO_READ) {
          assert(aspectRatioAdjustment);
          for (char * c = aspectRatioAdjustment; *c; c++) { *c = tolower(*c); }
@@ -188,7 +188,7 @@ void BaseInput::ioParam_interpolationMethod(enum ParamsIOFlag ioFlag) {
    if (autoResizeFlag) {
       char * interpolationMethodString = NULL;
       if (ioFlag == PARAMS_IO_READ) {
-         parent->ioParamString(ioFlag, name, "interpolationMethod", &interpolationMethodString, "bicubic", true/*warn if absent*/);
+         ioParamString(ioFlag, name, "interpolationMethod", &interpolationMethodString, "bicubic", true/*warn if absent*/);
          assert(interpolationMethodString);
          for (char * c = interpolationMethodString; *c; c++) { *c = tolower(*c); }
          if (!strncmp(interpolationMethodString, "bicubic", strlen("bicubic"))) {
@@ -218,7 +218,7 @@ void BaseInput::ioParam_interpolationMethod(enum ParamsIOFlag ioFlag) {
          default:
             assert(0); // interpolationMethod should be one of the above two categories.
          }
-         parent->ioParamString(ioFlag, name, "interpolationMethod", &interpolationMethodString, "bicubic", true/*warn if absent*/);
+         ioParamString(ioFlag, name, "interpolationMethod", &interpolationMethodString, "bicubic", true/*warn if absent*/);
       }
       free(interpolationMethodString);
    }

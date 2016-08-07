@@ -50,7 +50,7 @@ int MaskLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void MaskLayer::ioParam_maskMethod(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "maskMethod", &maskMethod);
+   ioParamStringRequired(ioFlag, name, "maskMethod", &maskMethod);
    //Check valid methods
    if(strcmp(maskMethod, "layer") == 0){
    }
@@ -72,7 +72,7 @@ void MaskLayer::ioParam_maskMethod(enum ParamsIOFlag ioFlag) {
 void MaskLayer::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "maskMethod"));
    if(strcmp(maskMethod, "layer") == 0 || strcmp(maskMethod, "invertLayer") == 0){
-      parent->ioParamStringRequired(ioFlag, name, "maskLayerName", &maskLayerName);
+      ioParamStringRequired(ioFlag, name, "maskLayerName", &maskLayerName);
    }
 }
 

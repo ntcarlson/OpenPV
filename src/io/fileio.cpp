@@ -2747,4 +2747,26 @@ void appendParamValueToString(bool value, std::string * vstr) {
    vstr->append(value ? "true" : "false");
 }
 
+void writeFormattedParamString(const char* paramName, const char* svalue, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+   if (!printParamsStream && !printLuaParamsStream) { return; }
+   std::string vstr("");
+   vstr.reserve(44 + (svalue?2+strlen(svalue):4));
+   vstr.append("    ").append(paramName);
+   if (vstr.length()<39) { vstr.resize(39, ' '); }
+   vstr.append(" = ");
+   if (svalue) {
+      vstr.append("\"").append(svalue).append("\"");
+   }
+   else {
+      vstr.append("NULL");
+   }
+   vstr.append(";\n");
+   if (printParamsStream && printParamsStream->fp) {
+      fwrite(vstr.c_str(), 1, vstr.size(), printParamsStream->fp);
+   }
+   if (printLuaParamsStream && printLuaParamsStream->fp) {
+      fwrite(vstr.c_str(), 1, vstr.size(), printLuaParamsStream->fp);
+   }
+}
+
 } // namespace PV

@@ -94,7 +94,7 @@ int RescaleLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag){
 }
 
 void RescaleLayer::ioParam_rescaleMethod(enum ParamsIOFlag ioFlag){
-   parent->ioParamStringRequired(ioFlag, name, "rescaleMethod", &rescaleMethod);
+   ioParamStringRequired(ioFlag, name, "rescaleMethod", &rescaleMethod);
 }
 
 void RescaleLayer::ioParam_targetMax(enum ParamsIOFlag ioFlag){

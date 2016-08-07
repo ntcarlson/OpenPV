@@ -82,18 +82,18 @@ int BaseProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void BaseProbe::ioParam_targetName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "targetName", &targetName);
+   ioParamStringRequired(ioFlag, name, "targetName", &targetName);
 }
 
 void BaseProbe::ioParam_message(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "message", &msgparams, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "message", &msgparams, NULL, false/*warnIfAbsent*/);
    if (ioFlag == PARAMS_IO_READ) {
       initMessage(msgparams);
    }
 }
 
 void BaseProbe::ioParam_energyProbe(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "energyProbe", &energyProbe, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "energyProbe", &energyProbe, NULL, false/*warnIfAbsent*/);
 }
 
 void BaseProbe::ioParam_coefficient(enum ParamsIOFlag ioFlag) {
@@ -110,12 +110,12 @@ void BaseProbe::ioParam_textOutputFlag(enum ParamsIOFlag ioFlag) {
 void BaseProbe::ioParam_probeOutputFile(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "textOutputFlag"));
    if (textOutputFlag) {
-      parent->ioParamString(ioFlag, name, "probeOutputFile", &probeOutputFilename, NULL, false/*warnIfAbsent*/);
+      ioParamString(ioFlag, name, "probeOutputFile", &probeOutputFilename, NULL, false/*warnIfAbsent*/);
    }
 }
 
 void BaseProbe::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
    if (ioFlag==PARAMS_IO_READ) {
       triggerFlag = (triggerLayerName!=NULL && triggerLayerName[0]!='\0');
    }

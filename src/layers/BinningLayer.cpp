@@ -44,7 +44,7 @@ int BinningLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void BinningLayer::ioParam_originalLayerName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "originalLayerName", &originalLayerName);
+   ioParamStringRequired(ioFlag, name, "originalLayerName", &originalLayerName);
    assert(originalLayerName);
    if (ioFlag==PARAMS_IO_READ && originalLayerName[0]=='\0') {
       if (getCommunicator()->commRank()==0) {

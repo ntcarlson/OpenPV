@@ -75,7 +75,7 @@ void InitV::ioParamGroup_GaussianRandomV(enum ParamsIOFlag ioFlag){
 }
 
 void InitV::ioParamGroup_InitVFromFile(enum ParamsIOFlag ioFlag){
-   parent->ioParamString(ioFlag, name, "Vfilename", &filename, NULL, true/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "Vfilename", &filename, NULL, true/*warnIfAbsent*/);
    if( filename == NULL ) {
       initVTypeCode = UndefinedInitV;
       pvErrorNoExit().printf("InitV::initialize, group \"%s\": for InitVFromFile, string parameter \"Vfilename\" must be defined.  Exiting\n", name);
@@ -87,7 +87,7 @@ void InitV::ioParamGroup_InitVFromFile(enum ParamsIOFlag ioFlag){
 int InitV::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = PV_SUCCESS;
    printErrors = mCommunicator->commRank()==0;
-   parent->ioParamString(ioFlag, name, "InitVType", &initVTypeString, "ConstantV", true/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "InitVType", &initVTypeString, "ConstantV", true/*warnIfAbsent*/);
    if( !strcmp(initVTypeString, "ConstantV") ) {
       initVTypeCode = ConstantV;
       ioParamGroup_ConstantV(ioFlag);

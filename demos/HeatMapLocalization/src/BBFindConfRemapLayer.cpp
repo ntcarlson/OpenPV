@@ -72,7 +72,7 @@ void BBFindConfRemapLayer::ioParam_displayedCategories(enum PV::ParamsIOFlag ioF
 }
 
 void BBFindConfRemapLayer::ioParam_imageLayer(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "imageLayer", &imageLayerName, "", true/*warnIfAbsent*/);
+   ioParamString(ioFlag, name, "imageLayer", &imageLayerName, "", true/*warnIfAbsent*/);
 }
 
 void BBFindConfRemapLayer::ioParam_framesPerMap(enum PV::ParamsIOFlag ioFlag) {

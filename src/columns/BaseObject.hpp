@@ -89,7 +89,10 @@ protected:
    virtual int initializeState() { return PV_SUCCESS; }
 
    template <typename T>
-   void ioParamValue(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T * val, T defaultValue, bool warnIfAbsent=true);
+   void ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * val, T defaultValue, bool warnIfAbsent=true);
+
+   void ioParamString(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value, const char * defaultValue, bool warnIfAbsent=true);
+   void ioParamStringRequired(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value);
 
    /**
     * This method sets mInitInfoCommunicatedFlag to true.

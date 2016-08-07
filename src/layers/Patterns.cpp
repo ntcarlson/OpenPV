@@ -158,7 +158,7 @@ int Patterns::stringMatch(const char ** allowed_values, const char * stopstring,
 }
 
 void Patterns::ioParam_patternType(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "patternType", &typeString);
+   ioParamStringRequired(ioFlag, name, "patternType", &typeString);
    if (ioFlag==PARAMS_IO_READ) {
       const char * allowed_pattern_types[] = { // these strings should correspond to the types in enum PatternType in Patterns.hpp
             "BARS",
@@ -187,7 +187,7 @@ void Patterns::ioParam_orientation(enum ParamsIOFlag ioFlag) {
    if (!(type==BARS || type==SINEWAVE || type==COSWAVE || type==SINEV || type==COSV)) {
       return;
    }
-   parent->ioParamString(ioFlag, name, "orientation", &orientationString, "VERTICAL");
+   ioParamString(ioFlag, name, "orientation", &orientationString, "VERTICAL");
    if (ioFlag != PARAMS_IO_READ) {
       return;
    }
@@ -242,7 +242,7 @@ void Patterns::ioParam_pSwitch(enum ParamsIOFlag ioFlag) {
 void Patterns::ioParam_movementType(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "patternType"));
    if (type==BARS || type==RECTANGLES) {
-      parent->ioParamString(ioFlag, name, "movementType", &movementTypeString, "RANDOMWALK"/*default value*/);
+      ioParamString(ioFlag, name, "movementType", &movementTypeString, "RANDOMWALK"/*default value*/);
       if (ioFlag!=PARAMS_IO_READ) {
          return;
       }
@@ -468,7 +468,7 @@ void Patterns::ioParam_patternsOutputPath(enum ParamsIOFlag ioFlag) {
    // set output path for movie frames
    assert(!getParams()->presentAndNotBeenRead(name, "writeImages"));
    if (writeImages) {
-      parent->ioParamString(ioFlag, name, "patternsOutputPath", &patternsOutputPath, parent->getOutputPath());
+      ioParamString(ioFlag, name, "patternsOutputPath", &patternsOutputPath, parent->getOutputPath());
       if (ioFlag == PARAMS_IO_READ) {
          ensureDirExists(getCommunicator(), patternsOutputPath);
       }

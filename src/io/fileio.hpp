@@ -213,7 +213,7 @@ void writeFormattedParamValue(const char * paramName, T value, PV_Stream * print
    std::string vstr("");
    vstr.reserve(50);
    vstr.append("    ").append(paramName);
-   if (vstr.length()<39) { vstr.resize(39, ' ');}
+   if (vstr.length()<39) { vstr.resize(39, ' '); }
    vstr.append(" = ");
    appendParamValueToString(value, &vstr);
    vstr.append(";\n");
@@ -225,6 +225,7 @@ void writeFormattedParamValue(const char * paramName, T value, PV_Stream * print
    }
 }
 
+void writeFormattedParamString(const char* paramName, const char* svalue, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream);
 } // namespace PV
 
 #endif /* FILEIO_HPP_ */
