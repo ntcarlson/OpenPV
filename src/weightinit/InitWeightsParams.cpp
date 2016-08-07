@@ -92,7 +92,7 @@ int InitWeightsParams::setDescription() {
 
 int InitWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Read/write any params from the params file, typically
-   // parent->ioParamValue(ioFlag, name, "param_name", &param, default_value);
+   // ioParamValue(ioFlag, name, "param_name", &param, default_value);
    ioParam_weightInitType(ioFlag);
    ioParam_initWeightsFile(ioFlag);
    ioParam_useListOfArborFiles(ioFlag);
@@ -112,14 +112,14 @@ void InitWeightsParams::ioParam_initWeightsFile(enum ParamsIOFlag ioFlag) {
 void InitWeightsParams::ioParam_useListOfArborFiles(enum ParamsIOFlag ioFlag) {
    assert(!mParams->presentAndNotBeenRead(name, "initWeightsFile"));
    if (filename!=NULL) {
-      parent->ioParamValue(ioFlag, name, "useListOfArborFiles", &useListOfArborFiles, false/*default*/, true/*warnIfAbsent*/);
+      ioParamValue(ioFlag, name, "useListOfArborFiles", &useListOfArborFiles, false/*default*/, true/*warnIfAbsent*/);
    }
 }
 
 void InitWeightsParams::ioParam_combineWeightFiles(enum ParamsIOFlag ioFlag) {
    assert(!mParams->presentAndNotBeenRead(name, "initWeightsFile"));
    if (filename!=NULL) {
-      parent->ioParamValue(ioFlag, name, "combineWeightFiles", &combineWeightFiles, false/*default*/, true/*warnIfAbsent*/);
+      ioParamValue(ioFlag, name, "combineWeightFiles", &combineWeightFiles, false/*default*/, true/*warnIfAbsent*/);
    }
 }
 
@@ -129,7 +129,7 @@ void InitWeightsParams::ioParam_numWeightFiles(enum ParamsIOFlag ioFlag) {
       assert(!mParams->presentAndNotBeenRead(name, "combineWeightFiles"));
       if (combineWeightFiles) {
          int max_weight_files = 1;  // arbitrary limit...
-         parent->ioParamValue(ioFlag, name, "numWeightFiles", &numWeightFiles, max_weight_files, true/*warnIfAbsent*/);
+         ioParamValue(ioFlag, name, "numWeightFiles", &numWeightFiles, max_weight_files, true/*warnIfAbsent*/);
       }
    }
 }

@@ -73,15 +73,15 @@ int InitGauss2DWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void InitGauss2DWeightsParams::ioParam_aspect(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "aspect", &aspect, aspect);
+   ioParamValue(ioFlag, name, "aspect", &aspect, aspect);
 }
 
 void InitGauss2DWeightsParams::ioParam_sigma(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "sigma", &sigma, sigma);
+   ioParamValue(ioFlag, name, "sigma", &sigma, sigma);
 }
 
 void InitGauss2DWeightsParams::ioParam_rMax(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "rMax", &rMax, rMax);
+   ioParamValue(ioFlag, name, "rMax", &rMax, rMax);
    if (ioFlag==PARAMS_IO_READ) {
       double rMaxd = (double) rMax;
       r2Max = rMaxd*rMaxd;
@@ -89,7 +89,7 @@ void InitGauss2DWeightsParams::ioParam_rMax(enum ParamsIOFlag ioFlag) {
 }
 
 void InitGauss2DWeightsParams::ioParam_rMin(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "rMin", &rMin, rMin);
+   ioParamValue(ioFlag, name, "rMin", &rMin, rMin);
    if (ioFlag==PARAMS_IO_READ) {
       double rMind = (double) rMin;
       r2Min = rMind*rMind;
@@ -97,49 +97,49 @@ void InitGauss2DWeightsParams::ioParam_rMin(enum ParamsIOFlag ioFlag) {
 }
 
 void InitGauss2DWeightsParams::ioParam_strength(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "strength", &strength, strength/*default value*/, true/*warnIfAbsent*/);
+   ioParamValue(ioFlag, name, "strength", &strength, strength/*default value*/, true/*warnIfAbsent*/);
 }
 
 void InitGauss2DWeightsParams::ioParam_numOrientationsPost(enum ParamsIOFlag ioFlag) {
    if (post->getLayerLoc()->nf > 1) {
-      parent->ioParamValue(ioFlag, name, "numOrientationsPost", &numOrientationsPost, this->post->getLayerLoc()->nf);
+      ioParamValue(ioFlag, name, "numOrientationsPost", &numOrientationsPost, this->post->getLayerLoc()->nf);
    }
 }
 
 void InitGauss2DWeightsParams::ioParam_numOrientationsPre(enum ParamsIOFlag ioFlag) {
    if (pre->getLayerLoc()->nf > 1) {
-      parent->ioParamValue(ioFlag, name, "numOrientationsPre", &numOrientationsPre, this->pre->getLayerLoc()->nf);
+      ioParamValue(ioFlag, name, "numOrientationsPre", &numOrientationsPre, this->pre->getLayerLoc()->nf);
    }
 }
 
 void InitGauss2DWeightsParams::ioParam_deltaThetaMax(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "deltaThetaMax", &deltaThetaMax, getDeltaThetaMax());
+   ioParamValue(ioFlag, name, "deltaThetaMax", &deltaThetaMax, getDeltaThetaMax());
 }
 
 void InitGauss2DWeightsParams::ioParam_thetaMax(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "thetaMax", &thetaMax, getThetaMax());
+   ioParamValue(ioFlag, name, "thetaMax", &thetaMax, getThetaMax());
 }
 
 void InitGauss2DWeightsParams::ioParam_numFlanks(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "numFlanks", &numFlanks, numFlanks);
+   ioParamValue(ioFlag, name, "numFlanks", &numFlanks, numFlanks);
 }
 
 void InitGauss2DWeightsParams::ioParam_flankShift(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "flankShift", &shift, shift);
+   ioParamValue(ioFlag, name, "flankShift", &shift, shift);
 }
 
 void InitGauss2DWeightsParams::ioParam_rotate(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "rotate", &rotate, rotate);
+   ioParamValue(ioFlag, name, "rotate", &rotate, rotate);
 }
 
 void InitGauss2DWeightsParams::ioParam_bowtieFlag(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "bowtieFlag", &bowtieFlag, bowtieFlag);
+   ioParamValue(ioFlag, name, "bowtieFlag", &bowtieFlag, bowtieFlag);
 }
 
 void InitGauss2DWeightsParams::ioParam_bowtieAngle(enum ParamsIOFlag ioFlag) {
    assert(!mParams->presentAndNotBeenRead(name, "bowtieFlag"));
    if (bowtieFlag) {
-      parent->ioParamValue(ioFlag, name, "bowtieAngle", &bowtieAngle, bowtieAngle);
+      ioParamValue(ioFlag, name, "bowtieAngle", &bowtieAngle, bowtieAngle);
    }
 }
 
