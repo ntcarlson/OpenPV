@@ -94,6 +94,9 @@ protected:
    void ioParamString(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value, const char * defaultValue, bool warnIfAbsent=true);
    void ioParamStringRequired(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value);
 
+   template <typename T>
+   void ioParamArray(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T ** value, int * arraysize);
+
    /**
     * This method sets mInitInfoCommunicatedFlag to true.
     */
@@ -138,6 +141,28 @@ void BaseObject::ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, 
       writeFormattedParamValue(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);
       break;
    }
+}
+
+template <typename T>
+void BaseObject::ioParamArray(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T ** value, int * arraysize) {
+    if(ioFlag==PARAMS_IO_READ) {
+       const double * param_array = mParams->arrayValuesDbl(groupName, paramName, arraysize);
+       pvAssert(*arraysize>=0);
+       if (*arraysize>0) {
+          *value = (T *) calloc((size_t) *arraysize, sizeof(T));
+          pvErrorIf(value==nullptr, "%s \"%s\": global rank %d process unable to copy array parameter %s: %s\n",
+                   getParams()->groupKeywordFromName(name), name, getCommunicator()->globalCommRank(), paramName, strerror(errno));
+          for (int k=0; k<*arraysize; k++) {
+             (*value)[k] = (T) param_array[k];
+          }
+       }
+       else {
+          *value = nullptr;
+       }
+    }
+    else if (ioFlag==PARAMS_IO_WRITE) {
+       writeFormattedParamArray(paramName, *value, (size_t) *arraysize, mPrintParamsStream, mPrintLuaParamsStream);
+    }
 }
 
 }  // namespace PV

@@ -176,11 +176,11 @@ void MoviePvp::ioParam_batchMethod(enum ParamsIOFlag ioFlag){
 }
 
 void MoviePvp::ioParam_start_frame_index(enum ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "start_frame_index", &paramsStartFrameIndex, &numStartFrame);
+   this->ioParamArray(ioFlag, this->getName(), "start_frame_index", &paramsStartFrameIndex, &numStartFrame);
 }
 
 void MoviePvp::ioParam_skip_frame_index(enum ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "skip_frame_index", &paramsSkipFrameIndex, &numSkipFrame);
+   this->ioParamArray(ioFlag, this->getName(), "skip_frame_index", &paramsSkipFrameIndex, &numSkipFrame);
 }
 
 void MoviePvp::ioParam_movieOutputPath(enum ParamsIOFlag ioFlag) {

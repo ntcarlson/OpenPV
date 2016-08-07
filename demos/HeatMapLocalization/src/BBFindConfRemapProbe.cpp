@@ -94,14 +94,14 @@ void BBFindConfRemapProbe::ioParam_heatMapMontageDir(enum PV::ParamsIOFlag ioFla
 void BBFindConfRemapProbe::ioParam_heatMapThreshold(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      parent->ioParamArray(ioFlag, name, "heatMapThreshold", &heatMapThreshold, &numHeatMapThresholds);
+      ioParamArray(ioFlag, name, "heatMapThreshold", &heatMapThreshold, &numHeatMapThresholds);
    }
 }
 
 void BBFindConfRemapProbe::ioParam_heatMapMaximum(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      parent->ioParamArray(ioFlag, name, "heatMapMaximum", &heatMapMaximum, &numHeatMapMaxima);
+      ioParamArray(ioFlag, name, "heatMapMaximum", &heatMapMaximum, &numHeatMapMaxima);
    }
 }
 

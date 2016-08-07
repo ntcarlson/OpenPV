@@ -16,6 +16,7 @@
 #include "columns/DataStore.hpp"
 #include "io/FileStream.hpp"
 #include "utils/PVLog.hpp"
+#include "utils/PVAssert.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -226,6 +227,30 @@ void writeFormattedParamValue(const char * paramName, T value, PV_Stream * print
 }
 
 void writeFormattedParamString(const char* paramName, const char* svalue, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream);
+
+template <typename T>
+void writeFormattedParamArray(const char * paramName, const T * array, size_t arraySize, PV_Stream * printParamsStream, PV_Stream * printLuaParamsStream) {
+   if (!printParamsStream && !printLuaParamsStream) { return; }
+   if (arraySize==0) { return; } // TODO either allow empty arrays in params or disallow default value to be the empty array when reading
+
+   std::string vstr("");
+   vstr.reserve(42);
+   vstr.append("    ").append(paramName);
+   if (vstr.length()<39) { vstr.resize(39, ' '); }
+
+   std::string contents("");
+   for (int k=0; k<arraySize-1; k++) {
+      contents.append(std::to_string(array[k])).append(",");
+   }
+   contents.append(std::to_string(array[arraySize-1]));
+   if (printParamsStream && printParamsStream->fp) {
+      fprintf(printParamsStream->fp, "%s = [%s];\n", vstr.c_str(), contents.c_str());
+   }
+   if (printLuaParamsStream && printLuaParamsStream->fp) {
+      fprintf(printLuaParamsStream->fp, "%s = {%s};\n", vstr.c_str(), contents.c_str());
+   }
+}
+
 } // namespace PV
 
 #endif /* FILEIO_HPP_ */

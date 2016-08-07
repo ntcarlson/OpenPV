@@ -89,7 +89,7 @@ int PtwiseLinearTransferLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 
 void PtwiseLinearTransferLayer::ioParam_verticesV(enum ParamsIOFlag ioFlag) {
    int numVerticesTmp = numVertices;
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesV", &verticesV, &numVerticesTmp);
+   this->ioParamArray(ioFlag, this->getName(), "verticesV", &verticesV, &numVerticesTmp);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesTmp==0) {
          if (this->getCommunicator()->commRank()==0) {
@@ -114,7 +114,7 @@ void PtwiseLinearTransferLayer::ioParam_verticesV(enum ParamsIOFlag ioFlag) {
 
 void PtwiseLinearTransferLayer::ioParam_verticesA(enum ParamsIOFlag ioFlag) {
    int numVerticesA;
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesA", &verticesA, &numVerticesA);
+   this->ioParamArray(ioFlag, this->getName(), "verticesA", &verticesA, &numVerticesA);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesA==0) {
          if (this->getCommunicator()->commRank()==0) {

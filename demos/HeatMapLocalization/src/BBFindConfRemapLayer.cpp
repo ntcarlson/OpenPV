@@ -68,7 +68,7 @@ int BBFindConfRemapLayer::ioParamsFillGroup(enum PV::ParamsIOFlag ioFlag) {
 }
 
 void BBFindConfRemapLayer::ioParam_displayedCategories(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "displayedCategories", &displayedCategories, &numDisplayedCategories);
+   this->ioParamArray(ioFlag, this->getName(), "displayedCategories", &displayedCategories, &numDisplayedCategories);
 }
 
 void BBFindConfRemapLayer::ioParam_imageLayer(enum PV::ParamsIOFlag ioFlag) {

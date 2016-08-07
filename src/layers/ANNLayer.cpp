@@ -104,7 +104,7 @@ int ANNLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 void ANNLayer::ioParam_verticesV(enum ParamsIOFlag ioFlag) {
    pvAssert(verticesListInParams);
    int numVerticesTmp = numVertices;
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesV", &verticesV, &numVerticesTmp);
+   this->ioParamArray(ioFlag, this->getName(), "verticesV", &verticesV, &numVerticesTmp);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesTmp==0) {
          if (this->getCommunicator()->commRank()==0) {
@@ -130,7 +130,7 @@ void ANNLayer::ioParam_verticesV(enum ParamsIOFlag ioFlag) {
 void ANNLayer::ioParam_verticesA(enum ParamsIOFlag ioFlag) {
    pvAssert(verticesListInParams);
    int numVerticesA;
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "verticesA", &verticesA, &numVerticesA);
+   this->ioParamArray(ioFlag, this->getName(), "verticesA", &verticesA, &numVerticesA);
    if (ioFlag==PARAMS_IO_READ) {
       if (numVerticesA==0) {
          if (this->getCommunicator()->commRank()==0) {

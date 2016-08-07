@@ -102,7 +102,7 @@ void LocalizationProbe::ioParam_reconLayer(enum PV::ParamsIOFlag ioFlag) {
 }
 
 void LocalizationProbe::ioParam_displayedCategories(enum PV::ParamsIOFlag ioFlag) {
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "displayedCategories", &displayedCategories, &numDisplayedCategories);
+   this->ioParamArray(ioFlag, this->getName(), "displayedCategories", &displayedCategories, &numDisplayedCategories);
 }
 
 void LocalizationProbe::ioParam_displayCategoryIndexStart(enum PV::ParamsIOFlag ioFlag) {
@@ -120,7 +120,7 @@ void LocalizationProbe::ioParam_displayCategoryIndexEnd(enum PV::ParamsIOFlag io
 }
 
 void LocalizationProbe::ioParam_detectionThreshold(enum PV::ParamsIOFlag ioFlag) {
-   parent->ioParamArray(ioFlag, name, "detectionThreshold", &detectionThreshold, &numDetectionThresholds);
+   ioParamArray(ioFlag, name, "detectionThreshold", &detectionThreshold, &numDetectionThresholds);
 }
 
 void LocalizationProbe::ioParam_classNamesFile(enum PV::ParamsIOFlag ioFlag) {
@@ -171,7 +171,7 @@ void LocalizationProbe::ioParam_heatMapMontageDir(enum PV::ParamsIOFlag ioFlag) 
 void LocalizationProbe::ioParam_heatMapMaximum(enum PV::ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(this->getName(), "drawMontage"));
    if (drawMontage) {
-      parent->ioParamArray(ioFlag, name, "heatMapMaximum", &heatMapMaximum, &numHeatMapMaxima);
+      ioParamArray(ioFlag, name, "heatMapMaximum", &heatMapMaximum, &numHeatMapMaxima);
    }
 }
 

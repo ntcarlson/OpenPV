@@ -145,58 +145,58 @@ int BaseObject::respondInitializeState(std::shared_ptr<InitializeStateMessage co
    return status;
 }
 
-void BaseObject::ioParamString(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, char ** value, const char * defaultValue, bool warnIfAbsent) {
+void BaseObject::ioParamString(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value, const char * defaultValue, bool warnIfAbsent) {
    const char * param_string = nullptr;
    switch(ioFlag) {
    case PARAMS_IO_READ:
-      if ( mParams->stringPresent(group_name, param_name) ) {
-         param_string = mParams->stringValue(group_name, param_name, warnIfAbsent);
+      if ( mParams->stringPresent(groupName, paramName) ) {
+         param_string = mParams->stringValue(groupName, paramName, warnIfAbsent);
       }
       else {
          // parameter was not set in params file; use the default.  But default might or might not be nullptr.
          if (getCommunicator()->commRank()==0 && warnIfAbsent==true) {
             if (defaultValue != nullptr) {
-               pvWarn().printf("Using default value \"%s\" for string parameter \"%s\" in group \"%s\"\n", defaultValue, param_name, group_name);
+               pvWarn().printf("Using default value \"%s\" for string parameter \"%s\" in group \"%s\"\n", defaultValue, paramName, groupName);
             }
             else {
-               pvWarn().printf("Using default value of nullptr for string parameter \"%s\" in group \"%s\"\n", param_name, group_name);
+               pvWarn().printf("Using default value of nullptr for string parameter \"%s\" in group \"%s\"\n", paramName, groupName);
             }
          }
          param_string = defaultValue;
       }
       if (param_string!=nullptr) {
          *value = strdup(param_string);
-         pvErrorIf(*value==nullptr, "Global rank %d process unable to copy param %s in group \"%s\": %s\n", getCommunicator()->globalCommRank(), param_name, group_name, strerror(errno));
+         pvErrorIf(*value==nullptr, "Global rank %d process unable to copy param %s in group \"%s\": %s\n", getCommunicator()->globalCommRank(), paramName, groupName, strerror(errno));
       }
       else {
          *value = nullptr;
       }
       break;
    case PARAMS_IO_WRITE:
-      writeFormattedParamString(param_name, *value, mPrintParamsStream, mPrintLuaParamsStream);
+      writeFormattedParamString(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);
    }
 }
 
-void BaseObject::ioParamStringRequired(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, char ** value) {
+void BaseObject::ioParamStringRequired(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value) {
    const char * param_string = nullptr;
    switch(ioFlag) {
    case PARAMS_IO_READ:
-      param_string = mParams->stringValue(group_name, param_name, false/*warnIfAbsent*/);
+      param_string = mParams->stringValue(groupName, paramName, false/*warnIfAbsent*/);
       if (param_string!=nullptr) {
          *value = strdup(param_string);
-         pvErrorIf(*value==nullptr, "Global Rank %d process unable to copy param %s in group \"%s\": %s\n", getCommunicator()->globalCommRank(), param_name, group_name, strerror(errno));
+         pvErrorIf(*value==nullptr, "Global Rank %d process unable to copy param %s in group \"%s\": %s\n", getCommunicator()->globalCommRank(), paramName, groupName, strerror(errno));
       }
       else {
          if (getCommunicator()->globalCommRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": string parameter \"%s\" is required.\n",
-                            mParams->groupKeywordFromName(group_name), group_name, param_name);
+                            mParams->groupKeywordFromName(groupName), groupName, paramName);
          }
          MPI_Barrier(mCommunicator->globalCommunicator());
          exit(EXIT_FAILURE);
       }
       break;
    case PARAMS_IO_WRITE:
-      writeFormattedParamString(param_name, *value, mPrintParamsStream, mPrintLuaParamsStream);
+      writeFormattedParamString(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);
    }
 
 }

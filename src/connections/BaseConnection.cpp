@@ -274,7 +274,7 @@ void BaseConnection::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
 void BaseConnection::ioParam_delay(enum ParamsIOFlag ioFlag) {
    //Grab delays in ms and load into fDelayArray.
    //initializeDelays() will convert the delays to timesteps store into delays.
-   this->getParent()->ioParamArray(ioFlag, this->getName(), "delay", &fDelayArray, &delayArraySize);
+   this->ioParamArray(ioFlag, this->getName(), "delay", &fDelayArray, &delayArraySize);
    if (ioFlag==PARAMS_IO_READ && delayArraySize==0) {
       assert(fDelayArray==NULL);
       fDelayArray = (float *) malloc(sizeof(float));

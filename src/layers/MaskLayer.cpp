@@ -79,7 +79,7 @@ void MaskLayer::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
 void MaskLayer::ioParam_featureIdxs(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "maskMethod"));
    if(strcmp(maskMethod, "maskFeatures") == 0 || strcmp(maskMethod, "noMaskFeatures") == 0){
-      parent->ioParamArray(ioFlag, name, "featureIdxs", &features, &numSpecifiedFeatures);
+      ioParamArray(ioFlag, name, "featureIdxs", &features, &numSpecifiedFeatures);
       if(numSpecifiedFeatures == 0){
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: MaskLayer must specify at least one feature for maskMethod \"%s\".\n",
