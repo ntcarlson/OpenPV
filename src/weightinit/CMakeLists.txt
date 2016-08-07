@@ -1,5 +1,4 @@
 set (PVLibSrcCpp ${PVLibSrcCpp}
-   ${SUBDIR}/InitCloneKernelWeights.cpp
    ${SUBDIR}/InitCocircWeights.cpp
    ${SUBDIR}/InitCocircWeightsParams.cpp
    ${SUBDIR}/InitGauss2DWeights.cpp
@@ -28,7 +27,6 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
 )
 
 set (PVLibSrcHpp ${PVLibSrcHpp}
-   ${SUBDIR}/InitCloneKernelWeights.hpp
    ${SUBDIR}/InitCocircWeights.hpp
    ${SUBDIR}/InitCocircWeightsParams.hpp
    ${SUBDIR}/InitGauss2DWeights.hpp
