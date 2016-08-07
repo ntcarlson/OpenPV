@@ -17,7 +17,6 @@
 #include "io/PVParams.hpp"
 #include "io/BaseConnectionProbe.hpp"
 #include "layers/HyPerLayer.hpp"
-#include "observerpattern/Subject.hpp"
 #include "utils/Timer.hpp"
 #include <stdlib.h>
 #include <vector>
@@ -58,7 +57,7 @@ class privateTransposeConn;
  * A HyPerConn identifies a connection between two layers
  */
 
-class HyPerConn : public BaseConnection, public Subject {
+class HyPerConn : public BaseConnection {
 
 public:
    friend class CloneConn;
@@ -476,15 +475,14 @@ protected:
    HyPerLayer* triggerLayer;
    bool combine_dW_with_W_flag; // indicates that dwDataStart should be set equal to wDataStart, useful for saving memory when weights are not being learned but not used
    bool selfFlag; // indicates that connection is from a layer to itself (even though pre and post may be separately instantiated)
-   char * normalizeMethod;
    NormalizeBase * normalizer;
    bool shrinkPatches_flag;
    float shrinkPatchesThresh;
-   //This object handles calculating weights.  All the initialize weights methods for all connection classes
+
+   //This object handles calculating initialize weights.  All the initialize weights methods for all connection classes
    //are being moved into subclasses of this object.  The default root InitWeights class will create
    //2D Gaussian weights.  If weight initialization type isn't created in a way supported by Buildandrun,
    //this class will try to read the weights from a file or will do a 2D Gaussian.
-   char * weightInitTypeString;
    InitWeights* weightInitializer;
    char * pvpatchAccumulateTypeString;
    AccumulateType pvpatchAccumulateType;
@@ -601,9 +599,43 @@ protected:
     * It is not called by the default HyPerConn constructor.
     */
    int initialize(char const * name, HyPerCol * hc);
-   virtual int setWeightInitializer(); // Note: no longer deprecated.
-   virtual InitWeights * createInitWeightsObject(const char * weightInitTypeStr);
-   int setWeightNormalizer(); // Note: no longer deprecated.
+
+   /**
+    * Reads the weightInitType parameter and creates the weight initializer.
+    * Subclasses that override setWeightInitializer should set the
+    * weightInitializer data member but should not to add it to
+    * mParameterDependencies (which is done in the initialize() method).
+    */
+   virtual void setWeightInitializer(); // Note: no longer deprecated.
+
+   /**
+    * Reads the normalizeMethod parameter and creates the weight normalizer.
+    * HyPerConn requires the normalizeMethod parameter be present.
+    * Subclasses that do not require it can override setWeightNormalizer.
+    * Subclasses that override setWeightNormalizer should set the
+    * normalizer data member (possibly to null) but should not to add it to
+    * mParameterDependencies (which is done in the initialize() method).
+    *
+    * Built-in choices for normalizeMethod are:
+    * - @link NormalizeSum normalizeSum@endlink:
+    *   Normalization where sum of weights add up to strength
+    * - @link NormalizeL2 normalizeL2@endlink:
+    *   Normaliztion method where L2 of weights add up to strength
+    * - @link NormalizeMax normalizeMax@endlink:
+    *   Normaliztion method where Max is clamped at strength
+    * - @link NormalizeContrastZeroMean normalizeContrastZeroMean@endlink:
+    *   Normalization method for a weight with specified mean and std
+    * - @link NormalizeScale normalizeScale@endlink:
+    * - none: Do not normalize
+    *
+    * See the relevant normalization class for any additional parameters.
+    *
+    * Additional normalization methods may be defined by creating
+    * a new subclass of @link NormalizeBase NormalizeBase@endlink
+    * and registering it with @link Factory Factory@endlink.
+    */
+   virtual void setWeightNormalizer(); // Note: no longer deprecated.
+
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
 
    /** 
@@ -625,52 +657,11 @@ protected:
     */
    virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
 
-   /**
-    * @brief weightInitType: Specifies the initialization method of weights
-    * @details Possible choices are
-    * - @link InitGauss2DWeightsParams Gauss2DWeight@endlink: 
-    *   Initializes weights with a gaussian distribution in x and y over each f
-    *
-    * - @link InitCocircWeightsParams CoCircWeight@endlink:
-    *   Initializes cocircular weights
-    *
-    * - @link InitUniformWeightsParams UniformWeight@endlink:
-    *   Initializes weights with a single uniform weight
-    *
-    * - @link InitSmartWeights SmartWeight@endlink:
-    *   TODO
-    *
-    * - @link InitUniformRandomWeightsParams UniformRandomWeight@endlink:
-    *   Initializes weights with a uniform distribution
-    *
-    * - @link InitGaussianRandomWeightsParams GaussianRandomWeight@endlink:
-    *   Initializes individual weights with a gaussian distribution
-    *
-    * - @link InitIdentWeightsParams IdentWeight@endlink:
-    *   Initializes weights for ident conn (one to one with a strength to 1)
-    *
-    * - @link InitOneToOneWeightsParams OneToOneWeight@endlink:
-    *   Initializes weights as a multiple of the identity matrix
-    *
-    * - @link InitOneToOneWeightsWithDelaysParams OneToOneWeightsWithDelays@endlink:
-    *   Initializes weights as a multiple of the identity matrix with delays
-    *
-    * - @link InitSpreadOverArborsWeightsParams SpreadOverArborsWeight@endlink:
-    *   Initializes weights where different part of the weights over different arbors
-    *
-    * - @link InitWeightsParams FileWeight@endlink:
-    *   Initializes weights from a specified pvp file.
-    *
-    * Further parameters are needed depending on initialization type
-    */
-
-   virtual void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
-
-   // plasticityFlag was moved to base class BaseConnection on Jan 26, 2015.
-   // /**
-   //  * @brief plasticityFlag: Specifies if the weights will be updated
-   //  */
-   // virtual void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
+   // ioParam_weightInitType was moved to InitWeightsParams on Aug 5, 2016.
+   // setWeightInitializer calls PVParams::stringValue to get weightInitType
+   // as a local variable.  InitWeightsParams uses ioParam_weightInitType
+   // in its ioParamsFillGroup to save the weightInitType string as a data
+   // member and print it out during outputParams.
 
    /**
     * @brief weightUpdatePeriod: If plasticity flag is set, specifies the update period of weights
@@ -798,26 +789,6 @@ protected:
    virtual void ioParam_dWMax(enum ParamsIOFlag ioFlag);
    
    /**
-    * @brief normalizeMethod: Specifies the normalization method for weights
-    * @details Weights will be normalized after initialization and after each weight update.
-    * Possible choices are:
-    * - @link NormalizeSum normalizeSum@endlink: 
-    *   Normalization where sum of weights add up to strength
-    * - @link NormalizeL2 normalizeL2@endlink: 
-    *   Normaliztion method where L2 of weights add up to strength
-    * - @link NormalizeMax normalizeMax@endlink: 
-    *   Normaliztion method where Max is clamped at strength
-    * - @link NormalizeContrastZeroMean normalizeContrastZeroMean@endlink: 
-    *   Normalization method for a weight with specified mean and std
-    * - @link NormalizeScale normalizeScale@endlink: 
-    *   TODO
-    * - none: Do not normalize 
-    *
-    * Further parameters are needed depending on initialization type.
-    */
-   virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
-
-   /**
     * @brief keepKernelsSynchronized: If using sharedWeights and plasticityFlag, sets if kernels should be synchronized during the run.
     */
    virtual void ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag);
@@ -893,7 +864,6 @@ protected:
                                // (e.g. BIDSConn uses pre and post layer size to set nxp,nyp, but pre and post aren't set until communicateInitInfo().
    virtual void handleDefaultSelfFlag(); // If selfFlag was not set in params, set it in this function.
    virtual PVPatch*** initializeWeights(PVPatch*** arbors, pvwdata_t** dataStart);
-   virtual InitWeights* getDefaultInitWeightsMethod(const char* keyword);
    virtual int createWeights(PVPatch*** patches, int nWeightPatches, int nDataPatches, int nxPatch,
          int nyPatch, int nfPatch, int arborId);
    int createWeights(PVPatch*** patches, int arborId);

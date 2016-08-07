@@ -53,11 +53,22 @@ int NormalizeBase::setDescription() {
 }
 
 int NormalizeBase::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
+   ioParam_normalizeMethod(ioFlag);
    ioParam_strength(ioFlag);
    ioParam_normalizeArborsIndividually(ioFlag);
    ioParam_normalizeOnInitialize(ioFlag);
    ioParam_normalizeOnWeightUpdate(ioFlag);
    return PV_SUCCESS;
+}
+
+void NormalizeBase::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
+   parent->ioParamStringRequired(ioFlag, name, "normalizeMethod", &normalizeMethod);
+   if (ioFlag==PARAMS_IO_READ) {
+      if (!strcmp(normalizeMethod, "")) {
+         free(normalizeMethod);
+         normalizeMethod = strdup("none");
+      }
+   }
 }
 
 void NormalizeBase::ioParam_strength(enum ParamsIOFlag ioFlag) {

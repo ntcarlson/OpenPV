@@ -44,6 +44,7 @@ protected:
    int initialize(const char * name, HyPerCol * hc);
    virtual int setDescription();
 
+   virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_strength(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeArborsIndividually(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeOnInitialize(enum ParamsIOFlag ioFlag);
@@ -74,6 +75,7 @@ private:
 
 // Member variables
 protected:
+   char * normalizeMethod;
    HyPerConn * targetConn;
    HyPerConn ** connectionList;
    int numConnections;

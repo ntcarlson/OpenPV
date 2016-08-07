@@ -40,25 +40,18 @@ void CloneConn::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
    }   
 }
 
-void CloneConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   if (ioFlag==PARAMS_IO_READ) {
-      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
-   }
-}
-
-void CloneConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   if (ioFlag == PARAMS_IO_READ) {
-      getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", NULL);
-   }
-}
-
 void CloneConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
 }
 
-int CloneConn::setWeightInitializer() {
-   weightInitializer = new InitCloneKernelWeights();
-   return PV_SUCCESS;
+void CloneConn::setWeightInitializer() {
+   weightInitializer = nullptr;
+   getParams()->handleUnnecessaryStringParameter(name, "weightInitType", nullptr);
+}
+
+void CloneConn::setWeightNormalizer() {
+   normalizer = nullptr;
+   getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", nullptr);
 }
 
 int CloneConn::constructWeights() {

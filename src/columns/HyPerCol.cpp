@@ -1789,7 +1789,7 @@ int HyPerCol::advanceTime(double sim_time)
 
       // wait for all published data to arrive and call layer's outputState
 
-      std::vector<std::shared_ptr<BaseMessage>> messageVector = {
+      std::vector<std::shared_ptr<BaseMessage const>> messageVector = {
          std::make_shared<LayerUpdateActiveIndicesMessage>(phase),
          std::make_shared<LayerOutputStateMessage>(phase, mSimTime)
       };

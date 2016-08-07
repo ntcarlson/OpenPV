@@ -30,7 +30,7 @@ enum InitVType {
    InitVFromFile
 };
 
-class InitV : BaseObject {
+class InitV : public BaseObject {
 protected:
    /** 
     * List of parameters needed from the InitV class

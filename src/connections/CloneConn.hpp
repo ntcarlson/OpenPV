@@ -9,7 +9,6 @@
 #define CLONECONN_HPP_
 
 #include "HyPerConn.hpp"
-#include "../weightinit/InitCloneKernelWeights.hpp"
 
 namespace PV {
 
@@ -70,9 +69,7 @@ protected:
    int initialize(const char * name, HyPerCol * hc);
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
-   virtual void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
    virtual void ioParam_writeStep(enum ParamsIOFlag ioFlag);
-   virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag);
    virtual void ioParam_shrinkPatches(enum ParamsIOFlag ioFlag);
    virtual void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
@@ -87,7 +84,8 @@ protected:
    virtual void ioParam_writeCompressedWeights(enum ParamsIOFlag ioFlag);
    virtual void ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
-   virtual int setWeightInitializer();
+   virtual void setWeightInitializer() override;
+   virtual void setWeightNormalizer() override;
    virtual PVPatch *** initializeWeights(PVPatch *** patches, pvdata_t ** dataStart);
    virtual int cloneParameters();
    virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr) { return PV_SUCCESS; }

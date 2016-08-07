@@ -84,14 +84,25 @@ int InitWeightsParams::initialize(char const * name, HyPerCol * hc) {
    return status;
 }
 
+int InitWeightsParams::setDescription() {
+   description.clear();
+   description.append("weightParams for \"").append(getName()).append("\"");
+   return PV_SUCCESS;
+}
+
 int InitWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Read/write any params from the params file, typically
    // parent->ioParamValue(ioFlag, name, "param_name", &param, default_value);
+   ioParam_weightInitType(ioFlag);
    ioParam_initWeightsFile(ioFlag);
    ioParam_useListOfArborFiles(ioFlag);
    ioParam_combineWeightFiles(ioFlag);
    ioParam_numWeightFiles(ioFlag);
    return PV_SUCCESS;
+}
+
+void InitWeightsParams::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
+   parent->ioParamString(ioFlag, name, "weightInitType", &weightInitTypeString, NULL, true/*warnIfAbsent*/);
 }
 
 void InitWeightsParams::ioParam_initWeightsFile(enum ParamsIOFlag ioFlag) {

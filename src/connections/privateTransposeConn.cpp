@@ -65,8 +65,7 @@ int privateTransposeConn::setDescription() {
 
 //Private transpose conn will have no parameters, will be set by parent connection
 int privateTransposeConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
-   pvError() << "Fatal: privateTransposeConn ioParamsFillGroup called\n";
-   return PV_FAILURE; // never returns since pvError exits
+   return PV_SUCCESS;
 }
 
 

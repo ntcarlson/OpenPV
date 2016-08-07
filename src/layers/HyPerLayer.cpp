@@ -692,22 +692,8 @@ void HyPerLayer::ioParam_InitVType(enum ParamsIOFlag ioFlag) {
       if( initVObject == NULL ) {
          pvError().printf("%s: unable to create InitV object\n", getDescription_c());
       }
+      mParameterDependencies.addObject(initVObject->getName(), initVObject);
    }
-   if (initVObject != NULL) {
-      std::shared_ptr<BaseMessage> ioParamsMessage = nullptr;
-      switch(ioFlag) {
-      case PARAMS_IO_READ:
-         ioParamsMessage = std::make_shared<ReadParamsMessage>();
-         initVObject->respond(ioParamsMessage);
-         break;
-      case PARAMS_IO_WRITE:
-         ioParamsMessage = std::make_shared<WriteParamsMessage>(mPrintParamsStream, mPrintLuaParamsStream, false);
-         initVObject->respond(ioParamsMessage);
-         break;
-      default:
-         pvAssert(0);
-      }
-  }
 }
 
 void HyPerLayer::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {

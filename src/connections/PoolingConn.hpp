@@ -33,11 +33,11 @@ protected:
    int initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer);
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
-   void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
    void ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag);
    void ioParam_needPostIndexLayer(enum ParamsIOFlag ioFlag);
    void ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag);
-   void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
+   virtual void setWeightInitializer() override;
+   virtual void setWeightNormalizer() override;
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int setInitialValues();
    virtual int constructWeights();

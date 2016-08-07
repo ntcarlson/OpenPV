@@ -48,13 +48,6 @@ void CopyConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
    // whenever original the conn synchronizes.
 }
 
-void CopyConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   // CopyConn doesn't use a weight initializer
-   if (ioFlag==PARAMS_IO_READ) {
-      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
-   }
-}
-
 void CopyConn::ioParam_nxp(enum ParamsIOFlag ioFlag) {
    // CopyConn determines nxp from originalConn, during communicateInitInfo
 }
@@ -131,6 +124,11 @@ void CopyConn::ioParam_maskLayerName(enum ParamsIOFlag ioFlag) {
 
 void CopyConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
+}
+
+void CopyConn::setWeightInitializer() {
+   weightInitializer = nullptr;
+   getParams()->handleUnnecessaryStringParameter(name, "weightInitType", nullptr);
 }
 
 int CopyConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {

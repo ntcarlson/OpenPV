@@ -69,14 +69,8 @@ HyPerConn::~HyPerConn()
 
    deleteWeights();
 
-   // free the task information
-   free(normalizeMethod);
+   mParameterDependencies.clear(true); // delete weight initializer and weight normalizer
 
-   delete normalizer;
-
-   free(weightInitTypeString);
-
-   pvDelete(weightInitializer);
    pvDelete(randState);
 
    if(postToPreActivity){
@@ -130,7 +124,6 @@ int HyPerConn::initialize_base()
    parent = NULL;
    ioAppend = false;
 
-   weightInitTypeString = NULL;
    weightInitializer = NULL;
 
    io_timer     = NULL;
@@ -162,7 +155,6 @@ int HyPerConn::initialize_base()
 
    selfFlag = false;  // specifies whether connection is from a layer to itself (i.e. a self-connection)
    combine_dW_with_W_flag = false;
-   normalizeMethod = NULL;
    normalizer = NULL;
    plasticityFlag = false;
    shrinkPatches_flag = false; // default value, overridden by params file parameter "shrinkPatches" in readShrinkPatches()
@@ -392,8 +384,12 @@ int HyPerConn::shrinkPatch(int kExt, int arborId) {
 
 // Deprecated June 22, 2016.  Use HyPerConn::initialize(name, hc) as arguments.  ioParamsFillGroup will create the InitWeights and WeightNormalizer object.
 int HyPerConn::initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer) {
-   this->weightInitializer = weightInitializer;
-   normalizer = weightNormalizer;
+   if (weightInitializer) {
+      this->weightInitializer = weightInitializer;
+   }
+   if(weightNormalizer) {
+      normalizer = weightNormalizer;
+   }
 
    return initialize(name, hc);
 }
@@ -402,10 +398,9 @@ int HyPerConn::initialize(char const * name, HyPerCol * hc) {
    int status = BaseConnection::initialize(name, hc);
 
    pvAssert(parent);
-   PVParams * inputParams = getParams();
 
    //set accumulateFunctionPointer
-   pvAssert(!inputParams->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
+   pvAssert(!getParams()->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
    switch (pvpatchAccumulateType) {
    case CONVOLVE:
       accumulateFunctionPointer  = &pvpatch_accumulate;
@@ -444,26 +439,33 @@ int HyPerConn::initialize(char const * name, HyPerCol * hc) {
    _sparseWeightsAllocated.resize(numAxonalArborLists);
    std::fill(_sparseWeightsAllocated.begin(), _sparseWeightsAllocated.end(), false);
 
+   // The constructor that took the initializer and normalizer as arguments
+   // was deprecated June 22, 2016.
+   // Once that constructor is removed, the setWeightInitializer and
+   // setWeightNormalizer calls can be taken outside of the if-statements.
+   if (weightInitializer==nullptr) {
+      setWeightInitializer();
+   }
+   if (normalizer==nullptr) {
+      setWeightNormalizer();
+   }
+   if (weightInitializer != nullptr) {
+      mParameterDependencies.addObject("weight_initializer", weightInitializer);
+   }
+   if (normalizer != nullptr && !strcmp(normalizer->getName(), getName())) {
+      mParameterDependencies.addObject("weight_normalizer", normalizer);
+   }
+
    return status;
 }
 
-int HyPerConn::setWeightInitializer() {
-   weightInitializer = createInitWeightsObject(weightInitTypeString);
-   if( weightInitializer == NULL) {
-      weightInitializer = getDefaultInitWeightsMethod(getKeyword());
-   }
-   return weightInitializer==NULL ? PV_FAILURE : PV_SUCCESS;
-}
-
-/*
- * This method parses the weightInitType parameter and creates an
- * appropriate InitWeight object for the chosen weight initialization.
- */
-InitWeights * HyPerConn::createInitWeightsObject(const char * weightInitTypeStr) {
+void HyPerConn::setWeightInitializer() {
    pvAssert(weightInitializer == NULL);
-   BaseObject * baseObject = Factory::instance()->createByKeyword(weightInitTypeStr, name, parent);
-   weightInitializer = dynamic_cast<InitWeights*>(baseObject);
-   return weightInitializer;
+   char const * initType = mParams->stringValue(name, "weightInitType", false/*do not warn if absent*/);
+   if (initType) {
+      BaseObject * baseObject = Factory::instance()->createByKeyword(initType, name, parent);
+      weightInitializer = dynamic_cast<InitWeights*>(baseObject);
+   }
 }
 
 int HyPerConn::setPreLayerName(const char * pre_name) {
@@ -543,10 +545,6 @@ int HyPerConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag)
 {
    BaseConnection::ioParamsFillGroup(ioFlag);
    ioParam_sharedWeights(ioFlag);
-   ioParam_weightInitType(ioFlag);
-   if (weightInitializer != nullptr) {
-      weightInitializer->ioParamsFillGroup(ioFlag);
-   }
    ioParam_initializeFromCheckpointFlag(ioFlag);
    ioParam_triggerLayerName(ioFlag);
    ioParam_triggerFlag(ioFlag);
@@ -567,10 +565,6 @@ int HyPerConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag)
    ioParam_nypShrunken(ioFlag);
    ioParam_nfp(ioFlag);
    ioParam_shrinkPatches(ioFlag);
-   ioParam_normalizeMethod(ioFlag);
-   if (normalizer != nullptr && !strcmp(normalizer->getName(), getName())) {
-      normalizer->ioParamsFillGroup(ioFlag);
-   }
    ioParam_dWMax(ioFlag);
    ioParam_keepKernelsSynchronized(ioFlag);
 
@@ -702,16 +696,6 @@ void HyPerConn::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
 
 void HyPerConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    ioParamValue(ioFlag, name, "sharedWeights", &sharedWeights, true/*default*/, true/*warn if absent*/);
-}
-
-void HyPerConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "weightInitType", &weightInitTypeString, NULL, true/*warnIfAbsent*/);
-   // The constructor that took a weightInitializer as an argument was deprecated June 22, 2022.
-   // Once that constructor is removed, the weightInitializer==NULL part of the if-statement below can be removed.
-   if (ioFlag==PARAMS_IO_READ && weightInitializer==NULL) {
-      int status = setWeightInitializer();
-      pvAssertMessage(status == PV_SUCCESS, "%s: Rank %d process unable to construct weightInitializer", getDescription_c(), getCommunicator()->commRank());
-   }
 }
 
 void HyPerConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
@@ -987,37 +971,47 @@ void HyPerConn::ioParam_dWMax(enum ParamsIOFlag ioFlag) {
    }
 }
 
-void HyPerConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "normalizeMethod", &normalizeMethod, NULL, true/*warnIfAbsent*/);
-   if (ioFlag==PARAMS_IO_READ) {
-      if (normalizeMethod==NULL) {
-         if (getCommunicator()->commRank()==0) {
-            pvError().printf("%s: specifying a normalizeMethod string is required.\n", getDescription_c());
+/*
+      if ( mParams->stringPresent(group_name, param_name) ) {
+         param_string = mParams->stringValue(group_name, param_name, warnIfAbsent);
+      }
+      else {
+         // parameter was not set in params file; use the default.  But default might or might not be nullptr.
+         if (columnId()==0 && warnIfAbsent==true) {
+            pvWarn().printf("Using default value of nullptr for string parameter \"%s\" in group \"%s\"\n", param_name, group_name);
          }
+         param_string = defaultValue;
       }
-      if (!strcmp(normalizeMethod, "")) {
-         free(normalizeMethod);
-         normalizeMethod = strdup("none");
+      if (param_string!=nullptr) {
+         *value = strdup(param_string);
+         pvErrorIf(*value==nullptr, "Global rank %d process unable to copy param %s in group \"%s\": %s\n", globalRank(), param_name, group_name, strerror(errno));
       }
-      // The constructor that took a normalizer as an argument was deprecated June 22, 2022.
-      // Once that constructor is removed, the normalizer==NULL part of the if-statement below can be removed.
-      if (normalizer==nullptr && strcmp(normalizeMethod, "none")) {
-         int status = setWeightNormalizer();
-         if (status != PV_SUCCESS) {
-            pvError().printf("%s: Rank %d process unable to construct weight normalizer\n", getDescription_c(), getCommunicator()->commRank());
-         }
+      else {
+         *value = nullptr;
       }
-   }
-}
+ */
 
 void HyPerConn::ioParam_weightSparsity(enum ParamsIOFlag ioFlag) {
    ioParamValue(ioFlag, name, "weightSparsity", &_weightSparsity, 0.0f, false);
 }
 
-int HyPerConn::setWeightNormalizer() {
+void HyPerConn::setWeightNormalizer() {
    pvAssert(normalizer==nullptr);
-   pvAssert(normalizeMethod != nullptr);
-   pvAssertMessage(strcmp(normalizeMethod, "none"), "setWeightNormalizer() should not be called if normalizeMethod was \"none\"");
+   char const * normalizeMethod = nullptr;
+   if ( mParams->stringPresent(name, "normalizeMethod") ) {
+      normalizeMethod = mParams->stringValue(name, "normalizeMethod", false);
+   }
+   else {
+      if (getCommunicator()->commRank()==0) {
+         pvErrorNoExit().printf("%s: specifying a normalizeMethod string is required.\n", getDescription_c());
+      }
+      MPI_Barrier(getCommunicator()->communicator());
+      exit(EXIT_FAILURE);
+   }
+   if (normalizeMethod[0]=='\0') {
+      normalizeMethod = "none";
+   }
+   if (!strcmp(normalizeMethod, "none")) { return; }
    BaseObject * baseObj = Factory::instance()->createByKeyword(normalizeMethod, name, parent);
    if (baseObj == nullptr) {
       if (getCommunicator()->commRank()==0) {
@@ -1035,7 +1029,6 @@ int HyPerConn::setWeightNormalizer() {
       MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
-   return PV_SUCCESS;
 }
 
 void HyPerConn::ioParam_keepKernelsSynchronized(enum ParamsIOFlag ioFlag) {
@@ -1283,9 +1276,6 @@ int HyPerConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
       weightUpdateTime = parent->getDeltaTime();
    }
 
-   auto messagePtr = std::make_shared<CommunicateInitInfoMessage >(*message);
-   if (weightInitializer) { weightInitializer->respond(messagePtr); }
-
    if (sharedWeights) {
       fileType = PVP_KERNEL_FILE_TYPE;
    }
@@ -1293,7 +1283,8 @@ int HyPerConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
       fileType = PVP_WGT_FILE_TYPE;
    }
 
-   if (normalizer) { normalizer->respond(messagePtr); }
+   // normalizer's and weight initializer's communicateInitInfo are called
+   // automatically when BaseObject::respondCommunicateInitInfo notifies mParameterDependencies.
 
    //Check if need transpose
    if(updateGSynFromPostPerspective) {
@@ -1579,14 +1570,6 @@ taus_uint4 * HyPerConn::getRandState(int index) {
       state = randState->getRNG(index);
    }
    return state;
-}
-
-InitWeights * HyPerConn::getDefaultInitWeightsMethod(const char * keyword) {
-   if (getCommunicator()->commRank()==0) {
-      pvErrorNoExit().printf("%s: weightInitType \"%s\" not recognized.  Exiting\n", getDescription_c(), weightInitTypeString);
-   }
-   MPI_Barrier(getCommunicator()->communicator());
-   exit(EXIT_FAILURE);
 }
 
 #ifdef PV_USE_CUDA

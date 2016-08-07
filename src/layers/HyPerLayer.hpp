@@ -59,7 +59,7 @@ class PVParams;
 
 typedef enum TriggerBehaviorTypeEnum { NO_TRIGGER, UPDATEONLY_TRIGGER, RESETSTATE_TRIGGER } TriggerBehaviorType;
 
-class HyPerLayer : public BaseLayer, public Subject{
+class HyPerLayer : public BaseLayer {
 
 protected:
 

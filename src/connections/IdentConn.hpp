@@ -34,8 +34,6 @@ protected:
 #endif // PV_USE_CUDA 
    virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
    virtual void ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag);
-   virtual void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
-   virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
    virtual void ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag);
    virtual void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
    virtual void ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag);
@@ -56,7 +54,8 @@ protected:
    void ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag);
 
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
-   virtual int setWeightInitializer();
+   virtual void setWeightInitializer() override;
+   virtual void setWeightNormalizer() override;
 
    // IdentConn does not need to checkpoint
    virtual int checkpointRead(const char * cpDir, double* timef) { return PV_SUCCESS; }

@@ -61,21 +61,9 @@ void GapConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    HyPerConn::ioParam_sharedWeights(ioFlag);
 }
 
-void GapConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   // Default of normalizeSum for normalizeMethod for GapConns was deprecated Aug 11, 2014.
-   // This default was chosen for backwards compatibility because GapConn used to require normalizeMethod be normalizeSum.
-   // Now GapConn can be normalized using any method, so eventually the default will be removed and the parameter required as is for other HyPerConns.
-   if (ioFlag==PARAMS_IO_READ && !getParams()->stringPresent(name, "normalizeMethod")) {
-      normalizeMethod = strdup("normalizeSum");
-      GapConn * conn = this;
-      normalizer = new NormalizeGap(name, parent);
-      if (getCommunicator()->commRank()==0) {
-         pvWarn().printf("%s: normalizeMethod defaults to normalizeSum for GapConns, but this parameter may be required in a future release, to be consistent with other HyPerConns.\n", getDescription_c());
-      }
-      return;
-   }
-   HyPerConn::ioParam_normalizeMethod(ioFlag);
-}
+// GapConn::ioParam_normalizeMethod, which set the default to normalizeSum,
+// and has been deprecated since Aug 11, 2014, was removed Aug 7, 2016.
+// GapConn now requires that normalizeMethod be set in params.
 
 int GapConn::allocateDataStructures() {
    HyPerLayer * postHyPerLayer = this->postSynapticLayer();

@@ -62,12 +62,6 @@ void PoolingConn::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
    }
 }
 
-void PoolingConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   if (ioFlag==PARAMS_IO_READ) {
-      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
-   }
-}
-
 void PoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
    PVParams * params = getParams();
 
@@ -130,10 +124,12 @@ void PoolingConn::ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag) {
    }
 }
 
-void PoolingConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   if (ioFlag==PARAMS_IO_READ) {
-      getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", "none", false/*case_insensitive*/);
-   }
+void PoolingConn::setWeightInitializer() {
+   getParams()->handleUnnecessaryStringParameter(name, "weightInitType", nullptr);
+}
+
+void PoolingConn::setWeightNormalizer() {
+   getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", nullptr, false/*case_insensitive*/);
 }
 
 int PoolingConn::initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer) {

@@ -21,7 +21,6 @@ protected:
    GapConn();
    void ioParam_channelCode(enum ParamsIOFlag ioFlag); // No channel argument in params because GapConn must always use CHANNEL_GAP
    virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
-   void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
 
    int initialize(const char * name, HyPerCol * hc);
 

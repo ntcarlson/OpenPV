@@ -58,15 +58,13 @@ int InitWeights::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Read/write any params from the params file, typically
    // ioParamValue(ioFlag, name, "param_name", &param, default_value);
 
+   int status = PV_SUCCESS;
    if (ioFlag==PARAMS_IO_READ) {
       weightParams = createNewWeightParams();
-   }
-   int status = PV_SUCCESS;
-   if (weightParams==NULL) {
-      status = PV_FAILURE;
-   }
-   else {
-      weightParams->ioParamsFillGroup(ioFlag);
+      mParameterDependencies.addObject("weightParams", weightParams);
+      if (weightParams==NULL) {
+         status = PV_FAILURE;
+      }
    }
    return status;
 }

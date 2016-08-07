@@ -121,13 +121,6 @@ void TransposePoolingConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
    }
 }
 
-void TransposePoolingConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   // TransposePoolingConn doesn't use a weight initializer
-   if (ioFlag==PARAMS_IO_READ) {
-      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
-   }
-}
-
 void TransposePoolingConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       initializeFromCheckpointFlag = false;
@@ -264,16 +257,18 @@ void TransposePoolingConn::ioParam_shrinkPatches(enum ParamsIOFlag ioFlag) {
    }
 }
 
-void TransposePoolingConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   if (ioFlag == PARAMS_IO_READ) {
-      normalizer = NULL;
-      normalizeMethod = strdup("none");
-      getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", "none");
-   }
-}
-
 void TransposePoolingConn::ioParam_originalConnName(enum ParamsIOFlag ioFlag) {
    parent->ioParamStringRequired(ioFlag, name, "originalConnName", &originalConnName);
+}
+
+void TransposePoolingConn::setWeightInitializer() {
+   weightInitializer = nullptr;
+   getParams()->handleUnnecessaryStringParameter(name, "weightInitType", nullptr);
+}
+
+void TransposePoolingConn::setWeightNormalizer() {
+   normalizer = nullptr;
+   getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", nullptr);
 }
 
 int TransposePoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {

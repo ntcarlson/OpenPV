@@ -67,17 +67,6 @@ void IdentConn::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
    }
 }
 
-void IdentConn::ioParam_weightInitType(enum ParamsIOFlag ioFlag) {
-   if (ioFlag==PARAMS_IO_READ) {
-      weightInitializer = new InitIdentWeights(name, parent);
-      getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
-   }
-}
-
-void IdentConn::ioParam_normalizeMethod(enum ParamsIOFlag ioFlag) {
-   normalizer = NULL;
-}
-
 void IdentConn::ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag) {
    if (ioFlag == PARAMS_IO_READ) {
       numAxonalArborLists = 1;
@@ -211,12 +200,16 @@ void IdentConn::ioParam_updateGSynFromPostPerspective(enum ParamsIOFlag ioFlag){
    }
 }
 
-int IdentConn::setWeightInitializer() {
-   weightInitializer = (InitWeights *) new InitIdentWeights(name, parent);
-   if( weightInitializer == NULL ) {
-      pvError().printf("IdentConn \"%s\": Rank %d process unable to create InitIdentWeights object.  Exiting.\n", name, getCommunicator()->commRank());
-   }
-   return PV_SUCCESS;
+void IdentConn::setWeightInitializer() {
+   auto baseObj = Factory::instance()->createByKeyword("IdentWeight", name, parent);
+   weightInitializer = dynamic_cast<InitWeights*>(baseObj);
+   pvAssert(weightInitializer);
+   getParams()->handleUnnecessaryStringParameter(name, "weightInitType", NULL);
+}
+
+void IdentConn::setWeightNormalizer() {
+   normalizer = nullptr;
+   getParams()->handleUnnecessaryStringParameter(name, "normalizeMethod", NULL);
 }
 
 int IdentConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {

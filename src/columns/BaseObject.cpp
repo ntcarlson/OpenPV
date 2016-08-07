@@ -113,6 +113,7 @@ int BaseObject::respondCommunicateInitInfo(std::shared_ptr<CommunicateInitInfoMe
    if (getInitInfoCommunicatedFlag()) { return status; }
    status = communicateInitInfo(message);
    if (status==PV_SUCCESS) { setInitInfoCommunicatedFlag(); }
+   notify(mParameterDependencies, message);
    return status;
 }
 
@@ -122,6 +123,8 @@ int BaseObject::respondWriteParams(std::shared_ptr<WriteParamsMessage const> mes
    bool includeHeaderFooter = message->mIncludeHeaderFooter;
    mParams->writeParamsStartGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream, includeHeaderFooter);
    int status = ioParamsFillGroup(PARAMS_IO_WRITE);
+   auto dependencyMessage = std::make_shared<WriteParamsMessage>(message->mPrintParamsStream, mPrintLuaParamsStream, false);
+   notify(mParameterDependencies, dependencyMessage);
    mParams->writeParamsFinishGroup(getName(), mPrintParamsStream, mPrintLuaParamsStream, includeHeaderFooter);
    return status;
 }

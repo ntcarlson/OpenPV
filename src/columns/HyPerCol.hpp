@@ -465,11 +465,11 @@ private:
    int ioParams(enum ParamsIOFlag ioFlag);
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    int checkDirExists(const char * dirname, struct stat * pathstat);
-   void notify(std::vector<std::shared_ptr<BaseMessage> > messages) {
+   void notify(std::vector<std::shared_ptr<BaseMessage const> > messages) {
       Subject::notify(mObjectHierarchy, messages);
    }
-   inline void notify(std::shared_ptr<BaseMessage> message) {
-      Subject::notify(mObjectHierarchy, std::vector<std::shared_ptr<BaseMessage> >{message});
+   inline void notify(std::shared_ptr<BaseMessage const> message) {
+      Subject::notify(mObjectHierarchy, std::vector<std::shared_ptr<BaseMessage const> >{message});
    }
    int checkpointRead();
    int checkpointWrite(const char * cpDir);

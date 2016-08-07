@@ -37,11 +37,6 @@ protected:
    virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
 
    /**
-    * @brief weightInitType is not used by CopyConn.
-    */
-   virtual void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
-
-   /**
     * @brief CopyConn inherits nxp from the original connection, instead of reading it from parameters
     */
    virtual void ioParam_nxp(enum ParamsIOFlag ioFlag);
@@ -111,6 +106,8 @@ protected:
     */
    virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
    /** @} */
+
+   virtual void setWeightInitializer() override;
 
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int setPatchSize();

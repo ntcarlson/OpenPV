@@ -25,6 +25,7 @@ public:
    InitWeightsParams(char const * name, HyPerCol * hc);
    virtual ~InitWeightsParams();
 
+   virtual int setDescription() override;
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
 
@@ -59,6 +60,7 @@ protected:
    int initialize_base();
    int initialize(char const * name, HyPerCol * hc);
 
+   char           * weightInitTypeString = nullptr;
    HyPerLayer     * pre;
    HyPerLayer     * post;
    HyPerConn      * parentConn;
@@ -70,6 +72,46 @@ protected:
 
    void getcheckdimensionsandstrides();
    int kernelIndexCalculations(int patchIndex);
+
+   /**
+    * @brief weightInitType: Specifies the initialization method of weights
+    * @details Possible choices are
+    * - @link InitGauss2DWeightsParams Gauss2DWeight@endlink:
+    *   Initializes weights with a gaussian distribution in x and y over each f
+    *
+    * - @link InitCocircWeightsParams CoCircWeight@endlink:
+    *   Initializes cocircular weights
+    *
+    * - @link InitUniformWeightsParams UniformWeight@endlink:
+    *   Initializes weights with a single uniform weight
+    *
+    * - @link InitSmartWeights SmartWeight@endlink:
+    *   TODO
+    *
+    * - @link InitUniformRandomWeightsParams UniformRandomWeight@endlink:
+    *   Initializes weights with a uniform distribution
+    *
+    * - @link InitGaussianRandomWeightsParams GaussianRandomWeight@endlink:
+    *   Initializes individual weights with a gaussian distribution
+    *
+    * - @link InitIdentWeightsParams IdentWeight@endlink:
+    *   Initializes weights for ident conn (one to one with a strength to 1)
+    *
+    * - @link InitOneToOneWeightsParams OneToOneWeight@endlink:
+    *   Initializes weights as a multiple of the identity matrix
+    *
+    * - @link InitOneToOneWeightsWithDelaysParams OneToOneWeightsWithDelays@endlink:
+    *   Initializes weights as a multiple of the identity matrix with delays
+    *
+    * - @link InitSpreadOverArborsWeightsParams SpreadOverArborsWeight@endlink:
+    *   Initializes weights where different part of the weights over different arbors
+    *
+    * - @link InitWeightsParams FileWeight@endlink:
+    *   Initializes weights from a specified pvp file.
+    *
+    * Further parameters are needed depending on initialization type
+    */
+   virtual void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
    virtual void ioParam_initWeightsFile(enum ParamsIOFlag ioFlag);
    virtual void ioParam_useListOfArborFiles(enum ParamsIOFlag ioFlag);
    virtual void ioParam_combineWeightFiles(enum ParamsIOFlag ioFlag);

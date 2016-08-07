@@ -45,7 +45,6 @@ protected:
     int initialize(const char * name, HyPerCol * hc);
     virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
     virtual void ioParam_sharedWeights(enum ParamsIOFlag ioFlag);
-    virtual void ioParam_weightInitType(enum ParamsIOFlag ioFlag);
     virtual void ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag);
     virtual void ioParam_numAxonalArbors(enum ParamsIOFlag ioFlag);
     virtual void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
@@ -60,8 +59,9 @@ protected:
     virtual void ioParam_weightUpdatePeriod(enum ParamsIOFlag ioFlag);
     virtual void ioParam_initialWeightUpdateTime(enum ParamsIOFlag ioFlag);
     virtual void ioParam_shrinkPatches(enum ParamsIOFlag ioFlag);
-    virtual void ioParam_normalizeMethod(enum ParamsIOFlag ioFlag);
     virtual void ioParam_originalConnName(enum ParamsIOFlag ioFlag);
+    virtual void setWeightInitializer() override;
+    virtual void setWeightNormalizer() override;
     virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
     virtual int setPatchSize();
     virtual int setNeededRNGSeeds() {return 0;}

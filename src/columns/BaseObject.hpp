@@ -23,7 +23,8 @@
 #ifndef BASEOBJECT_HPP_
 #define BASEOBJECT_HPP_
 
-#include <observerpattern/Observer.hpp>
+#include "observerpattern/Observer.hpp"
+#include "observerpattern/Subject.hpp"
 #include "columns/CommunicateInitInfoMessage.hpp"
 #include "columns/Communicator.hpp"
 #include "columns/Messages.hpp"
@@ -38,7 +39,7 @@ namespace PV {
 
 class HyPerCol;
 
-class BaseObject : public Observer {
+class BaseObject : public Observer, public Subject {
 public:
    inline char const * getName() const { return name; }
    inline PVParams * getParams() const { return mParams; }
@@ -117,6 +118,8 @@ protected:
 
    PV_Stream* mPrintParamsStream = nullptr; // file pointer associated with mPrintParamsFilename
    PV_Stream* mPrintLuaParamsStream = nullptr; // file pointer associated with the output lua file
+
+   ObserverTable mParameterDependencies;
 
 private:
    int initialize_base();

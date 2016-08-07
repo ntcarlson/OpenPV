@@ -11,7 +11,7 @@
 
 namespace PV {
 
-void Subject::notify(ObserverTable const& table, std::vector<std::shared_ptr<BaseMessage> > messages) {
+void Subject::notify(ObserverTable const& table, std::vector<std::shared_ptr<BaseMessage const> > messages) {
    auto needsUpdate = table.getObjectVector();
    auto numNeedsUpdate = needsUpdate.size();
    while(numNeedsUpdate>0) {
