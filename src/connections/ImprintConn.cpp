@@ -62,7 +62,7 @@ void ImprintConn::ioParam_sharedWeights(enum ParamsIOFlag ioFlag) {
 }
 
 void ImprintConn::ioParam_imprintTimeThresh(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValueRequired(ioFlag, name, "imprintTimeThresh", &imprintTimeThresh);
+   ioParamValueRequired(ioFlag, name, "imprintTimeThresh", &imprintTimeThresh);
    if (ioFlag==PARAMS_IO_READ) {
       if (imprintTimeThresh==-1) {
          imprintTimeThresh = weightUpdateTime * 100; //Default value of 100 weight updates

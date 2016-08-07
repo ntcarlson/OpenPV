@@ -91,6 +91,9 @@ protected:
    template <typename T>
    void ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * val, T defaultValue, bool warnIfAbsent=true);
 
+   template <typename T>
+   void ioParamValueRequired(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * val);
+
    void ioParamString(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value, const char * defaultValue, bool warnIfAbsent=true);
    void ioParamStringRequired(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value);
 
@@ -136,6 +139,19 @@ void BaseObject::ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, 
    switch(ioFlag) {
    case PARAMS_IO_READ:
       *value = (T) mParams->value(groupName, paramName, defaultValue, warnIfAbsent);
+      break;
+   case PARAMS_IO_WRITE:
+      writeFormattedParamValue(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);
+      break;
+   }
+}
+
+template <typename T>
+void BaseObject::ioParamValueRequired(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * value) {
+   switch(ioFlag) {
+   case PARAMS_IO_READ:
+      if (typeid(T) == typeid(int)) { *value = mParams->valueInt(groupName, paramName); }
+      else { *value = mParams->value(groupName, paramName); }
       break;
    case PARAMS_IO_WRITE:
       writeFormattedParamValue(paramName, *value, mPrintParamsStream, mPrintLuaParamsStream);

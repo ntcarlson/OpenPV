@@ -675,7 +675,7 @@ void HyPerConn::ioParam_numFLocal(enum ParamsIOFlag ioFlag) {
 void HyPerConn::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       int ch = 0;
-      parent->ioParamValueRequired(ioFlag, name, "channelCode", &ch);
+      ioParamValueRequired(ioFlag, name, "channelCode", &ch);
       int status = decodeChannel(ch, &channel);
       if (status != PV_SUCCESS) {
          if (getCommunicator()->commRank()==0) {
@@ -687,7 +687,7 @@ void HyPerConn::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
    }
    else if (ioFlag==PARAMS_IO_WRITE) {
       int ch = (int) channel;
-      parent->ioParamValueRequired(ioFlag, name, "channelCode", &ch);
+      ioParamValueRequired(ioFlag, name, "channelCode", &ch);
    }
    else {
       pvError().printf("All possibilities of ioFlag are covered above.");
@@ -967,7 +967,7 @@ void HyPerConn::ioParam_updateGSynFromPostPerspective(enum ParamsIOFlag ioFlag) 
 void HyPerConn::ioParam_dWMax(enum ParamsIOFlag ioFlag) {
    pvAssert(!getParams()->presentAndNotBeenRead(name, "plasticityFlag"));
    if (plasticityFlag) {
-      parent->ioParamValueRequired(ioFlag, name, "dWMax", &dWMax);
+      ioParamValueRequired(ioFlag, name, "dWMax", &dWMax);
    }
 }
 

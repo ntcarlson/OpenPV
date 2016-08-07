@@ -251,7 +251,7 @@ void BaseConnection::ioParam_postLayerName(enum ParamsIOFlag ioFlag) {
 void BaseConnection::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
    if (ioFlag==PARAMS_IO_READ) {
       int ch = 0;
-      this->getParent()->ioParamValueRequired(ioFlag, this->getName(), "channelCode", &ch);
+      this->ioParamValueRequired(ioFlag, this->getName(), "channelCode", &ch);
       int status = decodeChannel(ch, &channel);
       if (status != PV_SUCCESS) {
          if (this->getCommunicator()->commRank()==0) {
@@ -264,7 +264,7 @@ void BaseConnection::ioParam_channelCode(enum ParamsIOFlag ioFlag) {
    }
    else if (ioFlag==PARAMS_IO_WRITE) {
       int ch = (int) channel;
-      this->getParent()->ioParamValueRequired(ioFlag, this->getName(), "channelCode", &ch);
+      this->ioParamValueRequired(ioFlag, this->getName(), "channelCode", &ch);
    }
    else {
       assert(0); // All possibilities of ioFlag are covered above.

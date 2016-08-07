@@ -54,19 +54,19 @@ int PointProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void PointProbe::ioParam_xLoc(enum ParamsIOFlag ioFlag) {
-   getParent()->ioParamValueRequired(ioFlag, getName(), "xLoc", &xLoc);
+   ioParamValueRequired(ioFlag, getName(), "xLoc", &xLoc);
 }
 
 void PointProbe::ioParam_yLoc(enum ParamsIOFlag ioFlag) {
-   getParent()->ioParamValueRequired(ioFlag, getName(), "yLoc", &yLoc);
+   ioParamValueRequired(ioFlag, getName(), "yLoc", &yLoc);
 }
 
 void PointProbe::ioParam_fLoc(enum ParamsIOFlag ioFlag) {
-   getParent()->ioParamValueRequired(ioFlag, getName(), "fLoc", &fLoc);
+   ioParamValueRequired(ioFlag, getName(), "fLoc", &fLoc);
 }
 
 void PointProbe::ioParam_batchLoc(enum ParamsIOFlag ioFlag) {
-   getParent()->ioParamValueRequired(ioFlag, getName(), "batchLoc", &batchLoc);
+   ioParamValueRequired(ioFlag, getName(), "batchLoc", &batchLoc);
 }
 
 int PointProbe::initNumValues() {
