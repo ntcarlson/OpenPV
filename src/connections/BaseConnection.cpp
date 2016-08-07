@@ -304,7 +304,7 @@ void BaseConnection::ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) {
 // The warning issued if the params file contained preActivityIsNotRate was removed on Aug 5, 2014.
 
 void BaseConnection::ioParam_convertRateToSpikeCount(enum ParamsIOFlag ioFlag) {
-   getParent()->ioParamValue(ioFlag, this->getName(), "convertRateToSpikeCount", &convertRateToSpikeCount, false/*default value*/);
+   ioParamValue(ioFlag, this->getName(), "convertRateToSpikeCount", &convertRateToSpikeCount, false/*default value*/);
 }
 
 void BaseConnection::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
