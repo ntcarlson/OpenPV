@@ -244,7 +244,7 @@ int PtwiseLinearTransferLayer::setActivity() {
    return setActivity_PtwiseLinearTransferLayer(nbatch, num_neurons, getCLayer()->activity->data, getV(), nx, ny, nf, halo->lt, halo->rt, halo->dn, halo->up, numVertices, verticesV, verticesA, slopes);
 }
 
-int PtwiseLinearTransferLayer::checkpointRead(char const * cpDir, double * timeptr) {
+int PtwiseLinearTransferLayer::checkpointRead(char const * cpDir, double const * timeptr) {
    int status = HyPerLayer::checkpointRead(cpDir, timeptr);
    if (status==PV_SUCCESS) {
       status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());

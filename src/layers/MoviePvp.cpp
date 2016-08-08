@@ -44,7 +44,7 @@ int MoviePvp::initialize_base() {
    return PV_SUCCESS;
 }
 
-int MoviePvp::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int MoviePvp::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = ImagePvp::readStateFromCheckpoint(cpDir, timeptr);
    status = readFrameNumStateFromCheckpoint(cpDir);
    return status;
@@ -56,7 +56,7 @@ int MoviePvp::readFrameNumStateFromCheckpoint(const char * cpDir) {
    return status;
 }
 
-int MoviePvp::checkpointRead(const char * cpDir, double * timef){
+int MoviePvp::checkpointRead(const char * cpDir, double const * timef){
    int status = ImagePvp::checkpointRead(cpDir, timef);
 
    // should this be moved to readStateFromCheckpoint?

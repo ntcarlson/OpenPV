@@ -188,7 +188,7 @@ int LCALIFLayer::updateState(double timed, double dt)
    return PV_SUCCESS;
 }
 
-int LCALIFLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int LCALIFLayer::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = LIFGap::readStateFromCheckpoint(cpDir, timeptr);
    double filetime = 0.0;
    status = read_integratedSpikeCountFromCheckpoint(cpDir, timeptr);
@@ -196,7 +196,7 @@ int LCALIFLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
    return status;
 }
 
-int LCALIFLayer::read_integratedSpikeCountFromCheckpoint(const char * cpDir, double * timeptr) {
+int LCALIFLayer::read_integratedSpikeCountFromCheckpoint(const char * cpDir, double const * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "integratedSpikeCount", "pvp");
    int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
@@ -204,7 +204,7 @@ int LCALIFLayer::read_integratedSpikeCountFromCheckpoint(const char * cpDir, dou
    return status;
 }
 
-int LCALIFLayer::readVadptFromCheckpoint(const char * cpDir, double * timeptr) {
+int LCALIFLayer::readVadptFromCheckpoint(const char * cpDir, double const * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "Vadpt", "pvp");
    int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &Vth, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);

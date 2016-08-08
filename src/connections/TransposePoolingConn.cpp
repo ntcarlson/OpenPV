@@ -718,7 +718,7 @@ int TransposePoolingConn::deliverPresynapticPerspective(PVLayerCube const * acti
    return PV_SUCCESS;
 }
 
-int TransposePoolingConn::checkpointRead(const char * cpDir, double * timeptr) {
+int TransposePoolingConn::checkpointRead(const char * cpDir, double const * timeptr) {
    return PV_SUCCESS;
 }
 

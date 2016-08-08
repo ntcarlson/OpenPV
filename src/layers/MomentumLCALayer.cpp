@@ -241,7 +241,7 @@ int MomentumLCALayer::checkpointWrite(const char * cpDir) {
    return status;
 } /* namespace PV */
 
-int MomentumLCALayer::checkpointRead(const char * cpDir, double * timeptr) {
+int MomentumLCALayer::checkpointRead(const char * cpDir, double const * timeptr) {
    HyPerLCALayer::checkpointRead(cpDir, timeptr);
    int status = PV_SUCCESS;
    auto filename = pathInCheckpoint(cpDir, getName(), "prevDrive", "pvp");

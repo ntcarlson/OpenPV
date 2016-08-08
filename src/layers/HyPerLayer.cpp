@@ -518,26 +518,8 @@ void HyPerLayer::addPublisher() {
    publisher = new Publisher(icComm, getNumExtended(), clayer->loc, getNumDelayLevels(), getSparseFlag());
 }
 
-int HyPerLayer::initializeState() {
-   int status = PV_SUCCESS;
-   PVParams * params = getParams();
-
-   if (parent->getCheckpointReadFlag()) {
-      double checkTime = parent->simulationTime();
-      checkpointRead(parent->getCheckpointReadDir(), &checkTime);
-   }
-   else if (parent->getInitializeFromCheckpointDir() && parent->getInitializeFromCheckpointDir()[0]) {
-      assert(!params->presentAndNotBeenRead(name, "initializeFromCheckpointFlag"));
-      if (initializeFromCheckpointFlag) {
-         status = readStateFromCheckpoint(parent->getInitializeFromCheckpointDir(), NULL);
-      }
-      else {
-         status = setInitialValues();
-      }
-   }
-   else {
-      status = setInitialValues();
-   }
+int HyPerLayer::initializeState(char const * checkpointDir) {
+   int status = BaseLayer::initializeState(checkpointDir);
 #ifdef PV_USE_CUDA
    copyInitialStateToGPU();
 #endif // PV_USE_CUDA
@@ -587,13 +569,13 @@ int HyPerLayer::initializeActivity() {
 int HyPerLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Derived classes with new params behavior should override ioParamsFillGroup
    // and the overriding method should call the base class's ioParamsFillGroup.
+   int status = BaseLayer::ioParamsFillGroup(ioFlag);
    ioParam_nxScale(ioFlag);
    ioParam_nyScale(ioFlag);
    ioParam_nf(ioFlag);
    ioParam_phase(ioFlag);
    ioParam_mirrorBCflag(ioFlag);
    ioParam_valueBC(ioFlag);
-   ioParam_initializeFromCheckpointFlag(ioFlag);
    ioParam_InitVType(ioFlag);
    ioParam_triggerLayerName(ioFlag);
    ioParam_triggerFlag(ioFlag);
@@ -611,7 +593,7 @@ int HyPerLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    ioParam_updateGpu(ioFlag);
 
    ioParam_dataType(ioFlag);
-   return PV_SUCCESS;
+   return status;
 }
 
 void HyPerLayer::ioParam_dataType(enum ParamsIOFlag ioFlag) {
@@ -676,13 +658,6 @@ void HyPerLayer::ioParam_valueBC(enum ParamsIOFlag ioFlag) {
    assert(!getParams()->presentAndNotBeenRead(name, "mirrorBCflag"));
    if (!mirrorBCflag) {
       ioParamValue(ioFlag, name, "valueBC", &valueBC, (pvdata_t) 0);
-   }
-}
-
-void HyPerLayer::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
-   assert(parent->getInitializeFromCheckpointDir());
-   if (parent->getInitializeFromCheckpointDir() && parent->getInitializeFromCheckpointDir()[0]) {
-      ioParamValue(ioFlag, name, "initializeFromCheckpointFlag", &initializeFromCheckpointFlag, parent->getDefaultInitializeFromCheckpointFlag(), true/*warnIfAbsent*/);
    }
 }
 
@@ -1972,7 +1947,7 @@ int HyPerLayer::outputState(double timef, bool last)
    return status;
 }
 
-int HyPerLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int HyPerLayer::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    // If timeptr is NULL, the timestamps in the pvp files are ignored.  If non-null, they are compared to the value of *timeptr and
    // a warning is issued if there is a discrepancy.
    int status = PV_SUCCESS;
@@ -1982,7 +1957,7 @@ int HyPerLayer::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
    return status;
 }
 
-int HyPerLayer::readActivityFromCheckpoint(const char * cpDir, double * timeptr) {
+int HyPerLayer::readActivityFromCheckpoint(const char * cpDir, double const * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "A", "pvp");
    int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &clayer->activity->data, 1, /*extended*/true, getLayerLoc());
    assert(status==PV_SUCCESS);
@@ -1991,7 +1966,7 @@ int HyPerLayer::readActivityFromCheckpoint(const char * cpDir, double * timeptr)
    return status;
 }
 
-int HyPerLayer::readVFromCheckpoint(const char * cpDir, double * timeptr) {
+int HyPerLayer::readVFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = PV_SUCCESS;
    if (getV() != NULL) {
       auto filename = pathInCheckpoint(cpDir, getName(), "V", "pvp");
@@ -2003,7 +1978,7 @@ int HyPerLayer::readVFromCheckpoint(const char * cpDir, double * timeptr) {
    return status;
 }
 
-int HyPerLayer::readDelaysFromCheckpoint(const char * cpDir, double * timeptr) {
+int HyPerLayer::readDelaysFromCheckpoint(const char * cpDir, double const * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "Delays", "pvp");
    int status = readDataStoreFromFile(filename->c_str(), getCommunicator(), timeptr);
    assert(status == PV_SUCCESS);
@@ -2011,7 +1986,7 @@ int HyPerLayer::readDelaysFromCheckpoint(const char * cpDir, double * timeptr) {
    return status;
 }
 
-int HyPerLayer::checkpointRead(const char * cpDir, double * timeptr) {
+int HyPerLayer::checkpointRead(const char * cpDir, double const * timeptr) {
    int status = readStateFromCheckpoint(cpDir, timeptr);
    if (status != PV_SUCCESS) {
       pvError().printf("%s: rank %d process failed to read state from checkpoint directory \"%s\"\n", getDescription_c(), getCommunicator()->commRank(), cpDir);
@@ -2053,7 +2028,7 @@ int HyPerLayer::checkpointRead(const char * cpDir, double * timeptr) {
 }
 
 template<class T>
-int HyPerLayer::readBufferFile(const char * filename, Communicator * comm, double * timeptr, T ** buffers, int numbands, bool extended, const PVLayerLoc * loc) {
+int HyPerLayer::readBufferFile(const char * filename, Communicator * comm, double const * timeptr, T ** buffers, int numbands, bool extended, const PVLayerLoc * loc) {
    PV_Stream * readFile = pvp_open_read_file(filename, comm);
    int rank = comm->commRank();
    assert( (readFile != NULL && rank == 0) || (readFile == NULL && rank != 0) );
@@ -2130,9 +2105,9 @@ int HyPerLayer::readBufferFile(const char * filename, Communicator * comm, doubl
 }
 // Declare the instantiations of readScalarToFile that occur in other .cpp files; otherwise you'll get linker errors.
 // template void HyPerCol::ioParamValueRequired<pvdata_t>(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, pvdata_t * value);
-template int HyPerLayer::readBufferFile<float>(const char * filename, Communicator * comm, double * timeptr, float ** buffers, int numbands, bool extended, const PVLayerLoc * loc);
+template int HyPerLayer::readBufferFile<float>(const char * filename, Communicator * comm, double const * timeptr, float ** buffers, int numbands, bool extended, const PVLayerLoc * loc);
 
-int HyPerLayer::readDataStoreFromFile(const char * filename, Communicator * comm, double * timeptr) {
+int HyPerLayer::readDataStoreFromFile(const char * filename, Communicator * comm, double const * timeptr) {
    PV_Stream * readFile = pvp_open_read_file(filename, comm);
    assert( (readFile != NULL && comm->commRank() == 0) || (readFile == NULL && comm->commRank() != 0) );
    int numParams = NUM_BIN_PARAMS;

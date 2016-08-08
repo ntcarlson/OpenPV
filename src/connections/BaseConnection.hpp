@@ -69,9 +69,12 @@ public:
     * initializeState() is typically called by passing an InitializeStateMessage to respond(), which is
     * usually done in HyPerCol::run.
     */
-   virtual int initializeState() override final; // Not overridable because all connections should
-   // initializeState in the same way.  BaseConnection::initializeState() calls
-   // either checkpointRead() or setInitialValues(), both of which are virtual.
+   virtual int initializeState(char const * checkpointDir) override final;
+   // Not overridable because all connections should
+   // initializeState in the same way.  BaseConnection::initializeState()
+   // checks plasticityFlag and parent->suppressNonplasticCheckpoints.
+   // If the connection doesn't write to checkpoints, call setInitialValues.
+   // Otherwise, call BaseObject::setInitialValues
 
    /**
     * A pure virtual function for writing the state of the connection to file(s) in the output directory.
@@ -96,15 +99,6 @@ public:
     * and the presynaptic activity
     */
    virtual int deliver() = 0;
-
-   /**
-    * A pure virtual function for reading the state of the connection from the directory specified in cpDir.
-    * On exit, *timeptr is the time at which the checkpoint was written.
-    * checkpointRead() should restore the state of the connection completely, so that restarting from a checkpoint
-    * is equivalent to having the run continue.
-    *
-    */
-   virtual int checkpointRead(const char * cpDir, double * timeptr) = 0;
 
    /**
     * A pure virtual function for writing the state of the connection to the directory specified in cpDir.
@@ -384,19 +378,13 @@ protected:
    virtual void ioParam_receiveGpu(enum ParamsIOFlag ioFlag);
 
    /**
-    * @brief initializeFromCheckpointFlag: If set to true, initialize using checkpoint direcgtory set in HyPerCol.
-    * @details Checkpoint read directory must be set in HyPerCol to initialize from checkpoint.
-    */
-   virtual void ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag);
-
-   /**
     * A pure virtual method that uses an existing checkpoint to
     * initialize the connection.  BaseConnection::initializeState calls it
     * when initializeFromCheckpointFlag is true.  A Subclass may also
     * call this method as part of the implementation of checkpointRead
     * (for example, HyPerConn does this).
     */
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr) = 0;
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr) = 0;
 
    /**
     * A pure virtual method for initializing the connection if we are neither

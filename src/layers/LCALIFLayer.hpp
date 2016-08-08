@@ -37,9 +37,9 @@ protected:
    virtual void ioParam_targetRate(enum ParamsIOFlag ioFlag);
    virtual void ioParam_normalizeInput(enum ParamsIOFlag ioFlag);
    virtual void ioParam_Vscale(enum ParamsIOFlag ioFlag);
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int read_integratedSpikeCountFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readVadptFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int read_integratedSpikeCountFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readVadptFromCheckpoint(const char * cpDir, double const * timeptr);
 
    int allocateBuffers();
 

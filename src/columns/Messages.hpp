@@ -46,9 +46,24 @@ public:
 
 class InitializeStateMessage : public BaseMessage {
 public:
-   InitializeStateMessage() {
+   InitializeStateMessage(char const * checkpointDir) {
       setMessageType("InitializeState");
+      mCheckpointDir.clear();
+      if (checkpointDir) { mCheckpointDir.append(checkpointDir); } // can string::append handle a null pointer?
    }
+   std::string mCheckpointDir;
+};
+
+class CheckpointReadMessage : public BaseMessage {
+public:
+   CheckpointReadMessage(char const * checkpointDir, double const * timestampPtr) {
+      setMessageType("CheckpointRead");
+      mCheckpointDir.clear();
+      mCheckpointDir.append(checkpointDir);
+      mTimestampPtr = timestampPtr;
+   }
+   std::string mCheckpointDir;
+   double const * mTimestampPtr;
 };
 
 class ConnectionUpdateMessage : public BaseMessage {

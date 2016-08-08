@@ -104,6 +104,9 @@ int BaseObject::respond(std::shared_ptr<BaseMessage const> message) {
    else if (auto castMessage = std::dynamic_pointer_cast<InitializeStateMessage const>(message)) {
       return respondInitializeState(castMessage);
    }
+   else if (auto castMessage = std::dynamic_pointer_cast<CheckpointReadMessage const>(message)) {
+      return respondCheckpointRead(castMessage);
+   }
    else {
       return PV_SUCCESS;
    }
@@ -145,9 +148,23 @@ int BaseObject::respondAllocateData(std::shared_ptr<AllocateDataMessage const> m
 int BaseObject::respondInitializeState(std::shared_ptr<InitializeStateMessage const> message) {
    int status = PV_SUCCESS;
    if (getInitialValuesSetFlag()) { return status; }
-   status = initializeState();
+   status = initializeState(message->mCheckpointDir.c_str());
    if (status==PV_SUCCESS) { setInitialValuesSetFlag(); }
    return status;
+}
+
+int BaseObject::respondCheckpointRead(std::shared_ptr<CheckpointReadMessage const> message) {
+   return checkpointRead(message->mCheckpointDir.c_str(), message->mTimestampPtr);
+
+}
+
+int BaseObject::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
+   ioParam_initializeFromCheckpointFlag(ioFlag);
+   return PV_SUCCESS;
+}
+
+void BaseObject::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
+   ioParamValue(ioFlag, name, "initializeFromCheckpointFlag", &mInitializeFromCheckpointFlag, parent->getDefaultInitializeFromCheckpointFlag(), true/*warnIfAbsent*/);
 }
 
 void BaseObject::ioParamString(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, char ** value, const char * defaultValue, bool warnIfAbsent) {
@@ -222,5 +239,15 @@ void BaseObject::ioParamValue<>(enum ParamsIOFlag ioFlag, char const * groupName
    }
 }
 
+int BaseObject::initializeState(char const * checkpointDir) {
+   int status = PV_SUCCESS;
+   if (mInitializeFromCheckpointFlag) {
+      status = readStateFromCheckpoint(checkpointDir, nullptr);
+   }
+   else {
+      status = setInitialValues();
+   }
+   return status;
+}
 
 } /* namespace PV */

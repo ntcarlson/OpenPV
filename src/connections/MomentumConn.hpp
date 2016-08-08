@@ -20,7 +20,7 @@ public:
    virtual int allocateDataStructures();
 
    virtual int applyMomentum(int arbor_ID);
-   virtual int checkpointRead(const char * cpDir, double* timef);
+   virtual int checkpointRead(const char * cpDir, double const * timef) override;
    virtual int checkpointWrite(const char * cpDir);
 protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;

@@ -95,7 +95,7 @@ int Movie::initialize_base() {
    return PV_SUCCESS;
 }
 
-int Movie::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int Movie::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = Image::readStateFromCheckpoint(cpDir, timeptr);
    status = readFrameNumStateFromCheckpoint(cpDir);
    return status;
@@ -111,7 +111,7 @@ int Movie::readFrameNumStateFromCheckpoint(const char * cpDir) {
    return status;
 }
 
-int Movie::checkpointRead(const char * cpDir, double * timef){
+int Movie::checkpointRead(const char * cpDir, double const * timef){
    int status = Image::checkpointRead(cpDir, timef);
 
    // should this be moved to readStateFromCheckpoint?

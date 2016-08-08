@@ -93,6 +93,8 @@ int InitWeightsParams::setDescription() {
 int InitWeightsParams::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Read/write any params from the params file, typically
    // ioParamValue(ioFlag, name, "param_name", &param, default_value);
+
+   // Note that BaseObject::ioParamsFillGroup is not inherited.
    ioParam_weightInitType(ioFlag);
    ioParam_initWeightsFile(ioFlag);
    ioParam_useListOfArborFiles(ioFlag);

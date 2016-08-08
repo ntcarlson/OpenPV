@@ -20,7 +20,7 @@ public:
    PoolingConn(const char * name, HyPerCol * hc);
    virtual ~PoolingConn();
    virtual int allocateDataStructures();
-   virtual int checkpointRead(const char * cpDir, double* timef);
+   virtual int checkpointRead(const char * cpDir, double const * timef) override;
    virtual int checkpointWrite(const char * cpDir);
    virtual float minWeight(int arborId = 0);
    virtual float maxWeight(int arborId = 0);

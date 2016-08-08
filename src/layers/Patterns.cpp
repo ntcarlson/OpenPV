@@ -1045,7 +1045,7 @@ float Patterns::calcPosition(float pos, int step)
    return pos;
 }
 
-int Patterns::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int Patterns::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = BaseInput::readStateFromCheckpoint(cpDir, timeptr);
    status = readPatternStateFromCheckpoint(cpDir);
    return status;

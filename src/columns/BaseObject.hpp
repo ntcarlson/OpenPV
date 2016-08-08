@@ -40,6 +40,14 @@ namespace PV {
 class HyPerCol;
 
 class BaseObject : public Observer, public Subject {
+protected:
+
+   /**
+    * @brief initializeFromCheckpointFlag: If set to true, initialize using checkpoint direcgtory set in HyPerCol.
+    * @details Checkpoint read directory must be set in HyPerCol to initialize from checkpoint.
+    */
+   virtual void ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag);
+
 public:
    inline char const * getName() const { return name; }
    inline PVParams * getParams() const { return mParams; }
@@ -82,11 +90,24 @@ protected:
    int respondWriteParams(std::shared_ptr<WriteParamsMessage const> message);
    int respondAllocateData(std::shared_ptr<AllocateDataMessage const> message);
    int respondInitializeState(std::shared_ptr<InitializeStateMessage const> message);
+   int respondCheckpointRead(std::shared_ptr<CheckpointReadMessage const> message);
 
-   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) { return PV_SUCCESS; }
+   virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) { return PV_SUCCESS; }
    virtual int allocateDataStructures() { return PV_SUCCESS; }
-   virtual int initializeState() { return PV_SUCCESS; }
+
+   virtual int initializeState(char const * checkpointDir);
+   virtual int readStateFromCheckpoint(char const * checkpointDir, double const * timestamp) { return PV_SUCCESS; }
+   virtual int setInitialValues() { return PV_SUCCESS; }
+   /**
+    * A virtual function for reading the state of the connection from the directory specified in checkpointDir.
+    * On exit, *timeptr is the time at which the checkpoint was written.
+    * checkpointRead() should restore the state of the connection completely, so that restarting from a checkpoint
+    * is equivalent to having the run continue.
+    * timestampPtr is a pointer to the expected time value.  If the checkpoint corresponds to a different time,
+    * a warning is issued.  If timestampPtr is null, the timestamp is not checked.
+    */
+   virtual int checkpointRead(char const * checkpointDir, double const * timestampPtr) { return PV_SUCCESS; }
 
    template <typename T>
    void ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * val, T defaultValue, bool warnIfAbsent=true);
@@ -131,6 +152,7 @@ protected:
    ObserverTable mParameterDependencies;
    int mBatchWidth = 1;
    int mBatchWidthGlobal = 1;
+   bool mInitializeFromCheckpointFlag = false;
 
 private:
    int initialize_base();

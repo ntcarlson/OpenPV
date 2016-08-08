@@ -69,6 +69,8 @@ int BaseProbe::initialize(const char * probeName, HyPerCol * hc)
 }
 
 int BaseProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
+   // Note that BaseObject::ioParamsFillGroup is not inherited.
+   // Probes do not yet use checkpointing (although they could, e.g., save the location of the text file they write to)
    ioParam_targetName(ioFlag);
    ioParam_message(ioFlag);
    ioParam_textOutputFlag(ioFlag);

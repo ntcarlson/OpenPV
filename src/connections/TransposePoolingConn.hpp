@@ -37,7 +37,7 @@ public:
       return PV_FAILURE;
    }
 #endif
-   virtual int checkpointRead(const char * cpDir, double * timeptr);
+   virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
    virtual int checkpointWrite(const char * cpDir);
 
 protected:

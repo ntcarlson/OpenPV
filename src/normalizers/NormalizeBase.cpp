@@ -53,6 +53,7 @@ int NormalizeBase::setDescription() {
 }
 
 int NormalizeBase::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
+   // Note that BaseObject::ioParamsFillGroup is not inherited.
    ioParam_normalizeMethod(ioFlag);
    ioParam_strength(ioFlag);
    ioParam_normalizeArborsIndividually(ioFlag);

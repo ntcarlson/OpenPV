@@ -118,7 +118,7 @@ protected:
    virtual bool constrainOffsets() {return false;}
    virtual double getDeltaUpdateTime();
 
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
    virtual int readPatternStateFromCheckpoint(const char * cpDir);
 
    virtual int retrieveData(double timef, double dt, int batchIndex);

@@ -58,7 +58,7 @@ protected:
    virtual void setWeightNormalizer() override;
 
    // IdentConn does not need to checkpoint
-   virtual int checkpointRead(const char * cpDir, double* timef) { return PV_SUCCESS; }
+   virtual int checkpointRead(const char * cpDir, double const * timef) override { return PV_SUCCESS; }
    virtual int checkpointWrite(const char * cpDir) { return PV_SUCCESS; }
 
    virtual void handleDefaultSelfFlag();

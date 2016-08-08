@@ -207,13 +207,13 @@ int LIFGap::checkpointWrite(const char * cpDir) {
    return status;
 }
 
-int LIFGap::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int LIFGap::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = LIF::readStateFromCheckpoint(cpDir, timeptr);
    status = readGapStrengthFromCheckpoint(cpDir, timeptr);
    return status;
 }
 
-int LIFGap::readGapStrengthFromCheckpoint(const char * cpDir, double * timeptr) {
+int LIFGap::readGapStrengthFromCheckpoint(const char * cpDir, double const * timeptr) {
    auto filename = pathInCheckpoint(cpDir, getName(), "gapStrength", "pvp");
    int status = readBufferFile(filename->c_str(), getCommunicator(), timeptr, &gapStrength, 1, /*extended*/false, getLayerLoc());
    assert(status==PV_SUCCESS);

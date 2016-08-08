@@ -545,7 +545,6 @@ int HyPerConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag)
 {
    BaseConnection::ioParamsFillGroup(ioFlag);
    ioParam_sharedWeights(ioFlag);
-   ioParam_initializeFromCheckpointFlag(ioFlag);
    ioParam_triggerLayerName(ioFlag);
    ioParam_triggerFlag(ioFlag);
    ioParam_triggerOffset(ioFlag);
@@ -2068,7 +2067,7 @@ int HyPerConn::writeTextWeights(const char * filename, int k)
    return 0;
 }
 
-int HyPerConn::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int HyPerConn::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    // If timeptr is NULL, the timestamps in the pvp files are ignored.  If non-null, they are compared to the value of *timeptr and
    // a warning is issued if there is a discrepancy.
    int status = PV_SUCCESS;
@@ -2076,7 +2075,7 @@ int HyPerConn::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
    return status;
 }
 
-int HyPerConn::readWeightsFromCheckpoint(const char * cpDir, double * timeptr) {
+int HyPerConn::readWeightsFromCheckpoint(const char * cpDir, double const * timeptr) {
    clearWeights(get_wDataStart(), getNumDataPatches(), nxp, nyp, nfp);
    auto path = pathInCheckpoint(cpDir, getName(), "W", "pvp");
    PVPatch *** patches_arg = sharedWeights ? NULL : wPatches;
@@ -2089,10 +2088,7 @@ int HyPerConn::readWeightsFromCheckpoint(const char * cpDir, double * timeptr) {
    return status;
 }
 
-int HyPerConn::checkpointRead(const char * cpDir, double * timeptr) {
-  //if((getPvpatchAccumulateType() == ACCUMULATE_MAXPOOLING) || (getPvpatchAccumulateType() == ACCUMULATE_SUMPOOLING)){
-  //  return PV_SUCCESS;
-  //}
+int HyPerConn::checkpointRead(const char * cpDir, double const * timeptr) {
    int status = readStateFromCheckpoint(cpDir, timeptr);
 
    status = readScalarFromFile(cpDir, getName(), "lastUpdateTime", getCommunicator(), &lastUpdateTime, lastUpdateTime);

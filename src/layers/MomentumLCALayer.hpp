@@ -17,7 +17,7 @@ public:
    MomentumLCALayer(const char * name, HyPerCol * hc);
    virtual ~MomentumLCALayer();
    virtual int checkpointWrite(const char * cpDir);
-   virtual int checkpointRead(const char * cpDir, double * timeptr);
+   virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
 
 protected:
    MomentumLCALayer();

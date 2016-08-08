@@ -94,7 +94,7 @@ protected:
 
     // TransposeConn does not need to checkpoint; instead it gets its weights from the originalConn.
     virtual int checkpointWrite(const char * cpDir){return PV_SUCCESS;};
-    virtual int checkpointRead(const char * cpDir, double *timef){return PV_SUCCESS;};
+    virtual int checkpointRead(const char * cpDir, double const * timef){return PV_SUCCESS;};
 
 private:
     //int transposeSharedWeights(int arborId);

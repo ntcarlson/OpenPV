@@ -84,7 +84,7 @@ public:
 
    virtual int respond(std::shared_ptr<BaseMessage const> message);
 
-   virtual int checkpointRead(const char * cpDir, double* timef);
+   virtual int checkpointRead(const char * cpDir, double const * timef) override;
    virtual int checkpointWrite(const char * cpDir);
    virtual int writeTimers(std::ostream& stream);
    virtual int insertProbe(BaseConnectionProbe* p);
@@ -874,8 +874,8 @@ protected:
    int clearWeights(pvwdata_t** dataStart, int numPatches, int nx, int ny, int nf);
    virtual int adjustAllPatches(int nxPre, int nyPre, int nfPre, const PVHalo * haloPre, int nxPost, int nyPost, int nfPost, const PVHalo * haloPost, PVPatch*** inWPatches, size_t** inGSynPatchStart, size_t** inAPostOffset, int arborId);
    virtual int adjustAxonalArbors(int arborId);
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readWeightsFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readWeightsFromCheckpoint(const char * cpDir, double const * timeptr);
    int checkpointFilename(char * cpFilename, int size, const char * cpDir);
    virtual int setInitialValues(); // returns PV_SUCCESS if successful, or PV_POSTPONE if it needs to wait on other objects (e.g. TransposeConn has to wait for original conn)
 

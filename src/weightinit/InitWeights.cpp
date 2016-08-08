@@ -58,6 +58,7 @@ int InitWeights::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    // Read/write any params from the params file, typically
    // ioParamValue(ioFlag, name, "param_name", &param, default_value);
 
+   // Note that BaseObject::ioParamsFillGroup is not inherited.
    int status = PV_SUCCESS;
    if (ioFlag==PARAMS_IO_READ) {
       weightParams = createNewWeightParams();

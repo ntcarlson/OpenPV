@@ -22,7 +22,7 @@ public:
 
    virtual PVLayerLoc getImageLoc();
 
-   virtual int checkpointRead(const char * cpDir, double * timef);
+   virtual int checkpointRead(const char * cpDir, double const * timef) override;
    virtual int checkpointWrite(const char * cpDir);
    virtual int outputState(double time, bool last=false);
    virtual double getDeltaUpdateTime();
@@ -101,7 +101,7 @@ protected:
    virtual void ioParam_resetToStartOnLoop(enum ParamsIOFlag ioFlag);
    /** @} */
 
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
    virtual int readFrameNumStateFromCheckpoint(const char * cpDir);
 
    int updateFrameNum(int n_skip, int batchIdx);

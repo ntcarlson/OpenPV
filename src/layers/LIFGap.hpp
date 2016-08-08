@@ -26,7 +26,7 @@ public:
    int virtual updateState(double time, double dt);
 
    int virtual checkpointWrite(const char * cpDir);
-   int virtual readStateFromCheckpoint(const char * cpDir, double * timeptr);
+   int virtual readStateFromCheckpoint(const char * cpDir, double const * timeptr);
 
    const pvgsyndata_t * getGapStrength() { return gapStrength; }
 
@@ -35,7 +35,7 @@ protected:
    LIFGap();
    int initialize(const char * name, HyPerCol * hc, const char * kernel_name);
    virtual int allocateConductances(int num_channels);
-   virtual int readGapStrengthFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readGapStrengthFromCheckpoint(const char * cpDir, double const * timeptr);
 private:
    int initialize_base();
    pvgsyndata_t * gapStrength;

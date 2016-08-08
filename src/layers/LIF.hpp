@@ -115,12 +115,12 @@ protected:
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int allocateBuffers();
    virtual int allocateConductances(int num_channels);
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readVthFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readG_EFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readG_IFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readG_IBFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readRandStateFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readVthFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readG_EFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readG_IFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readG_IBFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readRandStateFromCheckpoint(const char * cpDir, double const * timeptr);
 
 
 private:

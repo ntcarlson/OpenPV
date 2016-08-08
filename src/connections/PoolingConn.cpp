@@ -350,7 +350,7 @@ int PoolingConn::constructWeights(){
 
 }
 
-int PoolingConn::checkpointRead(const char * cpDir, double * timeptr) {
+int PoolingConn::checkpointRead(const char * cpDir, double const * timeptr) {
    return PV_SUCCESS;
 }
 

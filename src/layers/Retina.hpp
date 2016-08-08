@@ -73,7 +73,7 @@ protected:
    virtual int allocateV();
    virtual int initializeV();
    virtual int initializeActivity();
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
    virtual int readRandStateFromCheckpoint(const char * cpDir);
 
    bool spikingFlag;        // specifies that layer is spiking

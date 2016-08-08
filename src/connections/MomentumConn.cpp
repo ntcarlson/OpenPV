@@ -420,7 +420,7 @@ int MomentumConn::checkpointWrite(const char * cpDir) {
    return PV_SUCCESS;
 }
 
-int MomentumConn::checkpointRead(const char * cpDir, double * timeptr) {
+int MomentumConn::checkpointRead(const char * cpDir, double const * timeptr) {
    HyPerConn::checkpointRead(cpDir, timeptr);
    if (!plasticityFlag) return PV_SUCCESS;
    clearWeights(prev_dwDataStart, getNumDataPatches(), nxp, nyp, nfp);

@@ -216,7 +216,7 @@ int BaseConnection::getPreAndPostLayerNames(const char * name, char ** preLayerN
 }
 
 int BaseConnection::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
-   int status = PV_SUCCESS;
+   int status = BaseObject::ioParamsFillGroup(ioFlag);
    ioParam_preLayerName(ioFlag);
    ioParam_postLayerName(ioFlag);
    if (preLayerName == NULL || postLayerName == NULL) {
@@ -322,14 +322,6 @@ void BaseConnection::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
       exit(EXIT_FAILURE);
    }
 #endif // PV_USE_CUDA
-}
-
-
-void BaseConnection::ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag) {
-   assert(parent->getInitializeFromCheckpointDir()); // If we're not initializing any layers or connections from a checkpoint, this should be the empty string, not null.
-   if (parent->getInitializeFromCheckpointDir() && parent->getInitializeFromCheckpointDir()[0]) {
-      ioParamValue(ioFlag, name, "initializeFromCheckpointFlag", &initializeFromCheckpointFlag, parent->getDefaultInitializeFromCheckpointFlag(), true/*warnIfAbsent*/);
-   }
 }
 
 int BaseConnection::insertProbe(BaseConnectionProbe * p)
@@ -493,23 +485,14 @@ void BaseConnection::setDelay(int arborId, float delay) {
    delays[arborId] = (int)(intDelay);
 }
 
-int BaseConnection::initializeState() {
+int BaseConnection::initializeState(char const * checkpointDir) {
    int status = PV_SUCCESS;
    assert(parent->getInitializeFromCheckpointDir()); // should never be null; it should be the empty string if not initializing from a checkpoint
    if (!this->getPlasticityFlag() && parent->getSuppressNonplasticCheckpoints()) {
       status = setInitialValues();
    }
-   else if (parent->getCheckpointReadFlag()) {
-      double checkTime = parent->simulationTime();
-      checkpointRead(parent->getCheckpointReadDir(), &checkTime);
-   }
-   else if (initializeFromCheckpointFlag) {
-      assert(parent->getInitializeFromCheckpointDir() && parent->getInitializeFromCheckpointDir()[0]);
-      status = readStateFromCheckpoint(parent->getInitializeFromCheckpointDir(), NULL);
-   }
    else {
-      //initialize weights for patches:
-      status = setInitialValues();
+      status = BaseObject::initializeState(checkpointDir);
    }
    return status;
 }

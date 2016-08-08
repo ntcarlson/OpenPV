@@ -275,7 +275,7 @@ int Retina::setRetinaParams(PVParams * p)
 }
 
 
-int Retina::readStateFromCheckpoint(const char * cpDir, double * timeptr) {
+int Retina::readStateFromCheckpoint(const char * cpDir, double const * timeptr) {
    int status = HyPerLayer::readStateFromCheckpoint(cpDir, timeptr);
    double filetime = 0.0;
    status = readRandStateFromCheckpoint(cpDir);

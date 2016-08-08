@@ -1160,7 +1160,7 @@ int BaseInput::initializeActivity() {
    return PV_SUCCESS;
 }
 
-int BaseInput::checkpointRead(const char * cpDir, double * timeptr){
+int BaseInput::checkpointRead(const char * cpDir, double const * timeptr){
    PVParams * params = getParams();
    if (getCommunicator()->commRank()==0) {
       pvWarn().printf("Initializing image from checkpoint NOT from params file location! \n");

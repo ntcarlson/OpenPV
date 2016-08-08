@@ -170,7 +170,7 @@ protected:
 
    virtual int resetGSynBuffers(double timef, double dt);
 
-   virtual int checkpointRead(const char * cpDir, double * timeptr); // (const char * cpDir, double * timed);
+   virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
    virtual int checkpointWrite(const char * cpDir);
 
 // Data members, initialized to default values.

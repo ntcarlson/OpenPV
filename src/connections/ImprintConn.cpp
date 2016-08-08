@@ -265,7 +265,7 @@ int ImprintConn::updateWeights(int arbor_ID){
    return PV_BREAK;
 }
 
-int ImprintConn::checkpointRead(const char * cpDir, double * timeptr) {
+int ImprintConn::checkpointRead(const char * cpDir, double const * timeptr) {
    int status = HyPerConn::checkpointRead(cpDir, timeptr);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
    if( getCommunicator()->commRank() == 0 ) {

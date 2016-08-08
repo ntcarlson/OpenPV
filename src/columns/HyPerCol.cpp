@@ -1195,9 +1195,11 @@ int HyPerCol::run(double start_time, double stop_time, double dt)
       // and before the mLayers' publish calls so that the data in border regions gets copied correctly.
       if ( mCheckpointReadFlag ) {
          checkpointRead();
+         notify(std::make_shared<CheckpointReadMessage>(mCheckpointReadDir, &mSimTime));
       }
-
-      notify(std::make_shared<InitializeStateMessage>());
+      else {
+         notify(std::make_shared<InitializeStateMessage>(mInitializeFromCheckpointDir));
+      }
 
       // Initial normalization moved here to facilitate normalizations of groups of HyPerConns
       notify(std::make_shared<ConnectionNormalizeMessage>());

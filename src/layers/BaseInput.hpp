@@ -322,7 +322,7 @@ public:
    virtual int allocateDataStructures();
    virtual int updateState(double time, double dt);
 
-   virtual int checkpointRead(const char * cpDir, double * timeptr);
+   virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
 
    virtual bool activityIsSpiking() {return false;}
 

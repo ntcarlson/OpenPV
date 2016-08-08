@@ -23,7 +23,7 @@ public:
    virtual int writeWeights(double time, bool last=false){return PV_SUCCESS;}
    virtual int writeWeights(const char * filename){return PV_SUCCESS;}
    virtual int checkpointWrite(const char * cpDir){return PV_SUCCESS;}
-   virtual int checkpointRead(const char * cpDir, double *timef){return PV_SUCCESS;}
+   virtual int checkpointRead(const char * cpDir, double const * timef) override {return PV_SUCCESS;}
    virtual int outputState(double time, bool last = false){return PV_SUCCESS;}
 
    HyPerConn * getOriginalConn(){return originalConn;}
@@ -88,7 +88,7 @@ protected:
    virtual void setWeightNormalizer() override;
    virtual PVPatch *** initializeWeights(PVPatch *** patches, pvdata_t ** dataStart);
    virtual int cloneParameters();
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr) { return PV_SUCCESS; }
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr) { return PV_SUCCESS; }
    virtual int constructWeights();
    void constructWeightsOutOfMemory();
    virtual int createAxonalArbors(int arborId);

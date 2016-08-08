@@ -410,7 +410,7 @@ int ANNLayer::setActivity() {
    return status;
 }
 
-int ANNLayer::checkpointRead(char const * cpDir, double * timeptr) {
+int ANNLayer::checkpointRead(char const * cpDir, double const * timeptr) {
    int status = HyPerLayer::checkpointRead(cpDir, timeptr);
    if (status==PV_SUCCESS) {
       status = readScalarFromFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), &nextGSynClearTime, parent->simulationTime()-parent->getDeltaTime());

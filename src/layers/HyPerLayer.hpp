@@ -108,12 +108,6 @@ protected:
    virtual void ioParam_valueBC(enum ParamsIOFlag ioFlag);
 
    /**
-    * @brief initializeFromCheckpointFlag: If set to true, initialize using checkpoint direcgtory set in HyPerCol.
-    * @details Checkpoint read directory must be set in HyPerCol to initialize from checkpoint.
-    */
-   virtual void ioParam_initializeFromCheckpointFlag(enum ParamsIOFlag ioFlag);
-
-   /**
     * @brief initVType: Specifies how to initialize the V buffer. 
     * @details Possible choices include
     * - @link InitV::ioParamGroup_ConstantV ConstantV@endlink: Sets V to a constant value
@@ -233,14 +227,14 @@ protected:
    virtual int setInitialValues();
    virtual int initializeV();
    virtual int initializeActivity();
-   virtual int readStateFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readActivityFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readVFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int readDelaysFromCheckpoint(const char * cpDir, double * timeptr);
+   virtual int readStateFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readActivityFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readVFromCheckpoint(const char * cpDir, double const * timeptr);
+   virtual int readDelaysFromCheckpoint(const char * cpDir, double const * timeptr);
 #ifdef PV_USE_CUDA
    virtual int copyInitialStateToGPU();
 #endif // PV_USE_CUDA
-   int readDataStoreFromFile(const char * filename, Communicator * comm, double * timed);
+   int readDataStoreFromFile(const char * filename, Communicator * comm, double const * timed);
    int incrementNBands(int * numCalls);
    int writeDataStoreToFile(const char * filename, Communicator * comm, double dtime);
    //virtual int calcActiveIndices();
@@ -382,12 +376,12 @@ public:
 #endif // OBSOLETE // Marked obsolete June 28, 2016.  When mirroring is done, all borders are mirrored.
    int mirrorInteriorToBorder(PVLayerCube * cube, PVLayerCube * borderCube);
 
-   virtual int checkpointRead(const char * cpDir, double * timeptr); // (const char * cpDir, double * timed);
+   virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
    virtual int checkpointWrite(const char * cpDir);
    virtual int writeTimers(std::ostream& stream);
    // TODO: readBufferFile and writeBufferFile have to take different types of buffers.  Can they be templated?
    template <typename T>
-   static int readBufferFile(const char * filename, Communicator * comm, double * timed, T ** buffers, int numbands, bool extended, const PVLayerLoc * loc);
+   static int readBufferFile(const char * filename, Communicator * comm, double const * timed, T ** buffers, int numbands, bool extended, const PVLayerLoc * loc);
    template <typename T>
    static int writeBufferFile(const char * filename, Communicator * comm, double dtime, T ** buffers, int numbands, bool extended, const PVLayerLoc * loc);
 
@@ -466,7 +460,7 @@ public:
 protected:
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual int allocateDataStructures() override;
-   virtual int initializeState() final; // Not overridable since all layers should respond to initializeFromCheckpointFlag and (deprecated) restartFlag in the same way.
+   virtual int initializeState(char const * checkpointDir) final; // Not overridable since all layers should respond to initializeFromCheckpointFlag and (deprecated) restartFlag in the same way.
                           // initializeState calls the virtual methods readStateFromCheckpoint(), and setInitialValues().
 
    int openOutputStateFile();
