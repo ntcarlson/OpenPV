@@ -218,7 +218,7 @@ int BaseProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
 
    // Set up triggering.
    if(triggerFlag){
-      triggerLayer = parent->getLayerFromName(triggerLayerName);
+      triggerLayer = message->mTable->lookup<HyPerLayer>(triggerLayerName);
       if (triggerLayer==NULL) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": triggerLayer \"%s\" is not a layer in the HyPerCol.\n",
@@ -231,9 +231,8 @@ int BaseProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
 
    // Add the probe to the ColumnEnergyProbe, if there is one.
    if (energyProbe && energyProbe[0]) {
-      BaseProbe * baseprobe = getParent()->getBaseProbeFromName(energyProbe);
-      ColumnEnergyProbe * probe = dynamic_cast<ColumnEnergyProbe *>(baseprobe);
-      if (probe==NULL) {
+      ColumnEnergyProbe * probe = message->mTable->lookup<ColumnEnergyProbe>(energyProbe);
+      if (probe==nullptr) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s \"%s\": energyProbe \"%s\" is not a ColumnEnergyProbe in the column.\n",
                   getParams()->groupKeywordFromName(getName()), getName(), energyProbe);

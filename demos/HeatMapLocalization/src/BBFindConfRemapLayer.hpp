@@ -47,7 +47,7 @@ protected:
    virtual void ioParam_detectionWait(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_internalMapWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_internalMapHeight(enum PV::ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) override;
 
 private:
    int initialize_base();

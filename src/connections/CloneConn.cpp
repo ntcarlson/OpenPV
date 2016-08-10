@@ -175,23 +175,18 @@ void CloneConn::ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag) {
 }
 
 int CloneConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
+   int status = PV_SUCCESS;
    // Need to set originalConn before calling HyPerConn::communicate, since HyPerConn::communicate calls setPatchSize, which needs originalConn.
-   BaseConnection * originalConnBase = parent->getConnFromName(originalConnName);
-   if (originalConnBase == NULL) {
-      if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a connection in the column.\n",
-               getDescription_c(), originalConnName);
-      }
-      MPI_Barrier(getCommunicator()->communicator());
-      exit(EXIT_FAILURE);
-   }
-   originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
-   if (originalConn == NULL) {
+   originalConn = message->mTable->lookup<HyPerConn>(originalConnName);
+   if (originalConn == nullptr) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a HyPerConn or HyPerConn-derived class.\n",
                getDescription_c(), originalConnName);
       }
+      status = PV_FAILURE;
    }
+   if (status != PV_SUCCESS) { return status; }
+
    if (!originalConn->getInitInfoCommunicatedFlag()) {
       if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until original connection \"%s\" has finished its communicateInitInfo stage.\n", getDescription_c(), originalConn->getName());
@@ -202,7 +197,7 @@ int CloneConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
    // Copy some parameters from originalConn.  Check if parameters exist is
    // the clone's param group, and issue a warning (if the param has the right
    // value) or an error (if it has the wrong value).
-   int status = cloneParameters();
+   status = cloneParameters();
 
    status = HyPerConn::communicateInitInfo(message);
    if (status != PV_SUCCESS) return status;

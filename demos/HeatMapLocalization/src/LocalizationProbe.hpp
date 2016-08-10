@@ -102,7 +102,7 @@ protected:
    virtual void ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_displayCommand(enum PV::ParamsIOFlag ioFlag);
    virtual int initNumValues();
-   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) override;
    virtual bool needUpdate(double timed, double dt);
    virtual int calcValues(double timevalue);
    virtual int outputState(double timevalue);

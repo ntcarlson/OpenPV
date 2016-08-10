@@ -115,21 +115,14 @@ void LabelLayer::ioParam_echoLabelFlag(enum ParamsIOFlag ioFlag) {
 
 int LabelLayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = HyPerLayer::communicateInitInfo(message);
-
-   HyPerLayer * hyperlayer = parent->getLayerFromName(movieLayerName);
-   if (hyperlayer == NULL) {
-      pvErrorNoExit().printf("LabelLayer \"%s\": movieLayerName \"%s\" is not a layer in the HyPerCol.\n", name, movieLayerName);
-      abort();
-   }
-
-   movie = dynamic_cast<Movie *>(hyperlayer);
-   if (movie == NULL) {
+   movie = message->mTable->lookup<Movie>(movieLayerName);
+   if (movie == nullptr) {
       pvErrorNoExit().printf("LabelLayer \"%s\": movieLayerName \"%s\" is not a Movie or Movie-derived class.\n", name, movieLayerName);
       abort();
    }
 
    //Set triggerLayer to this layer
-   triggerLayer = hyperlayer;
+   triggerLayer = dynamic_cast<HyPerLayer*>(movie);
 
    return status;
 }

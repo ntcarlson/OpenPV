@@ -155,7 +155,7 @@ void BBFindConfRemapProbe::setOutputFilenameBase(char const * fn) {
    }
 }
 
-int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
+int BBFindConfRemapProbe::communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) {
    int status = PV::LayerProbe::communicateInitInfo(message);
 
    assert(targetLayer);
@@ -169,8 +169,8 @@ int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage con
       exit(EXIT_FAILURE);
    }
 
-   setLayerFromParam(&imageLayer, "imageLayer", imageLayerName);
-   setLayerFromParam(&reconLayer, "reconLayer", reconLayerName);
+   imageLayer = message->mTable->lookup<PV::HyPerLayer>(imageLayerName);// setLayerFromParam(&imageLayer, "imageLayer", imageLayerName);
+   reconLayer = message->mTable->lookup<PV::HyPerLayer>(reconLayerName);// setLayerFromParam(&reconLayer, "reconLayer", reconLayerName);
    if (status != PV_SUCCESS) {
       // error messages get printed by setLayerFromParam
       MPI_Barrier(getCommunicator()->communicator());
@@ -222,9 +222,8 @@ int BBFindConfRemapProbe::communicateInitInfo(PV::CommunicateInitInfoMessage con
    return status;
 }
 
-void BBFindConfRemapProbe::setLayerFromParam(PV::HyPerLayer ** layer, char const * layerType, char const * layerName) {
-   PV::HyPerLayer * l = parent->getLayerFromName(layerName);
-   if (l==NULL) {
+void BBFindConfRemapProbe::checkLayerFromParam(PV::HyPerLayer * layer, char const * layerType, char const * layerName) {
+   if (layer==nullptr) {
       if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "%s error: %s \"%s\" does not refer to a layer in the column.\n",
                getDescription_c(), layerType, layerName);
@@ -232,7 +231,7 @@ void BBFindConfRemapProbe::setLayerFromParam(PV::HyPerLayer ** layer, char const
       throw std::invalid_argument("setLayerFromParam:bad layer name");
    }
 
-   int const nf = l->getLayerLoc()->nf;
+   int const nf = layer->getLayerLoc()->nf;
    if (drawMontage && nf != 3) {
       if (getCommunicator()->commRank()==0) {
          fprintf(stderr, "%s error: If the drawMontage flag is set, the %s must have exactly three features (\"%s\" has %d).\n",
@@ -240,7 +239,6 @@ void BBFindConfRemapProbe::setLayerFromParam(PV::HyPerLayer ** layer, char const
       }
       throw std::invalid_argument("setLayerFromParam:not three features");
    }
-   *layer = l;
 }
 
 void BBFindConfRemapProbe::setOptimalMontage() {

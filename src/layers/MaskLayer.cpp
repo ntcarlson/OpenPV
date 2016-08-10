@@ -93,7 +93,7 @@ void MaskLayer::ioParam_featureIdxs(enum ParamsIOFlag ioFlag) {
 int MaskLayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = ANNLayer::communicateInitInfo(message);
    if(strcmp(maskMethod, "layer") == 0 || strcmp(maskMethod, "invertLayer") == 0){
-      maskLayer = parent->getLayerFromName(maskLayerName);
+      maskLayer = message->mTable->lookup<HyPerLayer>(maskLayerName);
       if (maskLayer==NULL) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: maskLayerName \"%s\" is not a layer in the HyPerCol.\n",

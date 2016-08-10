@@ -1153,8 +1153,8 @@ int HyPerConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
    handleDefaultSelfFlag();
 
    if(useMask) {
-      mask = getParent()->getLayerFromName(maskLayerName);
-      if (mask == NULL) {
+      mask = message->mTable->lookup<HyPerLayer>(maskLayerName);
+      if (mask == nullptr) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: maskLayerName \"%s\" does not correspond to a layer in the column.\n", getDescription_c(), maskLayerName);
          }
@@ -1250,8 +1250,8 @@ int HyPerConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage co
 
    //Trigger stuff
    if(triggerLayerName){
-      triggerLayer = parent->getLayerFromName(triggerLayerName);
-      if (triggerLayer==NULL) {
+      triggerLayer = message->mTable->lookup<HyPerLayer>(triggerLayerName);
+      if (triggerLayer==nullptr) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s error: triggerLayer \"%s\" is not a layer in the HyPerCol.\n",
                     getDescription_c(), triggerLayerName);

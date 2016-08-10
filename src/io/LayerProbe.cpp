@@ -56,24 +56,16 @@ void LayerProbe::ioParam_targetName(enum ParamsIOFlag ioFlag) {
 int LayerProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    BaseProbe::communicateInitInfo(message);
    //Set target layer
-   int status = setTargetLayer(targetName);
-   //Add to layer
-   if (status == PV_SUCCESS) {
-      targetLayer->insertProbe(this);
-   }
-   return status;
-}
-
-int LayerProbe::setTargetLayer(const char * layerName) {
-   targetLayer = parent->getLayerFromName(layerName);
+   targetLayer = message->mTable->lookup<HyPerLayer>(targetName);
    if (targetLayer==NULL) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: targetLayer \"%s\" is not a layer in the column.\n",
-               getDescription_c(), layerName);
+               getDescription_c(), targetName);
       }
       MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
+   targetLayer->insertProbe(this);
    return PV_SUCCESS;
 }
 

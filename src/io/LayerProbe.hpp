@@ -73,7 +73,6 @@ protected:
 
 private:
    int initialize_base();
-   int setTargetLayer(const char * layerName);
 
 // Member variables
 protected:

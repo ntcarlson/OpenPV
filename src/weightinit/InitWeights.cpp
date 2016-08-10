@@ -76,21 +76,12 @@ int InitWeights::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage 
    // having been initialized or communicateInitInfo'd
 
    int status = PV_SUCCESS;
-   if (callingConn==NULL) {
-      BaseConnection * baseCallingConn = parent->getConnFromName(name);
-      if (baseCallingConn==NULL) {
+   if (callingConn==nullptr) {
+      callingConn = message->mTable->lookup<HyPerConn>(name);
+      if (callingConn==nullptr) {
          status = PV_FAILURE;
          if (getCommunicator()->commRank()==0) {
-            pvErrorNoExit().printf("InitWeights error: \"%s\" is not a connection in the column.\n", name);
-         }
-      }
-      else {
-         callingConn = dynamic_cast<HyPerConn *>(baseCallingConn);
-         if (callingConn==NULL) {
-            status = PV_FAILURE;
-            if (getCommunicator()->commRank()==0) {
-               pvErrorNoExit().printf("InitWeights error: \"%s\" is not a HyPerConn.\n", name);
-            }
+            pvErrorNoExit().printf("InitWeights error: \"%s\" is not a HyPerConn.\n", name);
          }
       }
    }
@@ -258,9 +249,7 @@ int InitWeights::initialize_base() {
 }
 
 int InitWeights::readWeights(PVPatch *** patches, pvwdata_t ** dataStart, int numPatches, const char * filename, double * timeptr/*default=NULL*/) {
-   if (callingConn==NULL) {
-      callingConn = dynamic_cast<HyPerConn *>(parent->getConnFromName(name));
-   }
+   pvAssert(callingConn);
    Communicator *icComm = callingConn->getCommunicator();
    int numArbors = callingConn->numberOfAxonalArborLists();
    const PVLayerLoc *preLoc = callingConn->preSynapticLayer()->getLayerLoc();

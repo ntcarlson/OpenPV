@@ -322,11 +322,13 @@ public:
 
    // Public functions
 
-   BaseConnection* getConnFromName(const char* connectionName);
-   BaseProbe* getBaseProbeFromName(const char* probeName);
+   // getBaseProbeFromName was removed Aug 10, 2016.  Use ObserverTable::lookup<BaseProbe> instead.
    // pathInCheckpoint was moved to fileio.cpp Aug 1, 2016.
-   ColProbe* getColProbeFromName(const char* probeName);
+   // getBaseProbeFromName was removed Aug 10, 2016.  Use ObserverTable::lookup<ColProbe> instead.
    HyPerLayer* getLayerFromName(const char* layerName);
+   BaseConnection* getConnFromName(const char* connectionName);
+   // getLayerFromName and getConnFromName are used by several system tests, typically after the
+   // run to verify values in the layer or connection.
 
    /**
     * Adds an object (layer, connection, etc.) to the hierarchy.

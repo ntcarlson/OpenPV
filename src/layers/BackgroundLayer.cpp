@@ -39,8 +39,8 @@ int BackgroundLayer::initialize(const char * name, HyPerCol * hc) {
 
 int BackgroundLayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = HyPerLayer::communicateInitInfo(message);
-   originalLayer = parent->getLayerFromName(originalLayerName);
-   if (originalLayer==NULL) {
+   originalLayer = message->mTable->lookup<HyPerLayer>(originalLayerName);
+   if (originalLayer==nullptr) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);
@@ -48,7 +48,6 @@ int BackgroundLayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMess
       MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
-   //originalLayer->synchronizeMarginWidth(this);
    const PVLayerLoc * srcLoc = originalLayer->getLayerLoc();
    const PVLayerLoc * loc = getLayerLoc();
    assert(srcLoc != NULL && loc != NULL);

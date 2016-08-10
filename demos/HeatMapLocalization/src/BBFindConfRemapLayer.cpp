@@ -131,9 +131,9 @@ void BBFindConfRemapLayer::ioParam_internalMapHeight(enum PV::ParamsIOFlag ioFla
    ioParamValue(ioFlag, name, "internalMapHeight", &internalMapHeight, internalMapHeight, true/*warnIfAbsent*/);
 }
 
-int BBFindConfRemapLayer::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
+int BBFindConfRemapLayer::communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) {
    if (imageLayerName && imageLayerName[0]) {
-      imageLayer = parent->getLayerFromName(imageLayerName);
+      imageLayer = message->mTable->lookup<PV::HyPerLayer>(imageLayerName);
       if (imageLayer==nullptr) {
          if (getCommunicator()->commRank()==0) {
             pvError() << getDescription_c() << ": imageLayer \"" << imageLayerName << "\" does not refer to a layer in the column." << std::endl;

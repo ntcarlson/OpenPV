@@ -273,22 +273,14 @@ void TransposePoolingConn::setWeightNormalizer() {
 
 int TransposePoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = PV_SUCCESS;
-   BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
-   if (originalConnBase==NULL) {
+   originalConn = message->mTable->lookup<PoolingConn>(originalConnName);
+   if (originalConn == nullptr) {
       if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: originalConnName \"%s\" does not refer to any connection in the column.\n", getDescription_c(), this->originalConnName);
+         pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a PoolingConn in the column.\n", getDescription_c(), originalConnName);
       }
-      MPI_Barrier(getCommunicator()->communicator());
-      exit(EXIT_FAILURE);
+      status = PV_FAILURE;
    }
-   originalConn = dynamic_cast<PoolingConn *>(originalConnBase);
-   if (originalConn == NULL) {
-      if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: originalConnName \"%s\" is not a PoolingConn.\n", getDescription_c(), originalConnName);
-         status = PV_FAILURE;
-      }
-   }
-   if (status != PV_SUCCESS) return status;
+   if (status != PV_SUCCESS) { return status; }
 
    if (!originalConn->getInitInfoCommunicatedFlag()) {
       if (getCommunicator()->commRank()==0) {

@@ -105,8 +105,8 @@ int Segmentify::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage c
    int status = HyPerLayer::communicateInitInfo(message);
 
    //Get original layer
-   originalLayer = parent->getLayerFromName(originalLayerName);
-   if (originalLayer==NULL) {
+   originalLayer = message->mTable->lookup<HyPerLayer>(originalLayerName);
+   if (originalLayer==nullptr) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                  getDescription_c(), originalLayerName);
@@ -119,17 +119,8 @@ int Segmentify::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage c
    }
 
    //Get segment layer
-   HyPerLayer* tmpLayer = parent->getLayerFromName(segmentLayerName);
-   if (tmpLayer==NULL) {
-      if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: segmentLayerName \"%s\" is not a layer in the HyPerCol.\n",
-                 getDescription_c(), segmentLayerName);
-      }
-      MPI_Barrier(getCommunicator()->communicator());
-      exit(EXIT_FAILURE);
-   }
-   segmentLayer = dynamic_cast <SegmentLayer*>(tmpLayer);
-   if (segmentLayer==NULL) {
+   segmentLayer = message->mTable->lookup<SegmentLayer>(segmentLayerName);
+   if (segmentLayer==nullptr) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: segmentLayerName \"%s\" is not a SegmentLayer.\n",
                  getDescription_c(), segmentLayerName);

@@ -174,20 +174,12 @@ void TransposeConn::setWeightNormalizer() {
 
 int TransposeConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = PV_SUCCESS;
-   BaseConnection * originalConnBase = parent->getConnFromName(this->originalConnName);
-   if (originalConnBase==NULL) {
-      if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: originalConnName \"%s\" does not refer to any connection in the column.\n", getDescription_c(), this->originalConnName);
-      }
-      MPI_Barrier(getCommunicator()->communicator());
-      exit(EXIT_FAILURE);
-   }
-   this->originalConn = dynamic_cast<HyPerConn *>(originalConnBase);
-   if (originalConn == NULL) {
+   originalConn = message->mTable->lookup<HyPerConn>(originalConnName);
+   if (originalConn == nullptr) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalConnName \"%s\" is not an existing connection.\n", getDescription_c(), originalConnName);
-         status = PV_FAILURE;
       }
+      status = PV_FAILURE;
    }
    if (status != PV_SUCCESS) return status;
 

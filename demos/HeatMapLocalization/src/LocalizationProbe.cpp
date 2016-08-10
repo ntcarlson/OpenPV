@@ -207,11 +207,11 @@ int LocalizationProbe::initNumValues() {
    // If we add batching to LocalizationProbe, this should change to the batch size.
 }
 
-int LocalizationProbe::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
+int LocalizationProbe::communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) {
    int status = PV::LayerProbe::communicateInitInfo(message);
    assert(targetLayer);
    int const nf = targetLayer->getLayerLoc()->nf;
-   imageLayer = parent->getLayerFromName(imageLayerName);
+   imageLayer = message->mTable->lookup<PV::HyPerLayer>(imageLayerName);
    if (imageLayer==NULL) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: imageLayer \"%s\" does not refer to a layer in the column.\n",
@@ -361,7 +361,7 @@ int LocalizationProbe::communicateInitInfo(PV::CommunicateInitInfoMessage const 
       setOptimalMontage();
    }
 
-   reconLayer = parent->getLayerFromName(reconLayerName);
+   reconLayer = message->mTable->lookup<PV::HyPerLayer>(reconLayerName);
    if (reconLayer==NULL) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: reconLayer \"%s\" does not refer to a layer in the column.\n",

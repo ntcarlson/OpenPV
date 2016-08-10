@@ -43,25 +43,15 @@ void MaskFromMemoryBuffer::ioParam_imageLayerName(enum PV::ParamsIOFlag ioFlag) 
    ioParamStringRequired(ioFlag, name, "imageLayerName", &imageLayerName);
 }
 
-int MaskFromMemoryBuffer::communicateInitInfo(PV::CommunicateInitInfoMessage const * message) {
+int MaskFromMemoryBuffer::communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) {
    int status = ANNLayer::communicateInitInfo(message);
-   HyPerLayer * hyperLayer = parent->getLayerFromName(imageLayerName);
-   if (hyperLayer==NULL) {
+   imageLayer = message->mTable->lookup<PV::BaseInput>(imageLayerName);
+   if (imageLayer==nullptr) {
       if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not a layer in the HyPerCol.\n",
-                 getDescription_c(), imageLayerName);
+      pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not an BaseInput-derived layer.\n",
+            getDescription_c(), imageLayerName);
       }
       status = PV_FAILURE;
-   }
-   else {
-      imageLayer = dynamic_cast<PV::BaseInput *>(hyperLayer);
-      if (imageLayer==NULL) {
-         if (getCommunicator()->commRank()==0) {
-         pvErrorNoExit().printf("%s: imageLayerName \"%s\" is not an BaseInput-derived layer.\n",
-               getDescription_c(), imageLayerName);
-         }
-         status = PV_FAILURE;
-      }
    }
    MPI_Barrier(getCommunicator()->communicator());
    if (!imageLayer->getInitInfoCommunicatedFlag()) {

@@ -93,8 +93,8 @@ void BinningLayer::ioParam_normalDist(enum ParamsIOFlag ioFlag) {
 
 int BinningLayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = HyPerLayer::communicateInitInfo(message);
-   originalLayer = parent->getLayerFromName(originalLayerName);
-   if (originalLayer==NULL) {
+   originalLayer = message->mTable->lookup<HyPerLayer>(originalLayerName);
+   if (originalLayer==nullptr) {
       if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: originalLayerName \"%s\" is not a layer in the HyPerCol.\n",
                getDescription_c(), originalLayerName);

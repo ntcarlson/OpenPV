@@ -58,8 +58,8 @@ int AbstractNormProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMe
    int status = LayerProbe::communicateInitInfo(message);
    assert(targetLayer);
    if (maskLayerName && maskLayerName[0]) {
-      maskLayer = parent->getLayerFromName(maskLayerName);
-      if (maskLayer==NULL) {
+      maskLayer = message->mTable->lookup<HyPerLayer>(maskLayerName);
+      if (maskLayer==nullptr) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: maskLayerName \"%s\" is not a layer in the HyPerCol.\n",
                   getDescription_c(), maskLayerName);

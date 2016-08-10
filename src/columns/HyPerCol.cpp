@@ -1295,7 +1295,7 @@ int HyPerCol::run(double start_time, double stop_time, double dt)
 void HyPerCol::initDtAdaptControlProbe() {
    // add the mDtAdaptController, if there is one.
    if (mDtAdaptController && mDtAdaptController[0]) {
-      mDtAdaptControlProbe = getColProbeFromName(mDtAdaptController);
+      mDtAdaptControlProbe = mObjectHierarchy.lookup<ColProbe>(mDtAdaptController);
       if (mDtAdaptControlProbe==nullptr) {
          if (globalRank()==0) {
             pvError().printf("HyPerCol \"%s\": dtAdaptController \"%s\" does not refer to a ColProbe in the HyPerCol.\n",
@@ -1305,7 +1305,7 @@ void HyPerCol::initDtAdaptControlProbe() {
 
       // add the mDtAdaptTriggerLayer, if there is one.
       if (mDtAdaptTriggerLayerName && mDtAdaptTriggerLayerName[0]) {
-         mDtAdaptTriggerLayer = getLayerFromName(mDtAdaptTriggerLayerName);
+         mDtAdaptTriggerLayer = mObjectHierarchy.lookup<HyPerLayer>(mDtAdaptTriggerLayerName);
          if (mDtAdaptTriggerLayer==nullptr) {
             if (globalRank()==0) {
                pvError().printf("HyPerCol \"%s\": dtAdaptTriggerLayerName \"%s\" does not refer to layer in the column.\n", this->getName(), mDtAdaptTriggerLayerName);
@@ -2588,60 +2588,12 @@ int HyPerCol::outputState(double time)
 
 HyPerLayer * HyPerCol::getLayerFromName(const char * layerName) {
    if (layerName==nullptr) { return nullptr; }
-   int n = numberOfLayers();
-   for( int i=0; i<n; i++ ) {
-      HyPerLayer * curLayer = getLayer(i);
-      assert(curLayer);
-      const char * curLayerName = curLayer->getName();
-      assert(curLayerName);
-      if( !strcmp( curLayer->getName(), layerName) ) return curLayer;
-   }
-   return nullptr;
+   return mObjectHierarchy.lookup<HyPerLayer>(layerName);
 }
 
 BaseConnection * HyPerCol::getConnFromName(const char * connName) {
    if( connName == nullptr ) return nullptr;
-   int n = numberOfConnections();
-   for( int i=0; i<n; i++ ) {
-      BaseConnection * curConn = getConnection(i);
-      assert(curConn);
-      const char * curConnName = curConn->getName();
-      assert(curConnName);
-      if( !strcmp( curConn->getName(), connName) ) return curConn;
-   }
-   return nullptr;
-}
-
-ColProbe * HyPerCol::getColProbeFromName(const char * probeName) {
-   if (probeName == nullptr) return nullptr;
-   ColProbe * p = nullptr;
-   int n = numberOfProbes();
-   for (int i=0; i<n; i++) {
-      ColProbe * curColProbe = getColProbe(i);
-      const char * curName = curColProbe->getName();
-      assert(curName);
-      if (!strcmp(curName, probeName)) {
-         p = curColProbe;
-         break;
-      }
-   }
-   return p;
-}
-
-BaseProbe * HyPerCol::getBaseProbeFromName(const char * probeName) {
-   if (probeName == nullptr) { return nullptr; }
-   BaseProbe * p = nullptr;
-   int n = numberOfBaseProbes();
-   for (int i=0; i<n; i++) {
-      BaseProbe * curBaseProbe = getBaseProbe(i);
-      const char * curName = curBaseProbe->getName();
-      assert(curName);
-      if (!strcmp(curName, probeName)) {
-         p = curBaseProbe;
-         break;
-      }
-   }
-   return p;
+   return mObjectHierarchy.lookup<BaseConnection>(connName);
 }
 
 unsigned int HyPerCol::seedRandomFromWallClock() {

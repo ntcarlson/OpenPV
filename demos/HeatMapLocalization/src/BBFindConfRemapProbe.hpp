@@ -37,14 +37,14 @@ protected:
    virtual void ioParam_imageBlendCoeff(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_boundingBoxLineWidth(enum PV::ParamsIOFlag ioFlag);
    virtual void ioParam_displayCommand(enum PV::ParamsIOFlag ioFlag);
-   virtual int communicateInitInfo(PV::CommunicateInitInfoMessage const * message) override;
+   virtual int communicateInitInfo(std::shared_ptr<PV::CommunicateInitInfoMessage const> message) override;
    virtual int calcValues(double timevalue);
    virtual int outputState(double timevalue);
    int makeMontage(int b);
 
 private:
    int initialize_base();
-   void setLayerFromParam(PV::HyPerLayer ** layer, char const * layerType, char const * layerName);
+   void checkLayerFromParam(PV::HyPerLayer * layer, char const * layerType, char const * layerName);
    void setOptimalMontage();
    void makeGrayScaleImage(int b);
    void drawHeatMaps(int b);

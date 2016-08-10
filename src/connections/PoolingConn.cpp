@@ -200,17 +200,8 @@ int PoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage 
    }
 
    if(needPostIndexLayer){
-      BaseLayer * basePostIndexLayer = parent->getLayerFromName(this->postIndexLayerName);
-      if (basePostIndexLayer==NULL) {
-         if (getCommunicator()->commRank()==0) {
-            pvErrorNoExit().printf("%s: postIndexLayerName \"%s\" does not refer to any layer in the column.\n", getDescription_c(), this->postIndexLayerName);
-         }
-         MPI_Barrier(getCommunicator()->communicator());
-         exit(EXIT_FAILURE);
-      }
-
-      postIndexLayer = dynamic_cast<PoolingIndexLayer*>(basePostIndexLayer);
-      if (postIndexLayer==NULL) {
+      postIndexLayer = message->mTable->lookup<PoolingIndexLayer>(postIndexLayerName);
+      if (postIndexLayer==nullptr) {
          if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("%s: postIndexLayerName \"%s\" is not a PoolingIndexLayer.\n", getDescription_c(), this->postIndexLayerName);
          }
@@ -224,7 +215,6 @@ int PoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage 
          }
          MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
-         
       }
 
       const PVLayerLoc * idxLoc = postIndexLayer->getLayerLoc();

@@ -32,7 +32,6 @@ protected:
 
 private:
    int initialize_base();
-   int setTargetConn(const char * connName);
 
 // Member Variables
 protected:

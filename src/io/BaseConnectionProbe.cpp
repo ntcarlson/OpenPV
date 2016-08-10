@@ -41,25 +41,16 @@ void BaseConnectionProbe::ioParam_targetName(enum ParamsIOFlag ioFlag) {
 
 int BaseConnectionProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    BaseProbe::communicateInitInfo(message);
-   int status = setTargetConn(targetName);
-   if (status == PV_SUCCESS){
-      targetConn->insertProbe(this);
-   }
-   return status;
-}
-
-int BaseConnectionProbe::setTargetConn(const char * connName) {
-   int status = PV_SUCCESS;
-   targetConn = getParent()->getConnFromName(connName);
+   targetConn = message->mTable->lookup<BaseConnection>(targetName);
    if (targetConn==NULL) {
-      pvErrorNoExit().printf("%s, rank %d process: targetConnection \"%s\" is not a connection in the HyPerCol.\n",
-            getDescription_c(), getCommunicator()->commRank(), connName);
-      status = PV_FAILURE;
-   }
-   MPI_Barrier(getCommunicator()->communicator());
-   if (status != PV_SUCCESS) {
+      if (getCommunicator()->commRank()==0) {
+         pvErrorNoExit().printf("%s, rank %d process: targetConnection \"%s\" is not a connection in the HyPerCol.\n",
+               getDescription_c(), getCommunicator()->commRank(), targetName);
+      }
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
+   targetConn->insertProbe(this);
    return PV_SUCCESS;
 }
 

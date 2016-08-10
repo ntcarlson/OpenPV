@@ -390,8 +390,8 @@ int BaseConnection::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessa
       }
       exit(EXIT_FAILURE);
    }
-   this->setPreSynapticLayer(this->getParent()->getLayerFromName(this->getPreLayerName()));
-   this->setPostSynapticLayer(this->getParent()->getLayerFromName(this->getPostLayerName()));
+   this->setPreSynapticLayer(message->mTable->lookup<HyPerLayer>(getPreLayerName()));
+   this->setPostSynapticLayer(message->mTable->lookup<HyPerLayer>(getPostLayerName()));
    if (this->preSynapticLayer()==NULL) {
       if (this->getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("%s: preLayerName \"%s\" does not correspond to a layer in the column.\n", getDescription_c(), this->getPreLayerName());
