@@ -66,6 +66,20 @@ public:
    double const * mTimestampPtr;
 };
 
+class CheckpointWriteMessage : public BaseMessage {
+public:
+   CheckpointWriteMessage(bool suppressCheckpointIfConstant, char const * checkpointDir, double timestamp) {
+      setMessageType("CheckpointRead");
+      mSuppressCheckpointIfConstant = suppressCheckpointIfConstant;
+      mCheckpointDir.clear();
+      mCheckpointDir.append(checkpointDir);
+      mTimestamp = timestamp;
+   }
+   bool mSuppressCheckpointIfConstant;
+   std::string mCheckpointDir;
+   double mTimestamp;
+};
+
 class ConnectionUpdateMessage : public BaseMessage {
 public:
    ConnectionUpdateMessage(double simTime, double deltaTime) {

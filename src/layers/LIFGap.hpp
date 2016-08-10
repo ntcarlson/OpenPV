@@ -25,7 +25,7 @@ public:
 
    int virtual updateState(double time, double dt);
 
-   int virtual checkpointWrite(const char * cpDir);
+   int virtual checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    int virtual readStateFromCheckpoint(const char * cpDir, double const * timeptr);
 
    const pvgsyndata_t * getGapStrength() { return gapStrength; }

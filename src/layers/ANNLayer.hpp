@@ -171,7 +171,7 @@ protected:
    virtual int resetGSynBuffers(double timef, double dt);
 
    virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 
 // Data members, initialized to default values.
    bool verticesListInParams = false; // True if verticesV/verticesA were specified in params explicitly; false otherwise

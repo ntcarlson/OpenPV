@@ -130,10 +130,10 @@ int CloneVLayer::readVFromCheckpoint(const char * cpDir, double * timeptr) {
    return PV_SUCCESS;
 }
 
-int CloneVLayer::checkpointWrite(const char * cpDir) {
+int CloneVLayer::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
    pvdata_t * V = clayer->V;
    clayer->V = NULL;
-   int status = HyPerLayer::checkpointWrite(cpDir);
+   int status = HyPerLayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    clayer->V = V;
    return status;
 }

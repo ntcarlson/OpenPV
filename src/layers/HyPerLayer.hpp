@@ -377,7 +377,7 @@ public:
    int mirrorInteriorToBorder(PVLayerCube * cube, PVLayerCube * borderCube);
 
    virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    virtual int writeTimers(std::ostream& stream);
    // TODO: readBufferFile and writeBufferFile have to take different types of buffers.  Can they be templated?
    template <typename T>

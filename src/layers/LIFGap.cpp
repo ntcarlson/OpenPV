@@ -188,12 +188,12 @@ int LIFGap::calcGapStrength() {
    return PV_SUCCESS;
 }
 
-int LIFGap::checkpointWrite(const char * cpDir) {
-   int status = LIF::checkpointWrite(cpDir);
+int LIFGap::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = LIF::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
 
    // checkpoint gapStrength buffer
    Communicator * icComm = getCommunicator();
-   double timed = (double) parent->simulationTime();
+   double timed = (double) timestamp;
    int filenamesize = strlen(cpDir)+(size_t) 1+strlen(name)+strlen("_gapStrength.pvp")+(size_t) 1;
    // The +1's are for the slash between cpDir and name, and for the null terminator
    char * filename = (char *) malloc( filenamesize*sizeof(char) );

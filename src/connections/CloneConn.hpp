@@ -22,7 +22,7 @@ public:
 
    virtual int writeWeights(double time, bool last=false){return PV_SUCCESS;}
    virtual int writeWeights(const char * filename){return PV_SUCCESS;}
-   virtual int checkpointWrite(const char * cpDir){return PV_SUCCESS;}
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {return PV_SUCCESS;}
    virtual int checkpointRead(const char * cpDir, double const * timef) override {return PV_SUCCESS;}
    virtual int outputState(double time, bool last = false){return PV_SUCCESS;}
 

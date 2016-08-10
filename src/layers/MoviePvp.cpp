@@ -74,10 +74,10 @@ int MoviePvp::checkpointRead(const char * cpDir, double const * timef){
    return status;
 }
 
-int MoviePvp::checkpointWrite(const char * cpDir){
-   int status = ImagePvp::checkpointWrite(cpDir);
+int MoviePvp::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp){
+   int status = ImagePvp::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
 
-   writeArrayToFile(cpDir, getName(), "FrameNumbers", getCommunicator(),
+   writeArrayToFile(cpDir, getName(), "FrameNumState", getCommunicator(),
          frameNumbers, mBatchWidth, parent->getVerifyWrites());
 
    //Only do a checkpoint TimestampState if there exists a timestamp file

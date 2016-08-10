@@ -1251,7 +1251,7 @@ int HyPerCol::run(double start_time, double stop_time, double dt)
             if (globalRank()==0) {
                pvInfo().printf("Checkpointing, simTime = %f\n", simulationTime());
             }
-            checkpointWrite(cpDir);
+            checkpointWrite(mSuppressNonplasticCheckpoints, cpDir, mSimTime);
          }
          else {
             if (globalRank()==0) {
@@ -2032,10 +2032,10 @@ int HyPerCol::writeTimers(std::ostream& stream){
    return PV_SUCCESS;
 }
 
-int HyPerCol::checkpointWrite(const char * cpDir) {
+int HyPerCol::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
    mCheckpointTimer->start();
    if (columnId()==0) {
-      pvInfo().printf("Checkpointing to directory \"%s\" at simTime = %f\n", cpDir, mSimTime);
+      pvInfo().printf("Checkpointing to directory \"%s\" at simTime = %f\n", cpDir, timestamp);
       struct stat timeinfostat;
       char timeinfofilename[PV_PATH_MAX];
       int chars_needed = snprintf(timeinfofilename, PV_PATH_MAX, "%s/timeinfo.bin", cpDir);
@@ -2053,12 +2053,15 @@ int HyPerCol::checkpointWrite(const char * cpDir) {
    }
 
    ensureDirExists(mCommunicator, cpDir);
-   for( int l=0; l<mLayers.size(); l++ ) {
-      mLayers.at(l)->checkpointWrite(cpDir);
-   }
-   for( auto c : mConnections ) {
-      if (c->getPlasticityFlag() || !mSuppressNonplasticCheckpoints) { c->checkpointWrite(cpDir); }
-   }
+   notify(std::make_shared<CheckpointWriteMessage>(mSuppressNonplasticCheckpoints, cpDir, timestamp));
+
+
+//   for( int l=0; l<mLayers.size(); l++ ) {
+//      mLayers.at(l)->checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
+//   }
+//   for( auto c : mConnections ) {
+//      if (c->getPlasticityFlag() || !mSuppressNonplasticCheckpoints) { c->checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp); }
+//   }
 
    // Timers
    if (columnId()==0) {
@@ -2163,14 +2166,14 @@ int HyPerCol::checkpointWrite(const char * cpDir) {
       assert(chars_needed < PV_PATH_MAX);
       PV_Stream * timestampfile = PV_fopen(timestamppath,"w", getVerifyWrites());
       assert(timestampfile);
-      PV_fwrite(&mSimTime,1,sizeof(double),timestampfile);
+      PV_fwrite(&timestamp,1,sizeof(double),timestampfile);
       PV_fwrite(&mCurrentStep,1,sizeof(long int),timestampfile);
       PV_fclose(timestampfile);
       chars_needed = snprintf(timestamppath, PV_PATH_MAX, "%s/timeinfo.txt", cpDir);
       assert(chars_needed < PV_PATH_MAX);
       timestampfile = PV_fopen(timestamppath,"w", getVerifyWrites());
       assert(timestampfile);
-      fprintf(timestampfile->fp,"time = %g\n", mSimTime);
+      fprintf(timestampfile->fp,"time = %g\n", timestamp);
       fprintf(timestampfile->fp,"timestep = %ld\n", mCurrentStep);
       PV_fclose(timestampfile);
    }
@@ -2207,7 +2210,7 @@ int HyPerCol::checkpointWrite(const char * cpDir) {
    }
 
    if (mCommunicator->commRank()==0) {
-      pvInfo().printf("checkpointWrite complete. simTime = %f\n", mSimTime);
+      pvInfo().printf("checkpointWrite complete. simTime = %f\n", timestamp);
    }
    mCheckpointTimer->stop();
    return PV_SUCCESS;
@@ -2346,7 +2349,7 @@ int HyPerCol::exitRunLoop(bool exitOnFinish)
             pvError().printf("HyPerCol::run error.  Checkpoint directory \"%s/Checkpoint%ld\" is too long.\n", mCheckpointWriteDir, mCurrentStep);
          }
       }
-      checkpointWrite(cpDir);
+      checkpointWrite(mSuppressNonplasticCheckpoints, cpDir, mSimTime);
    }
 
    if (exitOnFinish) {

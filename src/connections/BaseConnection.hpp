@@ -72,7 +72,7 @@ public:
    virtual int initializeState(char const * checkpointDir) override final;
    // Not overridable because all connections should
    // initializeState in the same way.  BaseConnection::initializeState()
-   // checks plasticityFlag and parent->suppressNonplasticCheckpoints.
+   // checks plasticityFlag and parent->getSuppressNonplasticCheckpoints().
    // If the connection doesn't write to checkpoints, call setInitialValues.
    // Otherwise, call BaseObject::setInitialValues
 
@@ -99,13 +99,6 @@ public:
     * and the presynaptic activity
     */
    virtual int deliver() = 0;
-
-   /**
-    * A pure virtual function for writing the state of the connection to the directory specified in cpDir.
-    * checkpointWrite() should save the complete state of the connection, so that restarting from a checkpoint
-    * is equivalent to having the run continue.
-    */
-   virtual int checkpointWrite(const char * cpDir) = 0;
 
    /**
     * A pure virtual function for writing timing information.

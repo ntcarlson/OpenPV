@@ -107,6 +107,9 @@ int BaseObject::respond(std::shared_ptr<BaseMessage const> message) {
    else if (auto castMessage = std::dynamic_pointer_cast<CheckpointReadMessage const>(message)) {
       return respondCheckpointRead(castMessage);
    }
+   else if (auto castMessage = std::dynamic_pointer_cast<CheckpointWriteMessage const>(message)) {
+      return respondCheckpointWrite(castMessage);
+   }
    else {
       return PV_SUCCESS;
    }
@@ -155,7 +158,10 @@ int BaseObject::respondInitializeState(std::shared_ptr<InitializeStateMessage co
 
 int BaseObject::respondCheckpointRead(std::shared_ptr<CheckpointReadMessage const> message) {
    return checkpointRead(message->mCheckpointDir.c_str(), message->mTimestampPtr);
+}
 
+int BaseObject::respondCheckpointWrite(std::shared_ptr<CheckpointWriteMessage const> message) {
+   return checkpointWrite(message->mSuppressCheckpointIfConstant, message->mCheckpointDir.c_str(), message->mTimestamp);
 }
 
 int BaseObject::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {

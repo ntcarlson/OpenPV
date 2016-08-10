@@ -23,7 +23,7 @@ public:
    virtual PVLayerLoc getImageLoc();
 
    virtual int checkpointRead(const char * cpDir, double const * timef) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    virtual int outputState(double time, bool last=false);
    virtual double getDeltaUpdateTime();
    virtual double calcTimeScale(int batchIdx);

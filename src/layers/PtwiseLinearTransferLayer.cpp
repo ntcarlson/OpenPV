@@ -252,8 +252,8 @@ int PtwiseLinearTransferLayer::checkpointRead(char const * cpDir, double const *
    return status;
 }
 
-int PtwiseLinearTransferLayer::checkpointWrite(char const * cpDir) {
-   int status = HyPerLayer::checkpointWrite(cpDir);
+int PtwiseLinearTransferLayer::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = HyPerLayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    if (status==PV_SUCCESS) {
       status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
    }

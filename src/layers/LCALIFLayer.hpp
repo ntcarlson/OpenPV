@@ -22,7 +22,7 @@ public:
    virtual int updateState(double timef, double dt);
    int findFlag(int numMatrixCol, int numMatrixRow);
 
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 
    inline float getTargetRate() {return targetRateHz;}
    const float * getVadpt() {return Vadpt;}

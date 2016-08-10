@@ -418,8 +418,8 @@ int ANNLayer::checkpointRead(char const * cpDir, double const * timeptr) {
    return status;
 }
 
-int ANNLayer::checkpointWrite(char const * cpDir) {
-   int status = HyPerLayer::checkpointWrite(cpDir);
+int ANNLayer::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = HyPerLayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    if (status==PV_SUCCESS) {
       status = writeScalarToFile(cpDir, getName(), "nextGSynClearTime", getCommunicator(), nextGSynClearTime, parent->getVerifyWrites());
    }

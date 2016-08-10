@@ -2111,7 +2111,7 @@ int HyPerConn::checkpointRead(const char * cpDir, double const * timeptr) {
    return status;
 }
 
-int HyPerConn::checkpointWrite(const char * cpDir) {
+int HyPerConn::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
   //if((getPvpatchAccumulateType() == ACCUMULATE_MAXPOOLING) || (getPvpatchAccumulateType() == ACCUMULATE_SUMPOOLING)){
   //  return PV_SUCCESS;
   //}
@@ -2119,7 +2119,7 @@ int HyPerConn::checkpointWrite(const char * cpDir) {
    int status = checkpointFilename(filename, PV_PATH_MAX, cpDir);
    pvAssert(status==PV_SUCCESS);
    PVPatch *** patches_arg = sharedWeights ? NULL : wPatches;
-   status = writeWeights(patches_arg, wDataStart, getNumDataPatches(), filename, parent->simulationTime(), writeCompressedCheckpoints, /*last*/true);
+   status = writeWeights(patches_arg, wDataStart, getNumDataPatches(), filename, timestamp, writeCompressedCheckpoints, /*last*/true);
    pvAssert(status==PV_SUCCESS);
 
    // TODO: split the writeScalarToFile calls up into virtual methods so that subclasses that don't use these member variables don't have to save them.

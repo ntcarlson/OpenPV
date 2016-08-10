@@ -722,7 +722,7 @@ int TransposePoolingConn::checkpointRead(const char * cpDir, double const * time
    return PV_SUCCESS;
 }
 
-int TransposePoolingConn::checkpointWrite(const char * cpDir) {
+int TransposePoolingConn::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
    return PV_SUCCESS;
 }
 

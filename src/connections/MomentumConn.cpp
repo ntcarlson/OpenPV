@@ -403,8 +403,8 @@ int MomentumConn::applyMomentum(int arbor_ID){
 }
 
 //TODO checkpointing not working with batching, must write checkpoint exactly at period
-int MomentumConn::checkpointWrite(const char * cpDir) {
-   HyPerConn::checkpointWrite(cpDir);
+int MomentumConn::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   HyPerConn::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    if (!plasticityFlag) return PV_SUCCESS;
    char filename[PV_PATH_MAX];
    int chars_needed = snprintf(filename, PV_PATH_MAX, "%s/%s_prev_dW.pvp", cpDir, name);
@@ -415,7 +415,7 @@ int MomentumConn::checkpointWrite(const char * cpDir) {
       abort();
    }
    PVPatch *** patches_arg = sharedWeights ? NULL : get_wPatches();
-   int status = writeWeights(patches_arg, prev_dwDataStart, getNumDataPatches(), filename, parent->simulationTime(), writeCompressedCheckpoints, /*last*/true);
+   int status = writeWeights(patches_arg, prev_dwDataStart, getNumDataPatches(), filename, timestamp, writeCompressedCheckpoints, /*last*/true);
    assert(status==PV_SUCCESS);
    return PV_SUCCESS;
 }

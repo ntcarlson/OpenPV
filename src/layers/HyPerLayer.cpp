@@ -2143,10 +2143,10 @@ int HyPerLayer::readDataStoreFromFile(const char * filename, Communicator * comm
    return status;
 }
 
-int HyPerLayer::checkpointWrite(const char * cpDir) {
+int HyPerLayer::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
    // Writes checkpoint files for V, A, and datastore to files in working directory
    Communicator * icComm = getCommunicator();
-   double timed = (double) parent->simulationTime();
+   double timed = (double) timestamp;
 
    std::string * filename = nullptr;
    filename = pathInCheckpoint(cpDir, getName(), "A", "pvp");

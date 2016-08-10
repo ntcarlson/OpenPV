@@ -51,7 +51,7 @@ public:
 
    virtual int updateState(double time, double dt);
    virtual int outputState(double time, bool last);
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 
    virtual bool activityIsSpiking() { return spikingFlag; }
 

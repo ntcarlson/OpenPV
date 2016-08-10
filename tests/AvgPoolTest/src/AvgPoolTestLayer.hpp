@@ -8,8 +8,6 @@ namespace PV {
 class AvgPoolTestLayer: public PV::ANNLayer{
 public:
    AvgPoolTestLayer(const char* name, HyPerCol * hc);
-//   virtual int checkpointRead(const char * cpDir, double* timef);
-//   virtual int checkpointWrite(const char * cpDir);
 
 protected:
    int updateState(double timef, double dt);

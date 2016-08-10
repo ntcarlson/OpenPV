@@ -350,10 +350,10 @@ int LIF::readRandStateFromCheckpoint(const char * cpDir, double const * timeptr)
    return status;
 }
 
-int LIF::checkpointWrite(const char * cpDir) {
-   HyPerLayer::checkpointWrite(cpDir);
+int LIF::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   HyPerLayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    Communicator * icComm = getCommunicator();
-   double timed = (double) parent->simulationTime();
+   double timed = (double) timestamp;
    int filenamesize = strlen(cpDir)+1+strlen(name)+16;
    // The +1 is for the slash between cpDir and name; the +16 needs to be large enough to hold the suffix (e.g. _rand_state.bin) plus the null terminator
    char * filename = (char *) malloc( filenamesize*sizeof(char) );

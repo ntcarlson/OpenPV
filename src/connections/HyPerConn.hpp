@@ -85,7 +85,7 @@ public:
    virtual int respond(std::shared_ptr<BaseMessage const> message);
 
    virtual int checkpointRead(const char * cpDir, double const * timef) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    virtual int writeTimers(std::ostream& stream);
    virtual int insertProbe(BaseConnectionProbe* p);
    virtual int outputState(double time, bool last = false);

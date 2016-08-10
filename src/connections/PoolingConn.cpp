@@ -354,7 +354,7 @@ int PoolingConn::checkpointRead(const char * cpDir, double const * timeptr) {
    return PV_SUCCESS;
 }
 
-int PoolingConn::checkpointWrite(const char * cpDir) {
+int PoolingConn::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
    return PV_SUCCESS;
 }
 

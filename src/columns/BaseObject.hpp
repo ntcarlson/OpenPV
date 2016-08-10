@@ -91,6 +91,7 @@ protected:
    int respondAllocateData(std::shared_ptr<AllocateDataMessage const> message);
    int respondInitializeState(std::shared_ptr<InitializeStateMessage const> message);
    int respondCheckpointRead(std::shared_ptr<CheckpointReadMessage const> message);
+   int respondCheckpointWrite(std::shared_ptr<CheckpointWriteMessage const> message);
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) { return PV_SUCCESS; }
@@ -108,6 +109,15 @@ protected:
     * a warning is issued.  If timestampPtr is null, the timestamp is not checked.
     */
    virtual int checkpointRead(char const * checkpointDir, double const * timestampPtr) { return PV_SUCCESS; }
+
+   /**
+    * A virtual function for writing the state of the object to the directory specified in cpDir.
+    * checkpointWrite() should save the complete state of the connection, so that restarting from a checkpoint
+    * is equivalent to having the run continue.
+    * The suppressCheckpointIfConstant flag indicates that an object that does not change once its state has
+    * been initialized should not checkpoint.
+    */
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * checkpointDir, double timestamp) { return PV_SUCCESS; }
 
    template <typename T>
    void ioParamValue(enum ParamsIOFlag ioFlag, const char * groupName, const char * paramName, T * val, T defaultValue, bool warnIfAbsent=true);

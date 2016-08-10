@@ -221,8 +221,8 @@ int MomentumLCALayer::updateState(double time, double dt)
    return PV_SUCCESS;
 }
 
-int MomentumLCALayer::checkpointWrite(const char * cpDir) {
-   HyPerLCALayer::checkpointWrite(cpDir);
+int MomentumLCALayer::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   HyPerLCALayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
 
 #ifdef PV_USE_CUDA
    if(updateGpu){
@@ -233,7 +233,7 @@ int MomentumLCALayer::checkpointWrite(const char * cpDir) {
 
    // Writes checkpoint files for V, A, and datastore to files in working directory
    Communicator * icComm = getCommunicator();
-   double timed = (double) parent->simulationTime();
+   double timed = (double) timestamp;
    auto filename = pathInCheckpoint(cpDir, getName(), "prevDrive", "pvp");
    int status = writeBufferFile(filename->c_str(), icComm, timed, &prevDrive, /*numbands*/1, /*extended*/false, getLayerLoc());
    assert(status == PV_SUCCESS);

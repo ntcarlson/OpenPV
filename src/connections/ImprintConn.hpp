@@ -21,7 +21,7 @@ public:
    virtual int allocateDataStructures();
 
    virtual int checkpointRead(const char * cpDir, double const * timef) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 
 protected:
    virtual int initialize_dW(int arborId);

@@ -472,7 +472,7 @@ private:
       Subject::notify(mObjectHierarchy, std::vector<std::shared_ptr<BaseMessage const> >{message});
    }
    int checkpointRead();
-   int checkpointWrite(const char * cpDir);
+   int checkpointWrite(bool suppressCheckpointIfConstant, const char * cpDir, double timestamp);
    int writeTimers(std::ostream& stream);
    int outputParams(char const * path);
    int outputParamsHeadComments(FILE* fp, char const * commentToken);

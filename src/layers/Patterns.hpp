@@ -65,7 +65,7 @@ public:
 
    virtual int tag();
 
-   int checkpointWrite(const char * cpDir);
+   int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 
 protected:
 

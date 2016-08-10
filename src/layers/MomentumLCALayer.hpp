@@ -16,7 +16,7 @@ class MomentumLCALayer: public PV::HyPerLCALayer{
 public:
    MomentumLCALayer(const char * name, HyPerCol * hc);
    virtual ~MomentumLCALayer();
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
 
 protected:

@@ -129,8 +129,8 @@ int Movie::checkpointRead(const char * cpDir, double const * timef){
    return status;
 }
 
-int Movie::checkpointWrite(const char * cpDir){
-   int status = Image::checkpointWrite(cpDir);
+int Movie::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp){
+   int status = Image::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
 
    writeArrayToFile(cpDir, getName(), "FilenamePos", getCommunicator(),
          batchPos, mBatchWidth, parent->getVerifyWrites());

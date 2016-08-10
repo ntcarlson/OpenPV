@@ -8,9 +8,7 @@ namespace PV {
 class InputLayer: public PV::ANNLayer{
 public:
    InputLayer(const char* name, HyPerCol * hc);
-//   virtual int checkpointRead(const char * cpDir, double* timef);
-//   virtual int checkpointWrite(const char * cpDir);
-//
+
 protected:
    int updateState(double timef, double dt);
 

@@ -105,7 +105,7 @@ protected:
    virtual int resetGSynBuffers(double timef, double dt);
 
    virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 private:
    int initialize_base();
 

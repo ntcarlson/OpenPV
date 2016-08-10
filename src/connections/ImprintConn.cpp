@@ -288,8 +288,8 @@ int ImprintConn::checkpointRead(const char * cpDir, double const * timeptr) {
    return status;
 }
 
-int ImprintConn::checkpointWrite(const char * cpDir) {
-   int status = HyPerConn::checkpointWrite(cpDir);
+int ImprintConn::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = HyPerConn::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    long numBuf = getNumDataPatches() * numberOfAxonalArborLists();
    if( getCommunicator()->commRank() == 0 ) {
       int filenamesize = strlen(cpDir)+1+strlen(name)+18;

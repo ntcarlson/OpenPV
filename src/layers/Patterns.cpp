@@ -1144,8 +1144,8 @@ int Patterns::readPatternStateFromCheckpoint(const char * cpDir) {
    return status;
 }
 
-int Patterns::checkpointWrite(const char * cpDir) {
-   int status = HyPerLayer::checkpointWrite(cpDir);
+int Patterns::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = HyPerLayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    Communicator * icComm = getCommunicator();
    int filenamesize = strlen(cpDir)+1+strlen(name)+18;
    // The +1 is for the slash between cpDir and name; the +18 needs to be large enough to hold the suffix _PatternState.{bin,txt} plus the null terminator

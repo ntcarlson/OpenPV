@@ -212,8 +212,8 @@ int LCALIFLayer::readVadptFromCheckpoint(const char * cpDir, double const * time
    return status;
 }
 
-int LCALIFLayer::checkpointWrite(const char * cpDir) {
-   int status = LIFGap::checkpointWrite(cpDir);
+int LCALIFLayer::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = LIFGap::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
    Communicator * icComm = getCommunicator();
    char basepath[PV_PATH_MAX];
    char filename[PV_PATH_MAX];
@@ -225,7 +225,7 @@ int LCALIFLayer::checkpointWrite(const char * cpDir) {
       MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
-   double timed = (double) parent->simulationTime();
+   double timed = (double) timestamp;
    int chars_needed = snprintf(filename, PV_PATH_MAX, "%s_integratedSpikeCount.pvp", basepath);
    assert(chars_needed < PV_PATH_MAX);
    writeBufferFile(filename, icComm, timed, &integratedSpikeCount, 1, /*extended*/false, getLayerLoc());

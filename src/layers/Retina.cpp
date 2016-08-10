@@ -292,8 +292,8 @@ int Retina::readRandStateFromCheckpoint(const char * cpDir) {
    return status;
 }
 
-int Retina::checkpointWrite(const char * cpDir) {
-   int status = HyPerLayer::checkpointWrite(cpDir);
+int Retina::checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) {
+   int status = HyPerLayer::checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
 
    // Save rand_state
    char filename[PV_PATH_MAX];

@@ -64,7 +64,7 @@ public:
    virtual int updateState(double time, double dt);
    virtual int setActivity();
    
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 
    pvdata_t * getVth()              {return Vth;}
    virtual pvconductance_t * getConductance(ChannelType ch) {

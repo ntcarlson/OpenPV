@@ -21,7 +21,7 @@ public:
 
    virtual int applyMomentum(int arbor_ID);
    virtual int checkpointRead(const char * cpDir, double const * timef) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
 protected:
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    virtual void ioParam_momentumTau(enum ParamsIOFlag ioFlag);

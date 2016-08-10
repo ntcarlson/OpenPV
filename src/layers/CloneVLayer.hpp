@@ -33,7 +33,7 @@ protected:
    virtual int allocateV();
    virtual int initializeV();
    virtual int readVFromCheckpoint(const char * cpDir, double * timeptr);
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    virtual int updateState(double timed, double dt);
    //virtual double getDeltaUpdateTime();
 

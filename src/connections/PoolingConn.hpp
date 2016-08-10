@@ -21,7 +21,7 @@ public:
    virtual ~PoolingConn();
    virtual int allocateDataStructures();
    virtual int checkpointRead(const char * cpDir, double const * timef) override;
-   virtual int checkpointWrite(const char * cpDir);
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
    virtual float minWeight(int arborId = 0);
    virtual float maxWeight(int arborId = 0);
    virtual int finalizeUpdate(double time, double dt);

@@ -59,7 +59,7 @@ protected:
 
    // IdentConn does not need to checkpoint
    virtual int checkpointRead(const char * cpDir, double const * timef) override { return PV_SUCCESS; }
-   virtual int checkpointWrite(const char * cpDir) { return PV_SUCCESS; }
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) { return PV_SUCCESS; }
 
    virtual void handleDefaultSelfFlag();
 
