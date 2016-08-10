@@ -1520,7 +1520,7 @@ bool HyPerLayer::needUpdate(double time, double dt){
       updateNeeded = false;
    }
    //Return true if the layer was updated this timestep as well
-   else if(fabs(parent->simulationTime() - lastUpdateTime) < (dt/2)){
+   else if(fabs(time - lastUpdateTime) < (dt/2)){
       updateNeeded = true;
    }
    else {
@@ -1619,7 +1619,7 @@ int HyPerLayer::callUpdateState(double timef, double dt){
  
       //callUpdateState contents end
 
-      lastUpdateTime = parent->simulationTime();
+      lastUpdateTime = timef;
    }
    //Because of the triggerOffset, we need to check if we need to update nextUpdateTime every time
    updateNextUpdateTime();
@@ -1856,7 +1856,7 @@ int HyPerLayer::publish(Communicator* comm, double time)
 
    bool mirroring = useMirrorBCs();
    mirroring = mirroring ?
-         (getLastUpdateTime() >= getParent()->simulationTime()) :
+         (getLastUpdateTime() >= time) :
          false;
    if ( mirroring) {
       mirrorInteriorToBorder(clayer->activity, clayer->activity);

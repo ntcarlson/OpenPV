@@ -504,7 +504,7 @@ int RescaleLayer::updateState(double timef, double dt) {
           }
        }
        //Update lastUpdateTime
-       lastUpdateTime = parent->simulationTime();
+       lastUpdateTime = timef;
    }
    return status;
 }
