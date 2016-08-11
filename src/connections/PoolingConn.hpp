@@ -32,13 +32,24 @@ public:
 protected:
    int initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer);
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
-   void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag);
-   void ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag);
-   void ioParam_needPostIndexLayer(enum ParamsIOFlag ioFlag);
-   void ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag);
+   virtual void ioParam_plasticityFlag(enum ParamsIOFlag ioFlag) override;
+   virtual void ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) override;
+   virtual void ioParam_needPostIndexLayer(enum ParamsIOFlag ioFlag);
+   virtual void ioParam_postIndexLayerName(enum ParamsIOFlag ioFlag);
    virtual void setWeightInitializer() override;
    virtual void setWeightNormalizer() override;
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
+
+   /**
+    * @brief PoolingConn does not have weights to write, and does not use writeStep
+    */
+   virtual void ioParam_writeStep(enum ParamsIOFlag ioFlag) override;
+
+   /**
+    * @brief PoolingConn does not have weights to write, and does not use writeCompressedCheckpoints
+    */
+   virtual void ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag) override;
+
    virtual int setInitialValues();
    virtual int constructWeights();
 
@@ -63,7 +74,7 @@ protected:
 private:
    int initialize_base();
    void unsetAccumulateType();
-   int ** thread_gateIdxBuffer;
+   pvdata_t ** thread_gateIdxBuffer;
    bool needPostIndexLayer;
    char* postIndexLayerName;
    PoolingIndexLayer* postIndexLayer;
