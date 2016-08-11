@@ -71,15 +71,15 @@ void QuotientColProbe::ioParam_denominator(enum ParamsIOFlag ioFlag) {
 
 int QuotientColProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    int status = ColProbe::communicateInitInfo(message);
-   numerProbe = findProbe(numerator);
-   denomProbe = findProbe(denominator);
-   if (numerProbe==NULL || denomProbe==NULL) {
+   numerProbe = message->mTable->lookup<BaseProbe>(numerator);
+   denomProbe = message->mTable->lookup<BaseProbe>(denominator);
+   if (numerProbe==nullptr || denomProbe==nullptr) {
       status = PV_FAILURE;
       if (getCommunicator()->commRank()==0) {
-         if (numerProbe==NULL) {
+         if (numerProbe==nullptr) {
             pvErrorNoExit().printf("%s: numerator probe \"%s\" could not be found.\n", getDescription_c(), numerator);
          }
-         if (denomProbe==NULL) {
+         if (denomProbe==nullptr) {
             pvErrorNoExit().printf("%s: denominator probe \"%s\" could not be found.\n", getDescription_c(), denominator);
          }
       }
@@ -107,15 +107,6 @@ int QuotientColProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMes
       exit(EXIT_FAILURE);
    }
    return status;
-}
-
-BaseProbe * QuotientColProbe::findProbe(char const * probeName) {
-   for (int p=0; p<parent->numberOfBaseProbes(); p++) {
-      BaseProbe * probe = parent->getBaseProbe(p);
-      if (!strcmp(probe->getName(), probeName)) { return probe; }
-   }
-   // If you reach here, no probe with the given name was found.
-   return NULL;
 }
 
 int QuotientColProbe::calcValues(double timeValue) {

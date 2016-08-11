@@ -72,12 +72,6 @@ public:
    /** @} */ /* end of io functions for QuotientColProbe parameters */
    
    /**
-    * A function to find a probe, whether it belongs to a layer, a connection, or the hypercol.
-    * Returns NULL if the probe cannot be found.
-    */
-   BaseProbe * findProbe(char const * probeName);
-   
-   /**
     * Prints the energies to the output stream, formatted as a comma-separated value:
     * "Name of probe",timevalue,index,energy
     * The number of lines printed is equal to getVectorSize(), and index goes from 0 to getVectorSize()-1.
