@@ -9,7 +9,7 @@
 #define DATASTOREDELAYTESTPROBE_HPP_
 
 #include <io/StatsProbe.hpp>
-#include <columns/HyPerCol.hpp>
+#include "DatastoreDelayTestLayer.hpp"
 #include <include/pv_common.h>
 
 namespace PV {
@@ -24,8 +24,11 @@ public:
 
 protected:
    int initDatastoreDelayTestProbe(const char * probename,  HyPerCol * hc);
+   virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
    virtual void ioParam_buffer(enum ParamsIOFlag ioFlag);
 
+protected:
+   DatastoreDelayTestLayer * inputLayer = nullptr;
 };
 
 

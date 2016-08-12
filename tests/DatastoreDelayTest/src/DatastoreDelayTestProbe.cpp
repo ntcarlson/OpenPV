@@ -11,11 +11,6 @@
 
 namespace PV {
 
-/**
- * @filename
- * @type
- * @msg
- */
 DatastoreDelayTestProbe::DatastoreDelayTestProbe(const char * probeName, HyPerCol * hc) : StatsProbe()
 {
    initDatastoreDelayTestProbe(probeName, hc);
@@ -32,11 +27,22 @@ void DatastoreDelayTestProbe::ioParam_buffer(enum ParamsIOFlag ioFlag) {
       requireType(BufActivity);
    }
 }
+int DatastoreDelayTestProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
+   int status = StatsProbe::communicateInitInfo(message);
+   if (status != PV_SUCCESS) {
+      return status;
+   }
+   inputLayer = message->mTable->lookup<DatastoreDelayTestLayer>("input");
+   if (inputLayer==nullptr) {
+      if (getCommunicator()->commRank()==0) {
+         pvErrorNoExit() << getDescription() << ": No DatastoreDelayTestLayer named \"input\" found.\n";
+      }
+      MPI_Barrier(getCommunicator()->communicator());
+      exit(EXIT_FAILURE);
+   }
+   return status;
+}
 
-/**
- * @time
- * @l
- */
 int DatastoreDelayTestProbe::outputState(double timed) {
    HyPerLayer * l = getTargetLayer();
    Communicator * icComm = l->getCommunicator();
@@ -45,9 +51,9 @@ int DatastoreDelayTestProbe::outputState(double timed) {
       return PV_SUCCESS;
    }
    int status = PV_SUCCESS;
-   int numDelayLevels = l->getParent()->getLayer(0)->getNumDelayLevels();
-   pvdata_t correctValue = numDelayLevels*(numDelayLevels+1)/2;
+   int numDelayLevels = inputLayer->getNumDelayLevels();
    if( timed >= numDelayLevels+2 ) {
+      pvdata_t correctValue = numDelayLevels*(numDelayLevels+1)/2;
       pvdata_t * V = l->getV();
       for( int k=0; k<l->getNumNeuronsAllBatches(); k++ ) {
          if( V[k] != correctValue ) {
