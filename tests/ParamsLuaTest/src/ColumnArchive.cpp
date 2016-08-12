@@ -154,25 +154,15 @@ void ColumnArchive::addConn(PV::HyPerConn * conn, pvwdata_t connTolerance) {
 }
 
 void ColumnArchive::addCol(PV::HyPerCol * hc, pvdata_t layerTolerance, pvwdata_t connTolerance) {
-   int const nl = hc->numberOfLayers();
-   m_layerdata.reserve(nl);
-   for (int l=0; l<nl; l++) {
-      PV::HyPerLayer * layer = hc->getLayer(l);
-      if (layer==nullptr) {
-         pvError() << "Layer with index " << l << " is null.\n";
-      }
-      addLayer(layer, layerTolerance);
+   PV::ObserverTable * table = hc->copyObjectHierarchy();
+   for (auto& obj : table->getObjectVector()) {
+      PV::HyPerLayer * layer = dynamic_cast<PV::HyPerLayer*>(obj);
+      if (layer) { addLayer(layer, layerTolerance); continue; }
+      PV::HyPerConn * conn = dynamic_cast<PV::HyPerConn*>(obj);
+      if (conn) { addConn(conn, connTolerance); continue; }
+      PV::BaseProbe * probe = dynamic_cast<PV::BaseProbe*>(obj);
+      if (probe) { continue; }
+      pvError() << "Unexpected object type in HyPerCol: " << obj->getDescription() << "\n";
    }
-
-   int const nc = hc->numberOfConnections();
-   m_conndata.reserve(nc);
-   for (int c=0; c<nc; c++) {
-      PV::BaseConnection * baseConn = hc->getConnection(c);
-      if (baseConn==nullptr) { pvError() << "Connection with index " << c << " is null.\n"; }
-      PV::HyPerConn * conn = dynamic_cast<PV::HyPerConn*>(baseConn);
-      if (conn==nullptr) {
-         pvError() << baseConn->getDescription() << " is not a HyPerConn.\n";
-      }
-      addConn(conn, connTolerance);
-   }
+   delete table;
 }

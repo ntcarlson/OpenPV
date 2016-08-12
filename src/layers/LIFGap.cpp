@@ -8,10 +8,10 @@
 #include "LIFGap.hpp"
 #include "utils/cl_random.h"
 #include "include/pv_datatypes.h"
-#include "../include/pv_common.h"
-#include "../include/default_params.h"
-#include "../io/fileio.hpp"
-#include "../connections/HyPerConn.hpp"
+#include "include/pv_common.h"
+#include "include/default_params.h"
+#include "io/fileio.hpp"
+#include "connections/HyPerConn.hpp"
 
 #include <assert.h>
 #include <float.h>
@@ -141,6 +141,31 @@ int LIFGap::initialize(const char * name, HyPerCol * hc, const char * kernel_nam
    return status;
 }
 
+int LIFGap::allocateDataStructures() {
+   int status = LIF::allocateDataStructures();
+
+   // Find all the connections that connect to this layer on CHANNEL_GAP and save them for cacGapStrength to use.
+   // This seems more like a communicateInitInfo task, but at the time communicateInitInfo is called,
+   // the connections don't necessarily have their post layers set.  Returning PV_POSTPONE until every connection
+   // has completed its communicateInitInfo is a good way to cause hangs, so this will have to stay in
+   // allocate until the communicateInitInfo/PV_POSTPONE mechanism is improved.
+   gapConnections.clear();
+   for (auto& ob : inputSources) {
+      HyPerConn * conn = dynamic_cast<HyPerConn*>(ob);
+      if (conn && conn->postSynapticLayer()==this && conn->getChannel()==CHANNEL_GAP) {
+         gapConnections.push_back(conn);
+      }
+   }
+   for (auto& ob : inputSourcesGPU) {
+      HyPerConn * conn = dynamic_cast<HyPerConn*>(ob);
+      if (conn && conn->postSynapticLayer()==this && conn->getChannel()==CHANNEL_GAP) {
+         gapConnections.push_back(conn);
+      }
+   }
+
+   return status;
+}
+
 int LIFGap::allocateConductances(int num_channels) {
    // this->sumGap = 0.0f;
    int status = LIF::allocateConductances(num_channels-1); // CHANNEL_GAP doesn't have a conductance per se.
@@ -155,9 +180,7 @@ int LIFGap::allocateConductances(int num_channels) {
 int LIFGap::calcGapStrength() {
    bool needsNewCalc = !gapStrengthInitialized;
    if (!needsNewCalc) {
-      for (int c=0; c<parent->numberOfConnections(); c++) {
-         HyPerConn * conn = dynamic_cast<HyPerConn *>(parent->getConnection(c));
-         if (conn->postSynapticLayer() != this || conn->getChannel() != CHANNEL_GAP) { continue; }
+      for (auto& conn : gapConnections) {
          if (lastUpdateTime < conn->getLastUpdateTime()) {
             needsNewCalc = true;
             break;
@@ -169,9 +192,7 @@ int LIFGap::calcGapStrength() {
    for (int k=0; k<getNumNeuronsAllBatches(); k++) {
       gapStrength[k] = (pvgsyndata_t) 0;
    }
-   for (int c=0; c<parent->numberOfConnections(); c++) {
-      HyPerConn * conn = dynamic_cast<HyPerConn *>(parent->getConnection(c));
-      if (conn->postSynapticLayer() != this || conn->getChannel() != CHANNEL_GAP) { continue; }
+   for (auto& conn : gapConnections) {
       if (conn->getPlasticityFlag() && getCommunicator()->commRank()==0) {
          pvWarn().printf("%s: %s on CHANNEL_GAP has plasticity flag set to true\n", getDescription_c(), conn->getDescription_c());
       }

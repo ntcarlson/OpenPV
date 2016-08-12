@@ -59,16 +59,16 @@ int compar(const void * a, const void * b) {
 
 int StochasticReleaseTestProbe::outputState(double timed) {
    // Set conn.  Can't do that in initStochasticReleaseTestProbe because we need to search for a conn with the given post, and connections' postLayerName is not necessarily set.
-   if (conn==NULL) {
-      int numconns = parent->numberOfConnections();
-      for (int c=0; c<numconns; c++) {
-         if (!strcmp(parent->getConnection(c)->getPostLayerName(),getTargetLayer()->getName())) {
-            pvErrorIf(!(conn==NULL), "Test failed.\n"); // Only one connection can go to this layer for this probe to work
-            BaseConnection * baseConn = parent->getConnection(c);
-            conn = dynamic_cast<HyPerConn *>(baseConn);
+   if (conn==nullptr) {
+      ObserverTable * table = parent->copyObjectHierarchy();
+      for (auto& ob : table->getObjectVector()) {
+         HyPerConn * hyperconn = dynamic_cast<HyPerConn*>(ob);
+         if (hyperconn && hyperconn->postSynapticLayer()==getTargetLayer()) {
+            pvErrorIf(conn!=nullptr, "%s: More than one connection going to target layer %s.\n", getDescription_c(), targetLayer->getDescription_c());
+            conn = hyperconn;
          }
       }
-      pvErrorIf(!(conn!=NULL), "Test failed.\n");
+      pvErrorIf(conn==nullptr, "%s: No connections going to target layer %s.\n", getDescription_c(), targetLayer->getDescription_c());
    }
    pvErrorIf(!(conn->numberOfAxonalArborLists()==1), "Test failed.\n");
    pvErrorIf(!(conn->xPatchSize()==1), "Test failed.\n");

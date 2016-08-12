@@ -60,7 +60,7 @@ int checkoutput(HyPerCol * hc, int argc, char ** argv) {
    }
 
    // Connection should be a 3x3 kernel with values 0 through 8 in the weights
-   BaseConnection * baseConn = hc->getConnection(0);
+   BaseConnection * baseConn = hc->getConnFromName("input to output");
    HyPerConn * conn = dynamic_cast<HyPerConn *>(baseConn);
    pvErrorIf(!(conn->xPatchSize()==3 && conn->yPatchSize()==3 && conn->fPatchSize()==1), "Test failed.\n");
    int patchSize = conn->xPatchSize()*conn->yPatchSize()*conn->fPatchSize();

@@ -18,6 +18,8 @@
 
 namespace PV {
 
+class HyPerConn;
+
 class LIFGap: public PV::LIF {
 public:
    LIFGap(const char* name, HyPerCol * hc);
@@ -34,13 +36,16 @@ protected:
 
    LIFGap();
    int initialize(const char * name, HyPerCol * hc, const char * kernel_name);
+   virtual int allocateDataStructures() override;
    virtual int allocateConductances(int num_channels);
    virtual int readGapStrengthFromCheckpoint(const char * cpDir, double const * timeptr);
 private:
    int initialize_base();
+   int calcGapStrength();
+
    pvgsyndata_t * gapStrength;
    bool gapStrengthInitialized;
-   int calcGapStrength();
+   std::vector<HyPerConn*> gapConnections;
 
 }; // class LIFGap
 

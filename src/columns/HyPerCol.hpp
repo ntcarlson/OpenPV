@@ -373,7 +373,6 @@ public:
 
    // Getters and setters
 
-   BaseConnection* getConnection(int which)  { return mConnections.at(which); }
    BaseProbe* getBaseProbe(int which) { return mBaseProbes.at(which); }
    bool getDtAdaptFlag() const { pvWarn() << "getDtAdaptFlag() is deprecated.\n" ; return usingAdaptiveTimeScale(); }  // getDtAdaptFlag() was deprecated Jul 7, 2016, in favor if usingAdaptiveTimeScale().
    bool getVerifyWrites() { return mVerifyWrites; }
