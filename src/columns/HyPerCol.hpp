@@ -418,7 +418,6 @@ public:
    int includeLayerName() const { return mFilenamesContainLayerNames;}
    int includeConnectionName() const { return mFilenamesContainConnectionNames;}
    int numberOfLayers() const { return mLayers.size();}
-   int numberOfConnections() const { return mConnections.size();}
    int numberOfProbes() const {return mColProbes.size();}
    int numberOfBaseProbes() const {return mBaseProbes.size();}
    int numberOfBorderRegions() const {return MAX_NEIGHBORS;}

@@ -21,11 +21,34 @@ int checkoutput(HyPerCol * hc, int argc, char ** argv) {
    // Column should have two layers and one connection
 
    int status = PV_SUCCESS;
-   pvErrorIf(!(hc->numberOfLayers()==2 && hc->numberOfConnections()==1), "Test failed.\n");
+   ObserverTable * table = hc->copyObjectHierarchy();
+   int numLayers = 0;
+   int numConns = 0;
+   HyPerLayer * inLayer = nullptr;
+   HyPerLayer * outLayer = nullptr;
+   HyPerConn * conn = nullptr;
+   for (auto& ob : table->getObjectVector()) {
+      HyPerLayer * l = dynamic_cast<HyPerLayer*>(ob);
+      if (l) {
+         numLayers++;
+         if (!strcmp(l->getName(), "input")) { inLayer = l; }
+         if (!strcmp(l->getName(), "output")) { outLayer = l;}
+      }
+      HyPerConn * c = dynamic_cast<HyPerConn*>(ob);
+      if (c) {
+         numConns++;
+         if (!strcmp(c->getName(), "input to output")) { conn = c; }
+      }
+   }
+   delete table;
+   pvErrorIf(numLayers!=2, "Params file has %d layers instead of the expected 2.\n", numLayers);
+   pvErrorIf(numConns!=1, "Params file has %d connections instead of the expected 1.\n", numConns);
+   pvErrorIf(inLayer==nullptr, "Params file does not have a layer \"input\".\n");
+   pvErrorIf(outLayer==nullptr, "Params file does not have a layer \"output\".\n");
+   pvErrorIf(conn==nullptr, "Params file does not have a connection \"input to output\".\n");
 
    // Input layer should be 2x2 with values 1, 2, 3, 4;
    // and have margin width 1 with mirror boundary conditions off.
-   HyPerLayer * inLayer = hc->getLayer(0);
    const PVLayerLoc * inLoc = inLayer->getLayerLoc();
    pvErrorIf(!(inLoc->nxGlobal==2 && inLoc->nyGlobal==2 && inLoc->nf==1), "Test failed.\n");
    assert(inLoc->halo.lt==1 &&
@@ -60,8 +83,6 @@ int checkoutput(HyPerCol * hc, int argc, char ** argv) {
    }
 
    // Connection should be a 3x3 kernel with values 0 through 8 in the weights
-   BaseConnection * baseConn = hc->getConnFromName("input to output");
-   HyPerConn * conn = dynamic_cast<HyPerConn *>(baseConn);
    pvErrorIf(!(conn->xPatchSize()==3 && conn->yPatchSize()==3 && conn->fPatchSize()==1), "Test failed.\n");
    int patchSize = conn->xPatchSize()*conn->yPatchSize()*conn->fPatchSize();
    pvErrorIf(!(conn->numberOfAxonalArborLists()==1), "Test failed.\n");
@@ -85,7 +106,6 @@ int checkoutput(HyPerCol * hc, int argc, char ** argv) {
    }
 
    // Finally, output layer should be 2x2 with values [13 23; 43 53].
-   HyPerLayer * outLayer = hc->getLayer(1);
    const PVLayerLoc * outLoc = outLayer->getLayerLoc();
    pvErrorIf(!(outLoc->nxGlobal==2 && outLoc->nyGlobal==2 && outLoc->nf==1), "Test failed.\n");
    assert(outLoc->halo.lt==0 &&
