@@ -28,7 +28,7 @@ T * createObject(char const * name, HyPerCol * hc, ObserverTable& hierarchy) {
    return newObject;
 }
 
-static int set_weights_to_source_index(HyPerConn * c);
+static int set_weights_to_source_index(HyPerConn * c, char const * outputDir);
 static int check_weights(HyPerConn * c, PVPatch ** postWeights, pvdata_t * dataStart);
 
 int main(int argc, char * argv[])
@@ -80,21 +80,21 @@ int main(int argc, char * argv[])
 
    // set weights to be k index source in pre-synaptic layer
    //
-   status = set_weights_to_source_index(c1);
+   status = set_weights_to_source_index(c1, hc->getOutputPath());
    postWeights = c1->convertPreSynapticWeights(0.0f)[0];
-   status = c1->writePostSynapticWeights(c1->getParent()->simulationTime(),false);
+   status = c1->writePostSynapticWeights(hc->simulationTime(),false);
    status = check_weights(c1, postWeights, c1->getWPostData(0,0));
    if (status) return status;
 
-   status = set_weights_to_source_index(c2);
+   status = set_weights_to_source_index(c2, hc->getOutputPath());
    postWeights = c2->convertPreSynapticWeights(0.0f)[0];
-   status = c2->writePostSynapticWeights(c2->getParent()->simulationTime(),false);
+   status = c2->writePostSynapticWeights(hc->simulationTime(),false);
    status = check_weights(c2, postWeights, c2->getWPostData(0,0));
    if (status) return status;
 
-   status = set_weights_to_source_index(c3);
+   status = set_weights_to_source_index(c3, hc->getOutputPath());
    postWeights = c3->convertPreSynapticWeights(0.0f)[0];
-   status = c3->writePostSynapticWeights(c3->getParent()->simulationTime(),false);
+   status = c3->writePostSynapticWeights(hc->simulationTime(),false);
    status = check_weights(c3, postWeights, c3->getWPostData(0,0));
    if (status) return status;
 
@@ -204,7 +204,7 @@ static int check_weights(HyPerConn * c, PVPatch ** postWeights, pvdata_t * postD
    return status;
 }
 
-static int set_weights_to_source_index(HyPerConn * c)
+static int set_weights_to_source_index(HyPerConn * c, char const * outputDir)
 {
    int status = 0;
    int arbor = 0;
@@ -258,10 +258,11 @@ static int set_weights_to_source_index(HyPerConn * c)
       }
 
    } // end loop over weight patches
-   char filename[PV_PATH_MAX];
-   status = snprintf(filename, PV_PATH_MAX, "%s/%s_W.pvp", c->getParent()->getOutputPath(), c->getName())<PV_PATH_MAX ? PV_SUCCESS : PV_FAILURE;
-   if(status == PV_SUCCESS) status = c->writeWeights(filename);
-   status = snprintf(filename, PV_PATH_MAX, "%s/%s_W.pvp", c->getParent()->getOutputPath(), c->getName())<PV_PATH_MAX ? PV_SUCCESS : PV_FAILURE;
+   if (status==PV_SUCCESS && outputDir) {
+      std::string filename("");
+      filename.append(outputDir).append("/").append(c->getName()).append("_W.pvp");
+      status = c->writeWeights(filename.c_str());
+   }
 
    return status;
 }
