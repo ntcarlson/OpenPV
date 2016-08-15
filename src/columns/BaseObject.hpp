@@ -92,6 +92,7 @@ protected:
    int respondInitializeState(std::shared_ptr<InitializeStateMessage const> message);
    int respondCheckpointRead(std::shared_ptr<CheckpointReadMessage const> message);
    int respondCheckpointWrite(std::shared_ptr<CheckpointWriteMessage const> message);
+   int respondWriteTimers(std::shared_ptr<WriteTimersMessage const> message);
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    virtual int communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) { return PV_SUCCESS; }
@@ -130,6 +131,8 @@ protected:
 
    template <typename T>
    void ioParamArray(enum ParamsIOFlag ioFlag, const char * group_name, const char * param_name, T ** value, int * arraysize);
+
+   virtual int writeTimers(std::ostream& stream, int phase) { return PV_SUCCESS; }
 
    /**
     * This method sets mInitInfoCommunicatedFlag to true.

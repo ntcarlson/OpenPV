@@ -2145,22 +2145,20 @@ int HyPerConn::checkpointFilename(char * cpFilename, int size, const char * cpDi
    return PV_SUCCESS;
 }
 
-int HyPerConn::writeTimers(std::ostream& stream){
-   if (getCommunicator()->commRank()==0) {
-      io_timer->fprint_time(stream);
-      update_timer->fprint_time(stream);
-      for (int p=0; p<numProbes; p++){
-         probes[p]->writeTimer(stream);
-      }
-      if(needPost && postConn){
-         postConn->writeTimers(stream);
-      }
+int HyPerConn::writeTimers(std::ostream& stream, int phase) {
+   if (phase>=0) { return PV_SUCCESS; }
+   io_timer->fprint_time(stream);
+   update_timer->fprint_time(stream);
+   for (int p=0; p<numProbes; p++){
+      probes[p]->writeTimer(stream);
+   }
+   if(needPost && postConn){
+      postConn->writeTimers(stream, phase);
    }
    return PV_SUCCESS;
 }
 
-float HyPerConn::minWeight(int arborId)
-{
+float HyPerConn::minWeight(int arborId) {
    const int num_data_patches = getNumDataPatches();
    float min_weight = FLT_MAX;
    if (sharedWeights) {

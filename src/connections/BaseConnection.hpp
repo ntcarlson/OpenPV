@@ -101,11 +101,6 @@ public:
    virtual int deliver() = 0;
 
    /**
-    * A pure virtual function for writing timing information.
-    */
-   virtual int writeTimers(std::ostream& stream) = 0;
-
-   /**
     * Adds the given probe to the list of probes.
     */
    virtual int insertProbe(BaseConnectionProbe* p);

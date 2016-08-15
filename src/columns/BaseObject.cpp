@@ -164,6 +164,10 @@ int BaseObject::respondCheckpointWrite(std::shared_ptr<CheckpointWriteMessage co
    return checkpointWrite(message->mSuppressCheckpointIfConstant, message->mCheckpointDir.c_str(), message->mTimestamp);
 }
 
+int BaseObject::respondWriteTimers(std::shared_ptr<WriteTimersMessage const> message) {
+   return writeTimers(message->mStream, message->mPhase);
+}
+
 int BaseObject::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    ioParam_initializeFromCheckpointFlag(ioFlag);
    return PV_SUCCESS;

@@ -2016,17 +2016,9 @@ int HyPerCol::writeTimers(std::ostream& stream){
    if (rank==0) {
       mRunTimer->fprint_time(stream);
       mCheckpointTimer->fprint_time(stream);
-      for (auto c : mConnections) {
-         c->writeTimers(stream);
-      }
-      for (int phase=0; phase < mPhaseRecvTimers.size(); phase++) {
-         if(mPhaseRecvTimers.at(phase)) { mPhaseRecvTimers.at(phase)->fprint_time(stream); }
-         for (int n = 0; n < mLayers.size(); n++) {
-            if (mLayers.at(n) != nullptr) { //How would mLayers ever contain a null pointer?
-               if(mLayers.at(n)->getPhase() != phase) continue;
-               mLayers.at(n)->writeTimers(stream);
-            }
-         }
+      notify(std::make_shared<WriteTimersMessage>(stream, -1)); // The connections' writeTimers responds to negative phase.
+      for (int ph=0; ph<mNumPhases; ph++) {
+         notify(std::make_shared<WriteTimersMessage>(stream, ph));
       }
    }
    return PV_SUCCESS;

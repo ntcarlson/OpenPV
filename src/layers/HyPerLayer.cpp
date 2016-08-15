@@ -2261,20 +2261,19 @@ int HyPerLayer::writeDataStoreToFile(const char * filename, Communicator * comm,
    return status;
 }
 
-int HyPerLayer::writeTimers(std::ostream& stream){
-   if (getCommunicator()->commRank()==0) {
-      recvsyn_timer->fprint_time(stream);
-      update_timer->fprint_time(stream);
+int HyPerLayer::writeTimers(std::ostream& stream, int phase){
+   if (phase != this->phase) { return PV_SUCCESS; }
+   recvsyn_timer->fprint_time(stream);
+   update_timer->fprint_time(stream);
 #ifdef PV_USE_CUDA
-      gpu_recvsyn_timer->fprint_time(stream);
-      gpu_update_timer->fprint_time(stream);
+   gpu_recvsyn_timer->fprint_time(stream);
+   gpu_update_timer->fprint_time(stream);
 #endif
-      publish_timer->fprint_time(stream);
-      timescale_timer->fprint_time(stream);
-      io_timer->fprint_time(stream);
-      for (int p=0; p<getNumProbes(); p++){
-         getProbe(p)->writeTimer(stream);
-      }
+   publish_timer->fprint_time(stream);
+   timescale_timer->fprint_time(stream);
+   io_timer->fprint_time(stream);
+   for (int p=0; p<getNumProbes(); p++){
+      getProbe(p)->writeTimer(stream);
    }
    return PV_SUCCESS;
 }

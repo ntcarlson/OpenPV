@@ -378,8 +378,7 @@ public:
 
    virtual int checkpointRead(const char * cpDir, double const * timeptr) override;
    virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
-   virtual int writeTimers(std::ostream& stream);
-   // TODO: readBufferFile and writeBufferFile have to take different types of buffers.  Can they be templated?
+   virtual int writeTimers(std::ostream& stream, int phase) override;
    template <typename T>
    static int readBufferFile(const char * filename, Communicator * comm, double const * timed, T ** buffers, int numbands, bool extended, const PVLayerLoc * loc);
    template <typename T>

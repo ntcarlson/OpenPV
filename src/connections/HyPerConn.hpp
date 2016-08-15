@@ -86,7 +86,7 @@ public:
 
    virtual int checkpointRead(const char * cpDir, double const * timef) override;
    virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
-   virtual int writeTimers(std::ostream& stream);
+   virtual int writeTimers(std::ostream& stream, int phase) override;
    virtual int insertProbe(BaseConnectionProbe* p);
    virtual int outputState(double time, bool last = false);
    int updateState(double time, double dt); 

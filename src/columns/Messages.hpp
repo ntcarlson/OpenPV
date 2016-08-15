@@ -246,6 +246,28 @@ public:
    }
 };
 
+// Note: the phase argument can probably be removed.
+// Before the observer pattern refactor, the order in which writeTimers was called was
+// connections
+// layers with phase 0
+// layers with phase 1
+// layers with phase 2
+// etc.
+// Each layer and connection called its probes' writeTimer (probes have writeTimer, not writeTimers)
+// Presumably the order in which writeTimers is called shouldn't matter that much, but
+// the refactor aims to implement the pattern without changing behavior.
+// Afterward, we can look into streamlining the interface of WriteTimersMessage
+// Currently, connections respond to a negative phase argument, and
+// layers respond to the phase argument agreeing with their phase.
+class WriteTimersMessage : public BaseMessage {
+public:
+   WriteTimersMessage(std::ostream& stream, int phase) : mStream(stream), mPhase(phase) {
+      setMessageType("WriteTimers");
+   }
+   std::ostream& mStream;
+   int mPhase;
+};
+
 } /* namespace PV */
 
 #endif /* MESSAGES_HPP_ */
