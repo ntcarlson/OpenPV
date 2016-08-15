@@ -29,6 +29,7 @@ InitWeightsParams::InitWeightsParams(char const * name, HyPerCol * hc) {
 InitWeightsParams::~InitWeightsParams()
 {
    free(this->filename);
+   free(this->weightInitTypeString);
 }
 
 int InitWeightsParams::initialize_base() {

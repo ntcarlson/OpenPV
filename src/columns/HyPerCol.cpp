@@ -52,19 +52,15 @@ HyPerCol::~HyPerCol() {
 #endif // PV_USE_CUDA
    writeTimers(getOutputStream());
 
-   for (auto c : mConnections) { delete c; } mConnections.clear();
-
    for (auto timer : mPhaseRecvTimers) { delete timer; } mPhaseRecvTimers.clear();
- 
-   for (auto layer : mLayers) { delete layer; } mLayers.clear();
 
-   // mColProbes[i] should not be deleted; it points to an entry in mBaseProbes and will
-   // be deleted when mBaseProbes is deleted
-   for(auto iterator = mBaseProbes.begin(); iterator != mBaseProbes.end();) {
-      delete *iterator;
-      iterator = mBaseProbes.erase(iterator);
-   }
+   // mColProbes[i] should not be deleted; it points to an entry in mObjectHierarchy and will
+   // be deleted when the object hierarchy is cleared.
    mColProbes.clear();
+
+   mObjectHierarchy.clear(true/*deallocate the objects in the hierarchy*/);
+   mLayers.clear();
+   mBaseProbes.clear();
    
    //mCommunicator->clearPublishers();
    delete mRunTimer;
@@ -150,8 +146,7 @@ int HyPerCol::initialize_base() {
    mWriteProgressToErr = false;
    mOrigStdOut = -1;
    mOrigStdErr = -1;
-   mLayers.clear();
-   mConnections.clear(); //Pretty sure these aren't necessary
+   mLayers.clear(); //Pretty sure this isn't necessary
    mLayerStatus = nullptr;
    mConnectionStatus = nullptr;
    mOutputPath = nullptr;
@@ -1128,8 +1123,11 @@ int HyPerCol::addLayer(HyPerLayer * layer)
 
 int HyPerCol::addConnection(BaseConnection * conn)
 {
-   mConnections.push_back(conn);
-   return mConnections.size() - 1;
+   int numConnections = 0;
+   for (auto& ob : mObjectHierarchy.getObjectVector()) {
+      if (dynamic_cast<BaseConnection*>(ob)) { numConnections++; }
+   }
+   return numConnections;
 }
 
   // typically called by buildandrun via HyPerCol::run()
@@ -2046,14 +2044,6 @@ int HyPerCol::checkpointWrite(bool suppressCheckpointIfConstant, char const * cp
 
    ensureDirExists(mCommunicator, cpDir);
    notify(std::make_shared<CheckpointWriteMessage>(mSuppressNonplasticCheckpoints, cpDir, timestamp));
-
-
-//   for( int l=0; l<mLayers.size(); l++ ) {
-//      mLayers.at(l)->checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp);
-//   }
-//   for( auto c : mConnections ) {
-//      if (c->getPlasticityFlag() || !mSuppressNonplasticCheckpoints) { c->checkpointWrite(suppressCheckpointIfConstant, cpDir, timestamp); }
-//   }
 
    // Timers
    if (columnId()==0) {

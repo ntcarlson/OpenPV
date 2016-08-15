@@ -494,7 +494,6 @@ public:
 
 private:
 
-   std::vector<BaseConnection*> mConnections; //BaseConnection  ** mConnections;
    std::vector<BaseProbe*> mBaseProbes; //Why is this Base and not just mProbes? //BaseProbe ** mBaseProbes;
    ObserverTable mObjectHierarchy;
    bool mErrorOnNotANumber;        // If true, check each layer's activity buffer for not-a-numbers and exit with an error if any appear
@@ -525,7 +524,7 @@ private:
    char* mOutputPath;     // path to output file directory
    char* mPrintParamsFilename; // filename for outputting the mParams, including defaults and excluding unread mParams
    char* mDtAdaptTriggerLayerName;
-   char * mInitializeFromCheckpointDir; // If nonempty, mLayers and mConnections can load from this directory as in checkpointRead, by setting their initializeFromCheckpointFlag parameter, but the run still starts at mSimTime=mStartTime
+   char * mInitializeFromCheckpointDir; // If nonempty, layers and connections can load from this directory as in checkpointRead, by setting their initializeFromCheckpointFlag parameter, but the run still starts at mSimTime=mStartTime
    ColProbe * mDtAdaptControlProbe; // The probe pointed to by mDtAdaptController, mDtAdaptControlProbe->getValues() is used to control mTimeScale.  If blank, use the original method
    std::vector<ColProbe*> mColProbes; //ColProbe ** mColProbes;
    double mStartTime;
@@ -568,7 +567,7 @@ private:
                                    // Value 0: mLayers have form a5.pvp
                                    // Value 1: mLayers have form a5_NameOfLayer.pvp
                                    // Value 2: mLayers have form NameOfLayer.pvp
-   int mFilenamesContainConnectionNames; // Similar to mFilenamesContainLayerNames, but for mConnections
+   int mFilenamesContainConnectionNames; // Similar to mFilenamesContainLayerNames, but for connections
    int mOrigStdOut;
    int mOrigStdErr;
    int mNumThreads;
