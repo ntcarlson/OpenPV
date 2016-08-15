@@ -105,11 +105,6 @@ public:
     */
    virtual int insertProbe(BaseConnectionProbe* p);
 
-   /**
-    * Returns the connection's connId (assigned when added to its parent HyPerCol)
-    */
-   inline int getConnectionId() { return connId; }
-
    /*
     * Returns the name of the connection's presynaptic layer.
     */
@@ -458,7 +453,7 @@ public:
 
 // member variables
 protected:
-   int connId;
+   // connId was removed Aug 12, 2016.
    char * preLayerName;
    char * postLayerName;
    HyPerLayer * pre;
