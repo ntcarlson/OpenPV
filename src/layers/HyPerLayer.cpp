@@ -177,7 +177,7 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
    ioAppend = parent->getCheckpointReadFlag() ? 1 : 0;
 
    parent->addPhase(phase);
-   // parent->addObject(this);
+   parent->addObject(this);
 
    lastUpdateTime = parent->simulationTime();
    nextUpdateTime = lastUpdateTime + parent->getDeltaTime();

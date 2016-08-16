@@ -336,7 +336,6 @@ public:
     * as that of an earlier added object.
     */
    bool addObject(BaseObject * obj) { return mObjectHierarchy.addObject(obj->getName(), obj); }
-   int addBaseProbe(BaseProbe* p);
    void addPhase(int phase) { if(phase >= mNumPhases) mNumPhases = phase + 1; }
    int advanceTime(double time);
    int exitRunLoop(bool exitOnFinish);
@@ -371,7 +370,6 @@ public:
 
    // Getters and setters
 
-   BaseProbe* getBaseProbe(int which) { return mBaseProbes.at(which); }
    bool getDtAdaptFlag() const { pvWarn() << "getDtAdaptFlag() is deprecated.\n" ; return usingAdaptiveTimeScale(); }  // getDtAdaptFlag() was deprecated Jul 7, 2016, in favor if usingAdaptiveTimeScale().
    bool getVerifyWrites() { return mVerifyWrites; }
    bool warmStartup() const { return mWarmStart; }
@@ -413,7 +411,6 @@ public:
    int getNBatchGlobal() { return mNumBatchGlobal; }
    int getNumThreads() const { return mNumThreads;}
    int numberOfProbes() const {return mColProbes.size();}
-   int numberOfBaseProbes() const {return mBaseProbes.size();}
    int numberOfBorderRegions() const {return MAX_NEIGHBORS;}
    int numberOfColumns() { return mCommunicator->commSize(); }
    int numberOfGlobalColumns() { return mCommunicator->globalCommSize(); }
@@ -488,7 +485,7 @@ public:
 
 private:
 
-   std::vector<BaseProbe*> mBaseProbes; //Why is this Base and not just mProbes? //BaseProbe ** mBaseProbes;
+   // mBaseProbes removed Aug 16, 2016
    ObserverTable mObjectHierarchy;
    bool mErrorOnNotANumber;        // If true, check each layer's activity buffer for not-a-numbers and exit with an error if any appear
    bool mDefaultInitializeFromCheckpointFlag ; // Each Layer and connection can individually set its own initializeFromCheckpointFlag.  This sets the default value for those flags.

@@ -59,7 +59,6 @@ HyPerCol::~HyPerCol() {
    mColProbes.clear();
 
    mObjectHierarchy.clear(true/*deallocate the objects in the hierarchy*/);
-   mBaseProbes.clear();
    
    //mCommunicator->clearPublishers();
    delete mRunTimer;
@@ -162,7 +161,6 @@ int HyPerCol::initialize_base() {
    mCheckpointTimer = nullptr;
    mPhaseRecvTimers.clear();
    mColProbes.clear();
-   mBaseProbes.clear();
    mRandomSeed = 0U;
    mWriteTimescales = true; //Defaults to true
    mErrorOnNotANumber = false;
@@ -2530,24 +2528,7 @@ int HyPerCol::insertProbe(ColProbe * p)
 //   return ++mNumColProbes;
 }
 
-// BaseProbes include layer probes, connection probes, and column probes.
-int HyPerCol::addBaseProbe(BaseProbe * p) {
-   mBaseProbes.push_back(p);
-   return mBaseProbes.size();
-//   BaseProbe ** newprobes;
-//   // Instead of mallocing a new buffer and freeing the old buffer, this could be a realloc.
-//   newprobes = (BaseProbe **) malloc( ((size_t) (mNumBaseProbes + 1)) * sizeof(BaseProbe *) );
-//   assert(newprobes != nullptr);
-//
-//   for (int i=0; i<mNumBaseProbes; i++) {
-//      newprobes[i] = mBaseProbes[i];
-//   }
-//   free(mBaseProbes);
-//   mBaseProbes = newprobes;
-//   mBaseProbes[mNumBaseProbes] = p;
-//
-//   return ++mNumBaseProbes;
-}
+// addBaseProbe removed Aug 16, 2016
 
 int HyPerCol::outputState(double time)
 {
@@ -2627,14 +2608,8 @@ HyPerCol * createHyPerCol(PV_Init * pv_initObj) {
             delete hc;
             return nullptr;
          }
-         bool addSucceeded = hc->addObject(addedObject);
-         if (!addSucceeded) {
-            if (hc->columnId()==0) {
-               pvError() << "";
-            }
-            MPI_Barrier(hc->getCommunicator()->communicator());
-            exit(PV_FAILURE);
-         }
+         BaseObject * testObjectAdded = hc->getObjectFromName(addedObject->getName());
+         pvErrorIf(testObjectAdded==nullptr, "Failed to add %s\n", addedObject->getDescription_c());
       }
    }
 

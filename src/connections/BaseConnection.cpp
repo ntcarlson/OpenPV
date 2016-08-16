@@ -47,7 +47,7 @@ int BaseConnection::initialize_base() {
 int BaseConnection::initialize(const char * name, HyPerCol * hc) {
    int status = BaseObject::initialize(name, hc);
 
-   // this->getParent()->addObject(this);
+   getParent()->addObject(this);
    return status;
 }
 

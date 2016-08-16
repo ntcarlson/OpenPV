@@ -62,8 +62,7 @@ int BaseProbe::initialize(const char * probeName, HyPerCol * hc)
 {
    int status = BaseObject::initialize(probeName, hc);
    if (status != PV_SUCCESS) { return status; }
-   //Add probe to list of probes
-   parent->addBaseProbe(this); // Adds probe to HyPerCol.  If needed, probe will be attached to layer or connection during communicateInitInfo
+   parent->addObject(this);
    status = initNumValues();
    return status;
 }
