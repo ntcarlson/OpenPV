@@ -17,20 +17,21 @@ typedef void * voidptr;
 #define MPI_Comm     voidptr
 #define MPI_Op       int
 
-#define MPI_COMM_WORLD     ((voidptr) 1)
-#define MPI_BYTE           1
-#define MPI_CHAR           1
-#define MPI_UNSIGNED_CHAR  1
-#define MPI_INT            (sizeof(int))
-#define MPI_UNSIGNED       (sizeof(unsigned int))
-#define MPI_LONG           (sizeof(long))
-#define MPI_FLOAT          (sizeof(float))
-#define MPI_DOUBLE         (sizeof(double))
-#define MPI_STATUS_IGNORE  0
-#define MPI_IN_PLACE       ((voidptr) 1)
-#define MPI_MAX            0
-#define MPI_MIN            1
-#define MPI_SUM            2
+#define MPI_COMM_WORLD      ((voidptr) 1)
+#define MPI_BYTE            1
+#define MPI_CHAR            1
+#define MPI_UNSIGNED_CHAR   1
+#define MPI_INT             (sizeof(int))
+#define MPI_UNSIGNED        (sizeof(unsigned int))
+#define MPI_LONG            (sizeof(long))
+#define MPI_FLOAT           (sizeof(float))
+#define MPI_DOUBLE          (sizeof(double))
+#define MPI_STATUS_IGNORE   0
+#define MPI_STATUSES_IGNORE nullptr
+#define MPI_IN_PLACE        ((voidptr) 1)
+#define MPI_MAX             0
+#define MPI_MIN             1
+#define MPI_SUM             2
 
 #ifdef __cplusplus
 extern "C"
