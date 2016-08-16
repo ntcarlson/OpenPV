@@ -20,23 +20,10 @@ int main(int argc, char * argv[]) {
 }
 
 int customexit(HyPerCol * hc, int argc, char * argv[]) {
-   int check_clone_id = -1;
-   int check_sigmoid_id = -1;
-   for (int k=0; k<hc->numberOfLayers(); k++) {
-      if (!strcmp(hc->getLayer(k)->getName(), "CheckClone")) {
-         pvErrorIf(!(check_clone_id<0), "Test failed.\n");
-         check_clone_id = k;
-      }
-      if (!strcmp(hc->getLayer(k)->getName(), "CheckSigmoid")) {
-         pvErrorIf(!(check_sigmoid_id<0), "Test failed.\n");
-         check_sigmoid_id = k;
-      }
-   }
-
    int N;
 
-   HyPerLayer * check_clone_layer = hc->getLayer(check_clone_id);
-   pvErrorIf(!(check_clone_layer!=NULL), "Test failed.\n");
+   HyPerLayer * check_clone_layer = hc->getLayerFromName("CheckClone");
+   pvErrorIf(!(check_clone_layer!=NULL), "No layer named CheckClone.\n");
    const pvdata_t * check_clone_layer_data = check_clone_layer->getLayerData();
    N = check_clone_layer->getNumExtended();
 
@@ -44,8 +31,8 @@ int customexit(HyPerCol * hc, int argc, char * argv[]) {
       pvErrorIf(!(fabsf(check_clone_layer_data[k])<1e-6), "Test failed.\n");
    }
 
-   HyPerLayer * check_sigmoid_layer = hc->getLayer(check_sigmoid_id);
-   pvErrorIf(!(check_sigmoid_layer!=NULL), "Test failed.\n");
+   HyPerLayer * check_sigmoid_layer = hc->getLayerFromName("CheckSigmoid");
+   pvErrorIf(!(check_sigmoid_layer!=NULL), "No layer named CheckSigmoid.\n");
    const pvdata_t * check_sigmoid_layer_data = check_sigmoid_layer->getLayerData();
    N = check_sigmoid_layer->getNumExtended();
 

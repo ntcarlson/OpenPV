@@ -327,6 +327,7 @@ public:
    BaseConnection* getConnFromName(const char* connectionName);
    // getLayerFromName and getConnFromName are used by several system tests, typically after the
    // run to verify values in the layer or connection.
+   BaseObject * getObjectFromName(char const * objectName);
 
    /**
     * Adds an object (layer, connection, etc.) to the hierarchy.
@@ -336,8 +337,7 @@ public:
     */
    bool addObject(BaseObject * obj) { return mObjectHierarchy.addObject(obj->getName(), obj); }
    int addBaseProbe(BaseProbe* p);
-   int addConnection(BaseConnection* conn);
-   int addLayer(HyPerLayer* l);
+   void addPhase(int phase) { if(phase >= mNumPhases) mNumPhases = phase + 1; }
    int advanceTime(double time);
    int exitRunLoop(bool exitOnFinish);
    int insertProbe(ColProbe* p);
@@ -405,7 +405,6 @@ public:
    double* getTimeScale() const { return mTimeScale; }
    double* getTimeScaleMaxPtr() const { return mTimeScaleMax; }
    double* getTimeScaleMax2Ptr() const { return mTimeScaleMax2; }
-   HyPerLayer * getLayer(int which)       {return mLayers.at(which);}
    int globalRank() { return mCommunicator->globalCommRank(); }
    int columnId() { return mCommunicator->commRank(); }
    int getNxGlobal() { return mNumXGlobal; }
@@ -413,7 +412,6 @@ public:
    int getNBatch() { return mNumBatch; }
    int getNBatchGlobal() { return mNumBatchGlobal; }
    int getNumThreads() const { return mNumThreads;}
-   int numberOfLayers() const { return mLayers.size();}
    int numberOfProbes() const {return mColProbes.size();}
    int numberOfBaseProbes() const {return mBaseProbes.size();}
    int numberOfBorderRegions() const {return MAX_NEIGHBORS;}
@@ -549,7 +547,7 @@ private:
    double* mTimeScaleMax2;     // maximum value of mTimeScaleMax (prevents mTimeScaleMax from growing too large)
    enum CheckpointWriteTriggerMode mCheckpointWriteTriggerMode;
    HyPerLayer * mDtAdaptTriggerLayer;
-   std::vector<HyPerLayer*> mLayers; //HyPerLayer ** mLayers;
+   // mLayers was removed Aug 15, 2016.
    int mNumPhases;
    int mCheckpointSignal;      // whether the process should checkpoint in response to an external signal
    int mNumCheckpointsKept; // If mDeleteOlderCheckpoints is true, does not delete a checkpoint until the specified number of more recent checkpoints have been written.  Default is 2.

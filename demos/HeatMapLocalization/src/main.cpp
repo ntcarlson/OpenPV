@@ -206,40 +206,41 @@ int runWithHarness(PV::HyPerCol * hc, int frameInterval) {
    size_t imageBufferSize;
    uint8_t * imageBuffer;
 
-   PV::ImageFromMemoryBuffer * imageLayer = NULL;
-   for (int k=0; k<hc->numberOfLayers(); k++) {
-      PV::HyPerLayer * l = hc->getLayer(k);
-      PV::ImageFromMemoryBuffer * img_buffer_layer = dynamic_cast<PV::ImageFromMemoryBuffer *>(l);
-      if (img_buffer_layer) {
-         if (imageLayer!=NULL) {
+   PV::ImageFromMemoryBuffer * imageLayer = nullptr;
+   PV::PVParams * params = hc->parameters();
+   for (int k=0; k<params->numberOfGroups(); k++) {
+      if (!strcmp(params->groupKeywordFromIndex(k), "ImageFromMemoryBuffer")) {
+         if (imageLayer!=nullptr) {
             if (hc->columnId()==0) {
                pvErrorNoExit().printf("%s error: More than one ImageFromMemoryBuffer (\"%s\" and \"%s\").\n",
-                     progName, imageLayer->getName(), img_buffer_layer->getName());
+                     progName, imageLayer->getName(), params->groupNameFromIndex(k));
             }
             MPI_Barrier(icComm->communicator());
             exit(EXIT_FAILURE);
          }
          else {
-            imageLayer = img_buffer_layer;
+            PV::BaseObject * obj = hc->getObjectFromName(params->groupNameFromIndex(k));
+            imageLayer = dynamic_cast<PV::ImageFromMemoryBuffer*>(obj);
+            pvAssert(imageLayer);
          }
       }
    }
-   LocalizationProbe * localizationProbe = NULL;
-   for (int k=0; k < hc->numberOfBaseProbes(); k++)
+   LocalizationProbe * localizationProbe = nullptr;
+   for (int k=0; k < params->numberOfGroups(); k++)
    {
-      PV::BaseProbe * p = hc->getBaseProbe(k);
-      LocalizationProbe * localization_probe = dynamic_cast<LocalizationProbe *>(p);
-      if (localization_probe) {
-         if (localizationProbe != NULL) {
+      if (!strcmp(params->groupKeywordFromIndex(k), "LocalizationProbe")) {
+         if (localizationProbe != nullptr) {
             if (hc->columnId()==0) {
                pvErrorNoExit().printf("%s error: More than one LocalizationProbe (\"%s\" and \"%s\").\n",
-                     progName, localizationProbe->getName(), localization_probe->getName());
+                     progName, localizationProbe->getName(), params->groupNameFromIndex(k));
             }
             MPI_Barrier(icComm->communicator());
             exit(EXIT_FAILURE);
          }
          else {
-            localizationProbe = localization_probe;
+            PV::BaseObject * obj = hc->getObjectFromName(params->groupNameFromIndex(k));
+            localizationProbe = dynamic_cast<LocalizationProbe*>(obj);
+            pvAssert(imageLayer);
          }
       }
    }

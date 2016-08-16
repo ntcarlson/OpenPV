@@ -85,7 +85,8 @@ int main(int argc, char * argv[]) {
 
 int buildandverify(PV::PV_Init* initObj) {
    PV::HyPerCol * hc = new PV::HyPerCol("column", initObj);
-   /* PV::ANNLayer * layer = */ new PV::ANNLayer("layer", hc);
+   PV::ANNLayer * layer = new PV::ANNLayer("layer", hc);
+   hc->addObject(layer);
    int rows = initObj->getNumRows();
    int columns = initObj->getNumColumns();
    pvErrorIf(!(rows > 0 && columns > 0), "Test failed.\n");
@@ -97,7 +98,10 @@ int buildandverify(PV::PV_Init* initObj) {
 int verifyLoc(PV::HyPerCol * hc, int rows, int columns) {
    int status = PV_SUCCESS;
    int testpassed;
-   const PVLayerLoc * loc = hc->getLayer(0)->getLayerLoc();
+   BaseObject * obj = hc->getObjectFromName("layer");
+   ANNLayer * layer = dynamic_cast<ANNLayer*>(obj);
+   pvErrorIf(layer==nullptr, "No layer found.\n");
+   const PVLayerLoc * loc = layer->getLayerLoc();
    int rank = hc->getCommunicator()->commRank();
    pvErrorIf(!(rows == hc->getCommunicator()->numCommRows()), "Test failed.\n");
    pvErrorIf(!(columns == hc->getCommunicator()->numCommColumns()), "Test failed.\n");

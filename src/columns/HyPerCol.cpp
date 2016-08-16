@@ -59,7 +59,6 @@ HyPerCol::~HyPerCol() {
    mColProbes.clear();
 
    mObjectHierarchy.clear(true/*deallocate the objects in the hierarchy*/);
-   mLayers.clear();
    mBaseProbes.clear();
    
    //mCommunicator->clearPublishers();
@@ -146,7 +145,6 @@ int HyPerCol::initialize_base() {
    mWriteProgressToErr = false;
    mOrigStdOut = -1;
    mOrigStdErr = -1;
-   mLayers.clear(); //Pretty sure this isn't necessary
    mLayerStatus = nullptr;
    mConnectionStatus = nullptr;
    mOutputPath = nullptr;
@@ -1122,22 +1120,6 @@ template void HyPerCol::writeParamArray<float>(const char * param_name, const fl
 template void HyPerCol::writeParamArray<int>(const char * param_name, const int * array, int arraysize);
 
 
-int HyPerCol::addLayer(HyPerLayer * layer)
-{
-   mLayers.push_back(layer);
-   if(layer->getPhase() >= mNumPhases) mNumPhases = layer->getPhase() + 1;
-   return mLayers.size() - 1;
-}
-
-int HyPerCol::addConnection(BaseConnection * conn)
-{
-   int numConnections = 0;
-   for (auto& ob : mObjectHierarchy.getObjectVector()) {
-      if (dynamic_cast<BaseConnection*>(ob)) { numConnections++; }
-   }
-   return numConnections;
-}
-
   // typically called by buildandrun via HyPerCol::run()
 int HyPerCol::run(double start_time, double stop_time, double dt)
 {
@@ -1198,7 +1180,7 @@ int HyPerCol::run(double start_time, double stop_time, double dt)
 
       // Initialize either by loading from checkpoint, or calling initializeState
       // This needs to happen after initPublishers so that we can initialize the values in the data stores,
-      // and before the mLayers' publish calls so that the data in border regions gets copied correctly.
+      // and before the layers' publish calls so that the data in border regions gets copied correctly.
       if ( mCheckpointReadFlag ) {
          checkpointRead();
          notify(std::make_shared<CheckpointReadMessage>(mCheckpointReadDir, &mSimTime));
@@ -1556,7 +1538,7 @@ int HyPerCol::calcTimeScaleTrue() {
          pvWarn().printf("Setting dtAdaptFlag without defining a dtAdaptControlProbe is deprecated.\n\n\n");
       }
       // If there is no probe controlling the adaptive timestep,
-      // query all mLayers to check for barriers on how big the time scale can be.
+      // query all layers to check for barriers on how big the time scale can be.
       // By default, HyPerLayer::getTimeScale returns -1
       // (that is, the layer doesn't care how big the time scale is).
       // Movie and MoviePvp return minTimeScale when expecting to load a new frame
@@ -2584,6 +2566,10 @@ HyPerLayer * HyPerCol::getLayerFromName(const char * layerName) {
 BaseConnection * HyPerCol::getConnFromName(const char * connName) {
    if( connName == nullptr ) return nullptr;
    return mObjectHierarchy.lookup<BaseConnection>(connName);
+}
+
+BaseObject * HyPerCol::getObjectFromName(const char * objectName) {
+   return mObjectHierarchy.lookup<BaseObject>(objectName);
 }
 
 unsigned int HyPerCol::seedRandomFromWallClock() {

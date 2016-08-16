@@ -176,7 +176,8 @@ int HyPerLayer::initialize(const char * name, HyPerCol * hc) {
    // must set ioAppend before addLayer is called (addLayer causes activity file to be opened using layerid)
    ioAppend = parent->getCheckpointReadFlag() ? 1 : 0;
 
-   parent->addLayer(this);
+   parent->addPhase(phase);
+   // parent->addObject(this);
 
    lastUpdateTime = parent->simulationTime();
    nextUpdateTime = lastUpdateTime + parent->getDeltaTime();
