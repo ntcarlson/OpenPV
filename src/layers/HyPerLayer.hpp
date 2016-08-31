@@ -11,7 +11,6 @@
 #ifndef HYPERLAYER_HPP_
 #define HYPERLAYER_HPP_
 
-#include <layers/accumulate_functions.h>
 #include <layers/PVLayerCube.hpp>
 #include <layers/BaseLayer.hpp>
 #include <columns/DataStore.hpp>
@@ -284,7 +283,7 @@ protected:
 public:
    HyPerLayer(const char * name, HyPerCol * hc);
    pvdata_t * getActivity()          {return clayer->activity->data;} // TODO: access to clayer->activity->data should not be public
-   virtual double calcTimeScale(int batchIdx)          {return -1.0;};
+   // virtual double calcTimeScale(int batchIdx)          {return -1.0;}; // Marked obsolete Aug 18, 2016.
    virtual double getTimeScale(int batchIdx)      {return -1.0;};
    virtual bool activityIsSpiking() { return false; }
    PVDataType getDataType()          {return dataType;}

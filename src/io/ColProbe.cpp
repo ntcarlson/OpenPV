@@ -31,6 +31,9 @@ int ColProbe::initialize_base() {
 
 int ColProbe::initialize(const char * probeName, HyPerCol * hc) {
    int status = BaseProbe::initialize(probeName, hc);
+   if (status==PV_SUCCESS) {
+      this->getParent()->insertProbe(this);
+   }
    return status;
 }
 

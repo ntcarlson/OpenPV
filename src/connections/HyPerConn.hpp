@@ -12,6 +12,7 @@
 #include "columns/Communicator.hpp"
 #include "columns/HyPerCol.hpp"
 #include "columns/Random.hpp"
+#include "connections/accumulate_functions.hpp"
 #include "include/pv_common.h"
 #include "include/pv_types.h"
 #include "io/PVParams.hpp"
@@ -999,8 +1000,8 @@ protected:
    virtual int allocatePostDeviceWeights();
    virtual int allocateDeviceWeights();
    virtual int allocateDeviceBuffers();
-   virtual int allocateReceivePostKernel();
-   virtual int allocateReceivePreKernel();
+   virtual int initializeReceivePostKernelArgs();
+   virtual int initializeReceivePreKernelArgs();
    virtual void updateDeviceWeights();
 
    bool allocDeviceWeights;

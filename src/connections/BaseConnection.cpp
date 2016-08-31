@@ -408,17 +408,12 @@ int BaseConnection::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessa
       exit(EXIT_FAILURE);
    }
 
-   // Find maximum delay over all the arbors and send it to the presynaptic layer
-   int maxdelay = 0;
-   for (int delayi = 0; delayi < delayArraySize; delayi++){
-      if (fDelayArray[delayi] > maxdelay){
-         maxdelay = fDelayArray[delayi];
-      }
-   }
-   int allowedDelay = this->preSynapticLayer()->increaseDelayLevels(maxdelay);
-   if( allowedDelay < maxdelay ) {
-      if( this->getCommunicator()->commRank() == 0 ) {
-         pvErrorNoExit().printf("%s: attempt to set delay to %d, but the maximum allowed delay is %d.  Exiting\n", getDescription_c(), maxdelay, allowedDelay);
+   initializeDelays(fDelayArray, delayArraySize);
+   int maxDelay = maxDelaySteps();
+   int allowedDelay = this->preSynapticLayer()->increaseDelayLevels(maxDelay);
+   if( allowedDelay < maxDelay ) {
+      if( this->getParent()->columnId() == 0 ) {
+         pvErrorNoExit().printf("%s: attempt to set delay to %d, but the maximum allowed delay is %d.  Exiting\n", getDescription_c(), maxDelay, allowedDelay);
       }
       exit(EXIT_FAILURE);
    }
@@ -437,11 +432,6 @@ int BaseConnection::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessa
       }
    }
    return status;
-}
-
-int BaseConnection::allocateDataStructures() {
-   initializeDelays(fDelayArray, delayArraySize);
-   return PV_SUCCESS;
 }
 
 int BaseConnection::initializeDelays(const float * fDelayArray, int size){
@@ -471,6 +461,14 @@ int BaseConnection::initializeDelays(const float * fDelayArray, int size){
       }
    }
    return status;
+}
+
+int BaseConnection::maxDelaySteps() {
+   int maxDelay = 0;
+   for (int arborId=0; arborId<numberOfAxonalArborLists(); arborId++) {
+      if (delays[arborId]>maxDelay) { maxDelay = delays[arborId]; }
+   }
+   return maxDelay;
 }
 
 //Input delay is in ms

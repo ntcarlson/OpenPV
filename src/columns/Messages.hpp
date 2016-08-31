@@ -80,6 +80,13 @@ public:
    double mTimestamp;
 };
 
+class AdaptTimestepMessage : public BaseMessage {
+public:
+   AdaptTimestepMessage() {
+      setMessageType("AdaptTimestep");
+   }
+};
+
 class ConnectionUpdateMessage : public BaseMessage {
 public:
    ConnectionUpdateMessage(double simTime, double deltaTime) {

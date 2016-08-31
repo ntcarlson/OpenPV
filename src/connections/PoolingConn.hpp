@@ -9,7 +9,11 @@
 #define POOLINGCONN_HPP_
 
 #include "HyPerConn.hpp"
-#include "../layers/PoolingIndexLayer.hpp"
+#include "layers/PoolingIndexLayer.hpp"
+#ifdef PV_USE_CUDA
+#include "cudakernels/CudaPoolingDeliverKernel.hpp"
+#endif // PV_USE_CUDA
+
 namespace PV {
 
 class PoolingConn: public HyPerConn {
@@ -20,14 +24,15 @@ public:
    PoolingConn(const char * name, HyPerCol * hc);
    virtual ~PoolingConn();
    virtual int allocateDataStructures();
-   virtual int checkpointRead(const char * cpDir, double const * timef) override;
-   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp);
+   virtual int checkpointRead(const char * cpDir, double const * timef) override { return PV_SUCCESS; }
+   virtual int checkpointWrite(bool suppressCheckpointIfConstant, char const * cpDir, double timestamp) override { return PV_SUCCESS; }
    virtual float minWeight(int arborId = 0);
    virtual float maxWeight(int arborId = 0);
-   virtual int finalizeUpdate(double time, double dt);
+   virtual int finalizeUpdate(double time, double dt) override { return PV_SUCCESS; }
    PoolingIndexLayer* getPostIndexLayer(){return postIndexLayer;}
    bool needPostIndex(){return needPostIndexLayer;}
    inline AccumulateType getPoolingType() const { return poolingType; }
+   static AccumulateType parseAccumulateTypeString(char const * typeString);
 
 protected:
    int initialize(const char * name, HyPerCol * hc, InitWeights * weightInitializer, NormalizeBase * weightNormalizer);
@@ -50,26 +55,21 @@ protected:
     */
    virtual void ioParam_writeCompressedCheckpoints(enum ParamsIOFlag ioFlag) override;
 
-   virtual int setInitialValues();
+#ifdef PV_USE_CUDA
+   int initializeDeliverKernelArgs();
+#endif // PV_USE_CUDA
+   virtual int setInitialValues() override;
    virtual int constructWeights();
 
-   virtual int deliverPresynapticPerspective(PVLayerCube const * activity, int arborID);
-   virtual int deliverPostsynapticPerspective(PVLayerCube const * activity, int arborID);
-   //virtual void deliverOnePreNeuronActivity(int kPreExt, int arbor, pvadata_t a, pvgsyndata_t * postBufferStart, void * auxPtr);
-   //virtual void deliverOnePostNeuronActivity(int arborID, int kTargetExt, int inSy, float* activityStartBuf, pvdata_t*
-   //gSynPatchPos, float dt_factor, taus_uint4 * rngPtr);
-   void clearGateIdxBuffer();
-
+   virtual int deliverPresynapticPerspective(PVLayerCube const * activity, int arborID) override;
+   virtual int deliverPostsynapticPerspective(PVLayerCube const * activity, int arborID) override;
 #ifdef PV_USE_CUDA
-   int deliverPresynapticPerspectiveGPU(PVLayerCube const * activity, int arborID){
-      pvError() << "Pooling Conn does not allow GPU deliver\n";
-      return PV_FAILURE; // prevents "control reaches end of non-void function" warning
-   }
-   int deliverPostsynapticPerspectiveGPU(PVLayerCube const * activity, int arborID){
-      pvError() << "Pooling Conn does not allow GPU deliver\n";
-      return PV_FAILURE; // prevents "control reaches end of non-void function" warning
-   }
-#endif // PV_USE_CUDA 
+   virtual int deliverPresynapticPerspectiveGPU(PVLayerCube const * activity, int arborID) override;
+   virtual int deliverPostsynapticPerspectiveGPU(PVLayerCube const * activity, int arborID) override;
+   int deliverGPU(PVLayerCube const * activity, int arborID);
+#endif // PV_USE_CUDA
+
+   void clearGateIdxBuffer();
 
 private:
    int initialize_base();
@@ -79,6 +79,9 @@ private:
    char* postIndexLayerName;
    PoolingIndexLayer* postIndexLayer;
    AccumulateType poolingType;
+#ifdef PV_USE_CUDA
+   PVCuda::CudaPoolingDeliverKernel* krPoolingDeliver = nullptr; // Cuda kernel for update state call
+#endif // PV_USE_CUDA
 }; // end class PoolingConn
 
 }  // end namespace PV
