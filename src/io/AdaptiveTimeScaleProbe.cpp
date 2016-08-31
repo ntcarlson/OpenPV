@@ -39,43 +39,43 @@ int AdaptiveTimeScaleProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void AdaptiveTimeScaleProbe::ioParam_targetName(enum ParamsIOFlag ioFlag) {
-   parent->ioParamStringRequired(ioFlag, name, "targetName", &targetName);
+   ioParamStringRequired(ioFlag, name, "targetName", &targetName);
 }
 
 void AdaptiveTimeScaleProbe::ioParam_baseMax(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "baseMax", &mBaseMax, mBaseMax);
+   ioParamValue(ioFlag, name, "baseMax", &mBaseMax, mBaseMax);
 }
 
 void AdaptiveTimeScaleProbe::ioParam_baseMin(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "baseMin", &mBaseMin, mBaseMin);
+   ioParamValue(ioFlag, name, "baseMin", &mBaseMin, mBaseMin);
 }
 
 void AdaptiveTimeScaleProbe::ioParam_dtMinToleratedTimeScale(enum ParamsIOFlag ioFlag) {
-   if (ioFlag==PARAMS_IO_READ && parent->parameters()->present(getName(), "dtMinToleratedTimeScale")) {
-      if (parent->getCommunicator()->commRank()==0) {
+   if (ioFlag==PARAMS_IO_READ && getParams()->present(getName(), "dtMinToleratedTimeScale")) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit() << "The dtMinToleratedTimeScale parameter has been removed.\n";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 }
 
 void AdaptiveTimeScaleProbe::ioParam_tauFactor(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "tauFactor", &tauFactor, tauFactor);
+   ioParamValue(ioFlag, name, "tauFactor", &tauFactor, tauFactor);
 }
 
 void AdaptiveTimeScaleProbe::ioParam_growthFactor(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "growthFactor", &mGrowthFactor, mGrowthFactor);
+   ioParamValue(ioFlag, name, "growthFactor", &mGrowthFactor, mGrowthFactor);
 }
 
 void AdaptiveTimeScaleProbe::ioParam_writeTimeScales(enum ParamsIOFlag ioFlag) {
-   parent->ioParamValue(ioFlag, name, "writeTimeScales", &mWriteTimeScales, mWriteTimeScales);
+   ioParamValue(ioFlag, name, "writeTimeScales", &mWriteTimeScales, mWriteTimeScales);
 }
 
 void AdaptiveTimeScaleProbe::ioParam_writeTimeScaleFieldnames(enum ParamsIOFlag ioFlag) {
-   pvAssert(!parent->parameters()->presentAndNotBeenRead(name, "writeTimeScales"));
+   pvAssert(!getParams()->presentAndNotBeenRead(name, "writeTimeScales"));
    if (mWriteTimeScales) {
-     parent->ioParamValue(ioFlag, name, "writeTimeScaleFieldnames", &mWriteTimeScaleFieldnames, mWriteTimeScaleFieldnames);
+     ioParamValue(ioFlag, name, "writeTimeScaleFieldnames", &mWriteTimeScaleFieldnames, mWriteTimeScaleFieldnames);
    }
 }
 
@@ -83,10 +83,10 @@ int AdaptiveTimeScaleProbe::communicateInitInfo(std::shared_ptr<CommunicateInitI
    int status = ColProbe::communicateInitInfo(message);
    mTargetProbe = message->mTable->lookup<BaseProbe>(targetName);
    if (mTargetProbe==nullptr) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvError() << getDescription() << ": targetName \"" << targetName << "\" is not a probe in the HyPerCol.\n";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    return status;
@@ -95,14 +95,14 @@ int AdaptiveTimeScaleProbe::communicateInitInfo(std::shared_ptr<CommunicateInitI
 int AdaptiveTimeScaleProbe::allocateDataStructures() {
    int status = ColProbe::allocateDataStructures();
    if (mTargetProbe->getNumValues() != getNumValues()) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvError() << getDescription() << ": target probe \"" <<
                mTargetProbe->getDescription() <<
                "\" does not have the correct numValues (" <<
                mTargetProbe->getNumValues() << " instead of " <<
                getNumValues() << ").\n";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
    mAdaptiveTimeScaleController = new AdaptiveTimeScaleController(
@@ -114,7 +114,7 @@ int AdaptiveTimeScaleProbe::allocateDataStructures() {
          mGrowthFactor,
          mWriteTimeScales,
          mWriteTimeScaleFieldnames,
-         parent->getCommunicator(),
+         getCommunicator(),
          parent->getVerifyWrites()
    );
    return status;

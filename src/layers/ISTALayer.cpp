@@ -98,7 +98,7 @@ void ISTALayer::ioParam_selfInteract(enum ParamsIOFlag ioFlag) {
 }
 
 void ISTALayer::ioParam_adaptiveTimeScaleProbe(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "adaptiveTimeScaleProbe", &mAdaptiveTimeScaleProbeName, nullptr/*default*/, true/*warn if absent*/);
+   ioParamString(ioFlag, name, "adaptiveTimeScaleProbe", &mAdaptiveTimeScaleProbeName, nullptr/*default*/, true/*warn if absent*/);
 }
 
 int ISTALayer::requireChannel(int channelNeeded, int * numChannelsResult) {

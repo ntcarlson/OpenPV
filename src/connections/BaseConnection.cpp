@@ -412,7 +412,7 @@ int BaseConnection::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessa
    int maxDelay = maxDelaySteps();
    int allowedDelay = this->preSynapticLayer()->increaseDelayLevels(maxDelay);
    if( allowedDelay < maxDelay ) {
-      if( this->getParent()->columnId() == 0 ) {
+      if( getCommunicator()->commRank() == 0 ) {
          pvErrorNoExit().printf("%s: attempt to set delay to %d, but the maximum allowed delay is %d.  Exiting\n", getDescription_c(), maxDelay, allowedDelay);
       }
       exit(EXIT_FAILURE);

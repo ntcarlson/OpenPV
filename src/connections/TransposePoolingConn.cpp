@@ -51,11 +51,8 @@ int TransposePoolingConn::initialize(const char * name, HyPerCol * hc) {
 
    int status = BaseConnection::initialize(name, hc); // BaseConnection should *NOT* take weightInitializer or weightNormalizer as arguments, as it does not know about InitWeights or NormalizeBase
 
-   assert(parent);
-   PVParams * inputParams = getParams();
-
    //set accumulateFunctionPointer
-   assert(!inputParams->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
    switch (mPoolingType) {
    case PoolingConn::MAX:
       accumulateFunctionPointer = &pvpatch_max_pooling;
@@ -104,7 +101,7 @@ int TransposePoolingConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 void TransposePoolingConn::ioParam_receiveGpu(enum ParamsIOFlag ioFlag) {
    // During the communication phase, receiveGpu will be copied from mOriginalConn
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryParameter(name, "receiveGpu");
+      getParams()->handleUnnecessaryParameter(name, "receiveGpu");
    }
 }
 
@@ -145,13 +142,13 @@ void TransposePoolingConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
 void TransposePoolingConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
    // During the communication phase, pvpatchAccumulateType will be copied from mOriginalConn
    if (ioFlag==PARAMS_IO_READ) {
-      parent->parameters()->handleUnnecessaryStringParameter(name, "pvpatchAccumulateType");
+      getParams()->handleUnnecessaryStringParameter(name, "pvpatchAccumulateType");
    }
 }
 
 void TransposePoolingConn::ioParam_writeStep(enum ParamsIOFlag ioFlag) {
    writeStep = -1;
-   parent->parameters()->handleUnnecessaryParameter(name, "writeStep");
+   getParams()->handleUnnecessaryParameter(name, "writeStep");
 }
 
 void TransposePoolingConn::ioParam_combine_dW_with_W_flag(enum ParamsIOFlag ioFlag) {
@@ -162,17 +159,17 @@ void TransposePoolingConn::ioParam_combine_dW_with_W_flag(enum ParamsIOFlag ioFl
 }
 
 void TransposePoolingConn::ioParam_nxp(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->handleUnnecessaryParameter(name, "nxp");
+   getParams()->handleUnnecessaryParameter(name, "nxp");
    // TransposePoolingConn determines nxp from mOriginalConn, during communicateInitInfo
 }
 
 void TransposePoolingConn::ioParam_nyp(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->handleUnnecessaryParameter(name, "nyp");
+   getParams()->handleUnnecessaryParameter(name, "nyp");
    // TransposePoolingConn determines nyp from mOriginalConn, during communicateInitInfo
 }
 
 void TransposePoolingConn::ioParam_nfp(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->handleUnnecessaryParameter(name, "nfp");
+   getParams()->handleUnnecessaryParameter(name, "nfp");
    // TransposePoolingConn determines nfp from mOriginalConn, during communicateInitInfo
 }
 
@@ -245,20 +242,20 @@ int TransposePoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInf
 
 #ifdef PV_USE_CUDA
    receiveGpu = mOriginalConn->getReceiveGpu();
-   parent->parameters()->handleUnnecessaryParameter(name, "receiveGpu", receiveGpu);
+   getParams()->handleUnnecessaryParameter(name, "receiveGpu", receiveGpu);
 #endif // PV_USE_CUDA
 
    sharedWeights = mOriginalConn->usingSharedWeights();
-   parent->parameters()->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
+   getParams()->handleUnnecessaryParameter(name, "sharedWeights", sharedWeights);
 
    numAxonalArborLists = mOriginalConn->numberOfAxonalArborLists();
-   parent->parameters()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
+   getParams()->handleUnnecessaryParameter(name, "numAxonalArbors", numAxonalArborLists);
 
    plasticityFlag = mOriginalConn->getPlasticityFlag();
-   parent->parameters()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
+   getParams()->handleUnnecessaryParameter(name, "plasticityFlag", plasticityFlag);
 
    if(mOriginalConn->getShrinkPatches_flag()) {
-      if (parent->columnId()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvErrorNoExit().printf("TransposePoolingConn \"%s\": original conn \"%s\" has shrinkPatches set to true.  TransposePoolingConn has not been implemented for that case.\n", name, mOriginalConn->getName());
       }
       MPI_Barrier(getCommunicator()->communicator());
@@ -274,8 +271,8 @@ int TransposePoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInf
    }
 
    mPoolingType = mOriginalConn->getPoolingType();
-   if (parent->parameters()->stringPresent(name, "pvpatchAccumulateType")) {
-      char const * checkStringPresent = parent->parameters()->stringValue(name, "pvpatchAccumulateType");
+   if (getParams()->stringPresent(name, "pvpatchAccumulateType")) {
+      char const * checkStringPresent = getParams()->stringValue(name, "pvpatchAccumulateType");
       if (PoolingConn::parseAccumulateTypeString(checkStringPresent) != mPoolingType) {
          pvError() << getDescription() << ": originalConn accumulateType does not match this layer's accumulate type.\n";
 
@@ -286,7 +283,7 @@ int TransposePoolingConn::communicateInitInfo(std::shared_ptr<CommunicateInitInf
       if (!receiveGpu)
 #endif // PV_USE_CUDA
       {
-         if (parent->columnId()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit().printf("TransposePoolingConn \"%s\": original pooling conn \"%s\" needs to have a postIndexLayer if unmax pooling.\n", name, mOriginalConnName);
             status = PV_FAILURE;
          }

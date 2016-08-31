@@ -158,19 +158,16 @@ int PoolingConn::initialize(const char * name, HyPerCol * hc, InitWeights * weig
 
 #ifdef PV_USE_CUDA
    if (needPostIndexLayer && receiveGpu) {
-      if (parent->getCommunicator()->commRank()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvError() << getDescription() << ": receiveGpu and needPostIndexLayer both set.  The GPU version does not currently compute the post index layer.";
       }
-      MPI_Barrier(parent->getCommunicator()->communicator());
+      MPI_Barrier(getCommunicator()->communicator());
       exit(EXIT_FAILURE);
    }
 #endif // PV_USE_CUDA
 
-   assert(parent);
-   PVParams * inputParams = getParams();
-
    //set accumulateFunctionPointer
-   assert(!inputParams->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
+   assert(!getParams()->presentAndNotBeenRead(name, "pvpatchAccumulateType"));
    switch (poolingType) {
    case MAX:
       accumulateFunctionPointer = &pvpatch_max_pooling;
@@ -271,7 +268,7 @@ void PoolingConn::clearGateIdxBuffer(){
 
 int PoolingConn::allocateDataStructures(){
    if (postIndexLayer && postIndexLayer->getDataStructuresAllocatedFlag()==false) {
-      if (parent->columnId()==0) {
+      if (getCommunicator()->commRank()==0) {
          pvInfo().printf("%s must wait until postIndexLayer layer \"%s\" has finished its allocateDataStructures stage.\n", getDescription_c(), postIndexLayer->getName());
       }
       return PV_POSTPONE;

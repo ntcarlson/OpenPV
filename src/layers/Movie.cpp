@@ -495,13 +495,7 @@ bool Movie::updateImage(double time, double dt)
 
    Communicator * icComm = getCommunicator();
 
-   //TODO: Fix movie layer to take with batches. This is commented out for compile
-   //if(!flipOnTimescaleError && (parent->getTimeScale() > 0 && parent->getTimeScale() < parent->getTimeScaleMin())){
-   //   if (getCommunicator()->commRank()==0) {
-   //      pvWarn() << "timeScale of " << parent->getTimeScale() << " is less than timeScaleMin of " << parent->getTimeScaleMin() << ", Movie is keeping the same frame\n";
-   //   }
-   //}
-   //else
+   //TODO: Fix movie layer to take with batches.
    {
       //Only do this if it's not the first update timestep
       //The timestep number is (time - startTime)/(width of timestep), with allowance for roundoff.
@@ -511,13 +505,6 @@ bool Movie::updateImage(double time, double dt)
          assert(status == PV_SUCCESS);
       }
 
-
-
-
-      //nextDisplayTime removed, now using nextUpdateTime in HyPerLayer
-      //while (time >= nextDisplayTime) {
-      //   nextDisplayTime += displayPeriod;
-      //}
       //Set frame number (member variable in Image)
 
       //Write to timestamp file here when updated
@@ -540,7 +527,7 @@ bool Movie::updateImage(double time, double dt)
             fflush(timestampFile->fp);
          }
       }
-   } // else-clause of if(!flipOnTimescaleError && (parent->getTimeScale() > 0 && parent->getTimeScale() < parent->getTimeScaleMin()))
+   }
 
    return true;
 }

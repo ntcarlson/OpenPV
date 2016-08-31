@@ -2221,7 +2221,7 @@ int HyPerConn::setInitialValues() {
       status = PV_SUCCESS;
    }
    else{
-      pvError().printf("%s: unable to allocate device memory in rank %d process: %s\n", getDescription_c(), getParent()->columnId(), strerror(errno));
+      pvError().printf("%s: unable to allocate device memory in rank %d process: %s\n", getDescription_c(), getCommunicator()->commRank(), strerror(errno));
    }
 #endif // PV_USE_CUDA
    return status;

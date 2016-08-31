@@ -110,7 +110,7 @@ void HyPerLCALayer::ioParam_selfInteract(enum ParamsIOFlag ioFlag) {
 }
 
 void HyPerLCALayer::ioParam_adaptiveTimeScaleProbe(enum ParamsIOFlag ioFlag) {
-   parent->ioParamString(ioFlag, name, "adaptiveTimeScaleProbe", &mAdaptiveTimeScaleProbeName, nullptr/*default*/, true/*warn if absent*/);
+   ioParamString(ioFlag, name, "adaptiveTimeScaleProbe", &mAdaptiveTimeScaleProbeName, nullptr/*default*/, true/*warn if absent*/);
 }
 
 int HyPerLCALayer::requireChannel(int channelNeeded, int * numChannelsResult) {
@@ -125,11 +125,11 @@ int HyPerLCALayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessag
    if (mAdaptiveTimeScaleProbeName) {
       mAdaptiveTimeScaleProbe = message->mTable->lookup<AdaptiveTimeScaleProbe>(mAdaptiveTimeScaleProbeName);
       if (mAdaptiveTimeScaleProbe==nullptr) {
-         if (parent->getCommunicator()->commRank()==0) {
+         if (getCommunicator()->commRank()==0) {
             pvErrorNoExit() << description << ": adaptiveTimeScaleProbe \"" <<
                   mAdaptiveTimeScaleProbeName << "\" is not in the column.\n";
          }
-         MPI_Barrier(parent->getCommunicator()->communicator());
+         MPI_Barrier(getCommunicator()->communicator());
          exit(EXIT_FAILURE);
       }
    }
