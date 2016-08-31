@@ -409,23 +409,7 @@ int HyPerConn::initialize(char const * name, HyPerCol * hc) {
       accumulateFunctionPointer = &pvpatch_accumulate_stochastic;
       accumulateFunctionFromPostPointer = &pvpatch_accumulate_stochastic_from_post;
       break;
-#ifdef OBSOLETE // Marked obsolete May 3, 2016.  HyPerConn defines AccumulateType and PoolingConn defines PoolingType
-   case ACCUMULATE_MAXPOOLING:
-      pvError().printf("ACCUMULATE_MAXPOOLING not allowed in HyPerConn, use PoolingConn instead");
-      //accumulateFunctionPointer = &pvpatch_max_pooling;
-      //accumulateFunctionFromPostPointer = &pvpatch_max_pooling_from_post;
-      break;
-   case ACCUMULATE_SUMPOOLING:
-      pvError().printf("ACCUMULATE_SUMPOOLING not allowed in HyPerConn, use PoolingConn instead");
-      //accumulateFunctionPointer = &pvpatch_sum_pooling;
-      //accumulateFunctionFromPostPointer = &pvpatch_accumulate_from_post;
-      break;
-   case ACCUMULATE_AVGPOOLING:
-      pvError().printf("ACCUMULATE_AVGPOOLING not allowed in HyPerConn, use PoolingConn instead");
-      //accumulateFunctionPointer = &pvpatch_sum_pooling;
-      //accumulateFunctionFromPostPointer = &pvpatch_accumulate_from_post;
-      break;
-#endif // OBSOLETE // Marked obsolete May 3, 2016.  HyPerConn defines AccumulateType and PoolingConn defines PoolingType
+      // Obsolete accumulate types removed Aug 30, 2016.
    default:
       pvAssertMessage(0, "Unrecognized pvpatchAccumulate type");
       break;
@@ -798,23 +782,7 @@ void HyPerConn::ioParam_pvpatchAccumulateType(enum ParamsIOFlag ioFlag) {
       else if (strcmp(pvpatchAccumulateTypeString,"stochastic")==0) {
          pvpatchAccumulateType = STOCHASTIC;
       }
-#ifdef OBSOLETE // Marked obsolete May 3, 2016.  HyPerConn defines HyPerConnAccumulateType and PoolingConn defines PoolingType
-      else if ((strcmp(pvpatchAccumulateTypeString,"maxpooling")==0) ||
-	       (strcmp(pvpatchAccumulateTypeString,"max_pooling")==0) ||
-	       (strcmp(pvpatchAccumulateTypeString,"max pooling")==0)) {
-         pvpatchAccumulateType = ACCUMULATE_MAXPOOLING;
-      }
-      else if ((strcmp(pvpatchAccumulateTypeString,"sumpooling")==0) ||
-	       (strcmp(pvpatchAccumulateTypeString,"sum_pooling")==0)  ||
-	       (strcmp(pvpatchAccumulateTypeString,"sum pooling")==0)) {
-         pvpatchAccumulateType = ACCUMULATE_SUMPOOLING;
-      }
-      else if ((strcmp(pvpatchAccumulateTypeString,"avgpooling")==0) ||
-	       (strcmp(pvpatchAccumulateTypeString,"avg_pooling")==0)  ||
-	       (strcmp(pvpatchAccumulateTypeString,"avg pooling")==0)) {
-         pvpatchAccumulateType = ACCUMULATE_AVGPOOLING;
-      }
-#endif // OBSOLETE // Marked obsolete May 3, 2016.  HyPerConn defines HyPerConnAccumulateType and PoolingConn defines PoolingType
+      // Obsolete accumulate types removed Aug 30, 2016.
       else {
          unsetAccumulateType();
       }
@@ -968,26 +936,6 @@ void HyPerConn::ioParam_dWMax(enum ParamsIOFlag ioFlag) {
       ioParamValueRequired(ioFlag, name, "dWMax", &dWMax);
    }
 }
-
-/*
-      if ( mParams->stringPresent(group_name, param_name) ) {
-         param_string = mParams->stringValue(group_name, param_name, warnIfAbsent);
-      }
-      else {
-         // parameter was not set in params file; use the default.  But default might or might not be nullptr.
-         if (columnId()==0 && warnIfAbsent==true) {
-            pvWarn().printf("Using default value of nullptr for string parameter \"%s\" in group \"%s\"\n", param_name, group_name);
-         }
-         param_string = defaultValue;
-      }
-      if (param_string!=nullptr) {
-         *value = strdup(param_string);
-         pvErrorIf(*value==nullptr, "Global rank %d process unable to copy param %s in group \"%s\": %s\n", globalRank(), param_name, group_name, strerror(errno));
-      }
-      else {
-         *value = nullptr;
-      }
- */
 
 void HyPerConn::ioParam_weightSparsity(enum ParamsIOFlag ioFlag) {
    ioParamValue(ioFlag, name, "weightSparsity", &_weightSparsity, 0.0f, false);
@@ -2296,37 +2244,7 @@ int HyPerConn::updateState(double time, double dt){
       //Need to finish command queue of pre and post activity
       //Doing both in case of multiple gpus running
 
-#ifdef OBSOLETE // Marked obsolete Aug 18, 2016.   Should not skip images when learning, and timescale adaptation has been moved out of HyPerCol.
-      //TODO: commented out to compile, but we'll want to average across only batches where timeScale >= timeScaleMin.
-      for(int b = 0; b < mBatchWidth; b++){
-         double preTimeScale = pre->getTimeScale(b); 
-         double postTimeScale = post->getTimeScale(b);
-         double colTimeScale = parent->getTimeScale(b);
-         double timeScaleMin = parent->getTimeScaleMin();
-         double skip = false;
-         //If timeScale is less than the value for dtScaleMin specified in the params but not -1, don't updateState.
-         //This is implemented as an optimization so weights don't change dramatically as ANNNormalizedErrorLayer values get large.
-         if (preTimeScale > 0 && preTimeScale < timeScaleMin) { 
-            if (getCommunicator()->commRank()==0) {
-               pvInfo().printf("TimeScale = %f for %s batch %d, which is less than your specified dtScaleMin, %f. updateState won't be called for %s this timestep.\n", preTimeScale, pre->getDescription_c(), b, timeScaleMin, getDescription_c());
-            }
-            skip = true;
-         }
-         else if (postTimeScale > 0 && postTimeScale < timeScaleMin) { 
-            if (getCommunicator()->commRank()==0) {
-               pvInfo().printf("TimeScale = %f for %s batch %d, which is less than your specified dtScaleMin, %f. updateState won't be called for %s this timestep.\n", postTimeScale, post->getDescription_c(), b, timeScaleMin, getDescription_c());
-            }
-            skip = true;
-         }
-         else if (colTimeScale > 0 && colTimeScale < timeScaleMin) { 
-            if (getCommunicator()->commRank()==0) {
-               pvInfo().printf("TimeScale = %f for column %s batch %d, which is less than your specified dtScaleMin, %f. updateState won't be called for %s this timestep.\n", colTimeScale, parent->getName(), b, timeScaleMin, getDescription_c());
-            }
-            skip = true;
-         }
-         batchSkip[b] = skip;
-      }
-#endif // OBSOLETE // Marked obsolete Aug 18, 2016. Handling the adaptive timestep has been moved to ColumnEnergyProbe.
+      // Obsolete code, to skip updating weights when adaptive timescale is bad, was deleted Aug 30, 2016.
 
       status = calc_dW();        // Calculate changes in weights
 
