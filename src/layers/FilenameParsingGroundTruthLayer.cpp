@@ -98,7 +98,7 @@ int FilenameParsingGroundTruthLayer::communicateInitInfo(std::shared_ptr<Communi
 }
 
 bool FilenameParsingGroundTruthLayer::needUpdate(double time, double dt){
-   bool movieUpdate =  movieLayer->needUpdate(time, parent->getDeltaTime());
+   bool movieUpdate =  movieLayer->needUpdate(time, dt);
    return movieUpdate;
 }
 

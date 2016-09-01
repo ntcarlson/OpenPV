@@ -488,7 +488,7 @@ bool Movie::updateImage(double time, double dt)
       //Only do this if it's not the first update timestep
       //The timestep number is (time - startTime)/(width of timestep), with allowance for roundoff.
       //But if we're using adaptive timesteps, the dt passed as a function argument is not the correct (width of timestep).
-      if(fabs(time - (parent->getStartTime() + parent->getDeltaTime())) > (parent->getDeltaTime()/2)){
+      if(fabs(time - (parent->getStartTime() + dt)) > dt/2){
          int status = getFrame(time, dt);
          assert(status == PV_SUCCESS);
       }

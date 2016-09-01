@@ -395,35 +395,35 @@ bool MoviePvp::updateImage(double time, double dt)
 {
    Communicator * icComm = getCommunicator();
 
-            if(fabs(time - (parent->getStartTime() + parent->getDeltaTime())) > (parent->getDeltaTime()/2)){
-               int status = getFrame(time, dt);
-               if( status != PV_SUCCESS ) {
-                  pvError().printf("Movie %s: Error reading file \"%s\"\n", name, inputPath);
-               }
-            }
-      if(writePosition && icComm->commRank()==0){
-         fprintf(fp_pos->fp,"%f %s: \n",time,inputPath);
+   if(fabs(time - (parent->getStartTime() + dt)) > dt/2){
+      int status = getFrame(time, dt);
+      if( status != PV_SUCCESS ) {
+         pvError().printf("Movie %s: Error reading file \"%s\"\n", name, inputPath);
       }
-      //Set frame number (member variable in Image)
-      //Write to timestamp file here when updated
-      if( icComm->commRank()==0 ) {
-          //Only write if the parameter is set
-          if(timestampFile){
-             std::ostringstream outStrStream;
-             outStrStream.precision(15);
-             int kb0 = getLayerLoc()->kb0;
-             for(int b = 0; b < mBatchWidth; b++){
-                outStrStream << time << "," << b+kb0 << "," << frameNumbers[b] << "," << inputPath << "\n";
-             }
-             size_t len = outStrStream.str().length();
-             int status = PV_fwrite(outStrStream.str().c_str(), sizeof(char), len, timestampFile)==len ? PV_SUCCESS : PV_FAILURE;
-             if (status != PV_SUCCESS) {
-                pvError().printf("%s: Movie::updateState failed to write to timestamp file.\n", getDescription_c());
-             }
-             //Flush buffer
-             fflush(timestampFile->fp);
-          }
+   }
+   if(writePosition && icComm->commRank()==0){
+      fprintf(fp_pos->fp,"%f %s: \n",time,inputPath);
+   }
+   //Set frame number (member variable in Image)
+   //Write to timestamp file here when updated
+   if( icComm->commRank()==0 ) {
+      //Only write if the parameter is set
+      if(timestampFile){
+         std::ostringstream outStrStream;
+         outStrStream.precision(15);
+         int kb0 = getLayerLoc()->kb0;
+         for(int b = 0; b < mBatchWidth; b++){
+            outStrStream << time << "," << b+kb0 << "," << frameNumbers[b] << "," << inputPath << "\n";
+         }
+         size_t len = outStrStream.str().length();
+         int status = PV_fwrite(outStrStream.str().c_str(), sizeof(char), len, timestampFile)==len ? PV_SUCCESS : PV_FAILURE;
+         if (status != PV_SUCCESS) {
+            pvError().printf("%s: Movie::updateState failed to write to timestamp file.\n", getDescription_c());
+         }
+         //Flush buffer
+         fflush(timestampFile->fp);
       }
+   }
 
    return true;
 }

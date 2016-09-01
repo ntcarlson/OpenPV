@@ -163,7 +163,7 @@ int ISTALayer::updateStateGpu(double time, double dt){
       pvError().printf("HyPerLayer::Trigger reset of V does not work on GPUs\n");
    }
    //Copy over d_dtAdapt
-   d_dtAdapt->copyToDevice(deltaTimes());
+   d_dtAdapt->copyToDevice(deltaTimes(time, dt));
    //Change dt to match what is passed in
    PVCuda::CudaUpdateISTALayer* updateKernel = dynamic_cast<PVCuda::CudaUpdateISTALayer*>(krUpdate);
    assert(updateKernel);
@@ -197,16 +197,16 @@ int ISTALayer::updateState(double time, double dt)
    }
    
    ISTALayer_update_state(nbatch, num_neurons, nx, ny, nf, loc->halo.lt, loc->halo.rt, loc->halo.dn, loc->halo.up, numChannels,
-         V, VThresh, deltaTimes(), timeConstantTau/dt, gSynHead, A);
+         V, VThresh, deltaTimes(time, dt), timeConstantTau/dt, gSynHead, A);
    return PV_SUCCESS;
 }
 
-double * ISTALayer::deltaTimes() {
+double * ISTALayer::deltaTimes(double time, double dt) {
    if (mAdaptiveTimeScaleProbe) {
-      mAdaptiveTimeScaleProbe->getValues(parent->simulationTime(), &mDeltaTimes);
+      mAdaptiveTimeScaleProbe->getValues(time, &mDeltaTimes);
    }
    else {
-      mDeltaTimes.assign(getLayerLoc()->nbatch, parent->getDeltaTime());
+      mDeltaTimes.assign(getLayerLoc()->nbatch, dt);
    }
    return mDeltaTimes.data();
 }

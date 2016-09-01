@@ -60,7 +60,7 @@ protected:
    virtual int allocateUpdateKernel();
 #endif
 
-   double * deltaTimes(); // TODO: make const-correct
+   double * deltaTimes(double time, double dt); // TODO: make const-correct
    // Better name?  getDeltaTimes isn't good because it sounds like it's just the getter-method.
 
 private:
