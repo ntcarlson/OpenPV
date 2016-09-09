@@ -34,6 +34,7 @@
 #include <time.h>
 #include <csignal>
 #include <limits>
+#include <climits>
 #include <libgen.h>
 #ifdef PV_USE_CUDA
 #include <map>
@@ -167,6 +168,7 @@ int HyPerCol::initialize(const char * name, PV_Init* initObj)
 #ifdef PVP_DEBUG
    if (mPVInitObj->getRequireReturnFlag()) {
       if( rank == 0 ) {
+         fflush(stdout);
          printf("Hit enter to begin! ");
          fflush(stdout);
          int charhit = -1;

@@ -100,7 +100,7 @@ int Publisher::publish(double currentTime, double lastUpdateTime)
       //Only need to exchange borders if layer was updated this timestep
       memcpy(recvBuf, sendBuf, dataSize);
       exchangeBorders(&mLayerCube->loc, 0);
-      store->setLastUpdateTime(LOCAL/*bufferId*/, lastUpdateTime);
+      store->setLastUpdateTime(Communicator::LOCAL/*bufferId*/, lastUpdateTime);
 
       //Updating active indices is done after MPI wait in HyPerCol
       //to avoid race condition because exchangeBorders mpi is async
@@ -108,8 +108,8 @@ int Publisher::publish(double currentTime, double lastUpdateTime)
    else if (store->getNumLevels()>1){
       // If there are delays, copy last level's data to this level.
       // TODO: we could use pointer indirection to cut down on the number of memcpy calls required, if this turns out to be an expensive step
-      memcpy(recvBuf, recvBuffer(LOCAL/*bufferId*/,1), dataSize);
-      store->setLastUpdateTime(LOCAL/*bufferId*/, lastUpdateTime);
+      memcpy(recvBuf, recvBuffer(Communicator::LOCAL/*bufferId*/,1), dataSize);
+      store->setLastUpdateTime(Communicator::LOCAL/*bufferId*/, lastUpdateTime);
    }
 
    return PV_SUCCESS;
@@ -130,18 +130,18 @@ int Publisher::exchangeBorders(const PVLayerLoc * loc, int delay/*default 0*/) {
    //The loop over batch elements probably belongs inside
    //Communicator::exchange(), but for this to happen, exchange() would need
    //to know how its data argument is organized with respect to batching.
+   int exchangeVectorSize = 2*(mComm->numberOfNeighbors()-1);
    for(int b = 0; b < loc->nbatch; b++){
       // don't send interior
-      pvAssert(requests.size() == b * (mComm->numberOfNeighbors()-1));
+      pvAssert(requests.size() == b * exchangeVectorSize);
 
       pvdata_t * data = recvBuffer(b, delay);
       std::vector<MPI_Request> batchElementMPIRequest{};
       mComm->exchange(data, neighborDatatypes, loc, batchElementMPIRequest);
-      pvAssert(batchElementMPIRequest.size()==mComm->numberOfNeighbors()-1);
+      pvAssert(batchElementMPIRequest.size()==exchangeVectorSize);
       requests.insert(requests.end(), batchElementMPIRequest.begin(), batchElementMPIRequest.end());
-      pvAssert(requests.size() == (b+1) * (mComm->numberOfNeighbors()-1));
+      pvAssert(requests.size() == (b+1) * exchangeVectorSize);
    }
-   pvAssert(requests.size() == loc->nbatch * (mComm->numberOfNeighbors()-1));
 
 #endif // PV_USE_MPI
 

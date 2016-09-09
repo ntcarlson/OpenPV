@@ -144,7 +144,7 @@ int LIFGap::initialize(const char * name, HyPerCol * hc, const char * kernel_nam
 int LIFGap::allocateDataStructures() {
    int status = LIF::allocateDataStructures();
 
-   // Find all the connections that connect to this layer on CHANNEL_GAP and save them for cacGapStrength to use.
+   // Find all the connections that connect to this layer on CHANNEL_GAP and save them for calcGapStrength to use.
    // This seems more like a communicateInitInfo task, but at the time communicateInitInfo is called,
    // the connections don't necessarily have their post layers set.  Returning PV_POSTPONE until every connection
    // has completed its communicateInitInfo is a good way to cause hangs, so this will have to stay in
@@ -156,12 +156,14 @@ int LIFGap::allocateDataStructures() {
          gapConnections.push_back(conn);
       }
    }
+#ifdef PV_USE_CUDA
    for (auto& ob : inputSourcesGPU) {
       HyPerConn * conn = dynamic_cast<HyPerConn*>(ob);
       if (conn && conn->postSynapticLayer()==this && conn->getChannel()==CHANNEL_GAP) {
          gapConnections.push_back(conn);
       }
    }
+#endif // PV_USE_CUDA
 
    return status;
 }

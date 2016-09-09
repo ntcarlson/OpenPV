@@ -529,7 +529,6 @@ int HyPerConn::ioParamsFillGroup(enum ParamsIOFlag ioFlag)
    BaseConnection::ioParamsFillGroup(ioFlag);
    ioParam_sharedWeights(ioFlag);
    ioParam_triggerLayerName(ioFlag);
-   ioParam_triggerFlag(ioFlag);
    ioParam_triggerOffset(ioFlag);
    ioParam_weightUpdatePeriod(ioFlag);
    ioParam_initialWeightUpdateTime(ioFlag);
@@ -686,42 +685,6 @@ void HyPerConn::ioParam_triggerLayerName(enum ParamsIOFlag ioFlag) {
       ioParamString(ioFlag, name, "triggerLayerName", &triggerLayerName, NULL, false/*warnIfAbsent*/);
       if (ioFlag==PARAMS_IO_READ) {
          triggerFlag = (triggerLayerName!=NULL && triggerLayerName[0]!='\0');
-      }
-   }
-}
-
-// triggerFlag was deprecated Aug 17, 2015.
-// Setting triggerLayerName to a nonempty string has the effect of triggerFlag=true, and
-// setting triggerLayerName to NULL or "" has the effect of triggerFlag=false.
-// While triggerFlag is being deprecated, it is an error for triggerFlag to be false
-// and triggerLayerName to be a nonempty string.
-void HyPerConn::ioParam_triggerFlag(enum ParamsIOFlag ioFlag) {
-   pvAssert(!getParams()->presentAndNotBeenRead(name, "plasticityFlag"));
-   if (plasticityFlag) {
-      pvAssert(!getParams()->presentAndNotBeenRead(name, "triggerLayerName"));
-      if (ioFlag == PARAMS_IO_READ && getParams()->present(name, "triggerFlag")) {
-         bool flagFromParams = false;
-         ioParamValue(ioFlag, name, "triggerFlag", &flagFromParams, flagFromParams);
-         if (getCommunicator()->commRank()==0) {
-            pvWarn(triggerFlagMessage);
-            triggerFlagMessage.printf("%s: triggerFlag has been deprecated.\n", getDescription_c());
-            triggerFlagMessage.printf("   If triggerLayerName is a nonempty string, triggering will be on;\n");
-            triggerFlagMessage.printf("   if triggerLayerName is empty or null, triggering will be off.\n");
-            if (getCommunicator()->commRank()==0) {
-               if (flagFromParams != triggerFlag) {
-                  pvErrorNoExit(errorMessage);
-                  errorMessage.printf("triggerLayerName=", name);
-                  if (triggerLayerName) { errorMessage.printf("\"%s\"", triggerLayerName); }
-                  else { errorMessage.printf("NULL"); }
-                  errorMessage.printf(" implies triggerFlag=%s but triggerFlag was set in params to %s\n",
-                        triggerFlag ? "true" : "false", flagFromParams ? "true" : "false");
-               }
-            }
-         }
-         if (flagFromParams != triggerFlag) {
-            MPI_Barrier(getCommunicator()->communicator());
-            exit(EXIT_FAILURE);
-         }
       }
    }
 }
@@ -2005,9 +1968,9 @@ int HyPerConn::checkpointRead(const char * cpDir, double const * timeptr) {
 
    status = readScalarFromFile(cpDir, getName(), "lastUpdateTime", getCommunicator(), &lastUpdateTime, lastUpdateTime);
    pvAssert(status == PV_SUCCESS);
-   if (plasticityFlag) {
+   if (plasticityFlag && !triggerLayerName) {
       status = readScalarFromFile(cpDir, getName(), "weightUpdateTime", getCommunicator(), &weightUpdateTime, weightUpdateTime);
-      if (!triggerLayerName && weightUpdateTime<parent->simulationTime()) {
+      if (weightUpdateTime<parent->simulationTime()) {
          pvAssert(status == PV_SUCCESS);
          while(weightUpdateTime <= parent->simulationTime()) {weightUpdateTime += weightUpdatePeriod;}
          if (getCommunicator()->commRank()==0) {
@@ -2781,7 +2744,7 @@ int HyPerConn::deliverPresynapticPerspectiveConvolve(PVLayerCube const * activit
 
       for (int y = 0; y < nyp; y++) {
 #ifdef PV_USE_OPENMP_THREADS
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(guided)
 #endif
          for (int idx = 0; idx < numNeurons; idx++) {
             int kPreExt = activity->isSparse ? activeIndicesBatch[idx] : idx;
@@ -2890,7 +2853,7 @@ int HyPerConn::deliverPresynapticPerspectiveStochastic(PVLayerCube const * activ
          }
       }
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(guided)
 #endif
       for (int idx = 0; idx < numNeurons; idx++) {
          int kPreExt = activity->isSparse ? activeIndicesBatch[idx] : idx;
@@ -3007,6 +2970,7 @@ int HyPerConn::deliverPostsynapticPerspectiveConvolve(PVLayerCube const * activi
    int syp = postConn->yPatchStride();
    int yPatchSize = postConn->yPatchSize();
    int numPerStride = postConn->xPatchSize() * postConn->fPatchSize();
+   int neuronIndexStride = nfp < 4 ? 1 : nfp/4;
 
    for(int b = 0; b < nbatch; b++){
       int numNeurons = recvPostSparse ? numActive[b] : numPostRestricted;
@@ -3019,10 +2983,10 @@ int HyPerConn::deliverPostsynapticPerspectiveConvolve(PVLayerCube const * activi
          // Threading over feature was the important change that improved cache performance by
          // 5-10x. dynamic scheduling also gave another performance increase over static.
 #ifdef PV_USE_OPENMP_THREADS
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
 #endif
-         for (int feature = 0; feature < nfp; feature++) {
-            for (int idx = feature; idx < numNeurons; idx += nfp) {
+         for (int feature = 0; feature < neuronIndexStride; feature++) {
+            for (int idx = feature; idx < numNeurons; idx += neuronIndexStride) {
                int kTargetRes = recvPostSparse ? activeList[b][idx] : idx;
                // gSyn
                pvdata_t * gSyn = gSynPatchHeadBatch + kTargetRes;
@@ -3125,7 +3089,7 @@ int HyPerConn::deliverPostsynapticPerspectiveStochastic(PVLayerCube const * acti
          // Threading over feature was the important change that improved cache performance by
          // 5-10x. dynamic scheduling also gave another performance increase over static.
 #ifdef PV_USE_OPENMP_THREADS
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
 #endif
          for (int feature = 0; feature < nfp; feature++) {
             for (int idx = feature; idx < numNeurons; idx += nfp) {
