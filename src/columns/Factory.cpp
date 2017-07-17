@@ -44,6 +44,7 @@
 #include "layers/ShuffleLayer.hpp"
 #include "layers/SigmoidLayer.hpp"
 #include "layers/WTALayer.hpp"
+#include "layers/NoiseLayer.hpp"
 
 #include "connections/CloneConn.hpp"
 #include "connections/CloneKernelConn.hpp"

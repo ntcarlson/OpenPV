@@ -155,4 +155,5 @@ add_subdirectory(UpdateFromCloneTest)
 #add_subdirectory(WindowSystemTest)
 add_subdirectory(WriteActivitySparseTest)
 add_subdirectory(WriteSparseFileTest)
+add_subdirectory(NoiseTest)
 # # Insert additional add_subdirectory commands to add other projects.

@@ -38,6 +38,7 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
    ${SUBDIR}/ShuffleLayer.cpp
    ${SUBDIR}/SigmoidLayer.cpp
    ${SUBDIR}/WTALayer.cpp
+   ${SUBDIR}/NoiseLayer.cpp
 )
 
 set (PVLibSrcHpp ${PVLibSrcHpp}
@@ -78,6 +79,7 @@ set (PVLibSrcHpp ${PVLibSrcHpp}
    ${SUBDIR}/ShuffleLayer.hpp
    ${SUBDIR}/SigmoidLayer.hpp
    ${SUBDIR}/WTALayer.hpp
+   ${SUBDIR}/NoiseLayer.hpp
 )
 
 set (PVLibSrcH ${PVLibSrcH}
