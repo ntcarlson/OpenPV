@@ -2,7 +2,7 @@
 package.path = package.path .. ";" .. "../../../parameterWrapper/?.lua";
 local pv = require "PVModule";
 
-local nbatch           = 25;    --Number of images to process in parallel
+local nbatch           = 20;    --Number of images to process in parallel
 local nxSize           = 32;    --CIFAR images are 32 x 32
 local nySize           = 32;
 local patchSize        = 8;
@@ -73,7 +73,6 @@ local pvParameters = {
       baseMin                             = 0.05;  -- Initial value for timescale growth
       tauFactor                           = 0.03;  -- Percent of tau used as growth target
       growthFactor                        = 0.025; -- Exponential growth factor. The smaller value between this and the above is chosen. 
-      writeTimeScales                     = true;
       writeTimeScalesFieldnames           = false;
    };
 
@@ -212,17 +211,19 @@ local pvParameters = {
       wMaxInit                            = 1;
       sparseFraction                      = 0.9;
       minNNZ                              = 0;
-      useListOfArborFiles                 = false;
       combineWeightFiles                  = false;
       initializeFromCheckpointFlag        = false;
       triggerLayerName                    = "Input";
       triggerOffset                       = 0;
+      immediateWeightUpdate               = true;
       updateGSynFromPostPerspective       = false; -- Should be false from V1 (sparse layer) to Error (not sparse). Otherwise every input from pre will be calculated (Instead of only active ones)
       pvpatchAccumulateType               = "convolve";
       writeStep                           = writeStep;
       initialWriteTime                    = initialWriteTime;
+      writeCompressedWeights              = false;
       writeCompressedCheckpoints          = false;
       selfFlag                            = false;
+      combine_dW_with_W_flag              = false;
       nxp                                 = patchSize;
       nyp                                 = patchSize;
       shrinkPatches                       = false;
