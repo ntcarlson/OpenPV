@@ -45,8 +45,8 @@ macro(pv_add_library TARGET)
   include_directories(${PV_INCLUDE_DIR})
 
   if (PV_USE_CUDA AND CUDNN_FOUND)
-    include_directories(${CUDNN_INCLUDE_DIR})
     include_directories(${CUDA_TOOLKIT_INCLUDE})
+    include_directories(${CUDNN_INCLUDE_DIR})
   endif()
 
   if (PV_USE_MPI AND MPI_FOUND)

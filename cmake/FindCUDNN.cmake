@@ -40,9 +40,6 @@ find_path(CUDNN_INCLUDE_DIR
 # Find cudnn library
 find_library(CUDNN_LIBRARY cudnn cudnn_static ${CUDNN_LIBRARY_SEARCH_PATHS} DOC "cuDNN library")
 
-# TEMPORARY FIX TO DIRECT CMAKE TO THE CORRECT VERSION OF CUDNN
-set(CUDNN_INCLUDE_DIR "/projects/training/PetaVision/cudnn/include")
-set(CUDNN_LIBRARY "/projects/training/PetaVision/cudnn/lib/libcudnn.so")
 set(CUDNN_PROCESS_INCLUDES CUDNN_INCLUDE_DIR)
 set(CUDNN_PROCESS_LIBS CUDNN_LIBRARY)
 libfind_process(CUDNN)

@@ -29,16 +29,15 @@ int NoiseLayer::initialize(const char *name, HyPerCol *hc) {
    return status_init;
 }
 
-int NoiseLayer::communicateInitInfo(CommunicateInitInfoMessage const *message) {
-   int status = CloneVLayer::communicateInitInfo(message);
+Response::Status NoiseLayer::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
+   auto status = CloneVLayer::communicateInitInfo(message);
    // CloneVLayer sets originalLayer and errors out if originalLayerName is not valid
    return status;
 }
 
 // Noise layer does not use the V buffer, so absolutely fine to clone off of an null V layer
-int NoiseLayer::allocateV() {
+void NoiseLayer::allocateV() {
    // Do nothing
-   return PV_SUCCESS;
 }
 
 int NoiseLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
@@ -88,8 +87,8 @@ double NoiseLayer::rand_gaussian(double mean, double sdev){
 
 #include <stdio.h>
 
-int NoiseLayer::updateState(double timef, double dt) {
-   int status = PV_SUCCESS;
+Response::Status NoiseLayer::updateState(double timef, double dt) {
+    Response::Status status = Response::SUCCESS;
 
    int numNeurons                = originalLayer->getNumNeurons();
    float *A                      = clayer->activity->data;

@@ -15,9 +15,9 @@ class NoiseLayer : public CloneVLayer {
   public:
    NoiseLayer(const char *name, HyPerCol *hc);
    virtual ~NoiseLayer();
-   virtual int communicateInitInfo(CommunicateInitInfoMessage const *message) override;
-   virtual int allocateV() override;
-   virtual int updateState(double timef, double dt) override;
+   virtual Response::Status communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) override;
+   virtual void allocateV() override;
+   virtual Response::Status updateState(double timef, double dt) override;
    virtual int setActivity() override;
 
    float getStdDev() { return stdDev; }
