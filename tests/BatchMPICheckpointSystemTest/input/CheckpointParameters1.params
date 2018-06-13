@@ -1,7 +1,6 @@
 debugParsing = false;
 
 HyPerCol "column" = {
-    startTime                           = 0;
     dt                                  = 1;
     stopTime                            = 50;
     progressInterval                    = 10;
@@ -50,7 +49,6 @@ HyPerLayer "OutputNoDelay" = {
     writeStep                           = 1;
     initialWriteTime                    = 0;
     sparseLayer                         = true;
-    writeSparseValues                   = true;
     updateGpu                           = false;
     dataType                            = NULL;
 };
@@ -66,7 +64,6 @@ HyPerLayer "OutputWithDelay" = {
     writeStep                           = 1;
     initialWriteTime                    = 0;
     sparseLayer                         = true;
-    writeSparseValues                   = true;
     updateGpu                           = false;
     dataType                            = NULL;
 };
@@ -82,7 +79,6 @@ HyPerLayer "OutputArbor" = {
     writeStep                           = 1;
     initialWriteTime                    = 0;
     sparseLayer                         = true;
-    writeSparseValues                   = true;
     updateGpu                           = false;
     dataType                            = NULL;
 };
@@ -98,7 +94,6 @@ HyPerLayer "OutputFromFullHyPerConn" = {
     writeStep                           = 1;
     initialWriteTime                    = 0;
     sparseLayer                         = true;
-    writeSparseValues                   = true;
     updateGpu                           = false;
     dataType                            = NULL;
 };
@@ -135,15 +130,12 @@ VaryingHyPerConn "ConnNoDelay" = {
     initialWriteTime                    = 0;
     writeCompressedWeights              = false;
     writeCompressedCheckpoints          = false;
-    selfFlag                            = false;
     combine_dW_with_W_flag              = false;
     nxp                                 = 1;
     nyp                                 = 1;
     nfp                                 = 1;
-    shrinkPatches                       = false;
     normalizeMethod                     = "none";
     dWMax                               = 1;
-    useMask                             = false;
 };
 
 VaryingHyPerConn "ConnWithDelay" = {
@@ -178,15 +170,12 @@ VaryingHyPerConn "ConnWithDelay" = {
     initialWriteTime                    = 0;
     writeCompressedWeights              = false;
     writeCompressedCheckpoints          = false;
-    selfFlag                            = false;
     combine_dW_with_W_flag              = false;
     nxp                                 = 1;
     nyp                                 = 1;
     nfp                                 = 1;
-    shrinkPatches                       = false;
     normalizeMethod                     = "none";
     dWMax                               = 1;
-    useMask                             = false;
 };
 
 HyPerConn "InputToOutputArbor" = {
@@ -213,11 +202,9 @@ HyPerConn "InputToOutputArbor" = {
     initialWriteTime                    = 0;
     writeCompressedWeights              = false;
     writeCompressedCheckpoints          = false;
-    selfFlag                            = false;
     nxp                                 = 3;
     nyp                                 = 3;
     nfp                                 = 1;
-    shrinkPatches                       = false;
     normalizeMethod                     = "normalizeSum";
     normalizeArborsIndividually         = false;
     normalizeOnInitialize               = true;

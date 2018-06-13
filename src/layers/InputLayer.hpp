@@ -13,6 +13,7 @@
 #include "utils/BufferUtilsRescale.hpp"
 
 #include <memory>
+#include <random>
 
 namespace PV {
 
@@ -25,6 +26,20 @@ class InputLayer : public HyPerLayer {
    // offsetY: offset in Y direction
    // Defines an offset in image space where the column is viewing the image
    virtual int ioParam_offsets(enum ParamsIOFlag ioFlag);
+
+   // maxShiftX: max random shift in X direction
+   // maxShiftY: max random shift in Y direction
+   // Defines the max random shift in image space
+   virtual int ioParam_maxShifts(enum ParamsIOFlag ioFlag);
+   // xFlipEnabled: When true, 50% chance to mirror input horizontally
+   // yFlipEnabled: When true, 50% chance to mirror input vertically
+   virtual int ioParam_flipsEnabled(enum ParamsIOFlag ioFlag);
+   // xFlipToggle: When true, flip every jitter interval instead of randomly
+   // yFlipToggle: When true, flip every jitter interval instead of randomly
+   virtual int ioParam_flipsToggle(enum ParamsIOFlag ioFlag);
+   // jitterChangeInterval: interval measured in displayPeriods
+   // Defines the frequency of the random shifts updates
+   virtual int ioParam_jitterChangeInterval(enum ParamsIOFlag ioFlag);
 
    // offsetAnchor: Defines where the anchor point is for the offsets.
    // Specified as a 2 character string, "xy"
@@ -119,16 +134,19 @@ class InputLayer : public HyPerLayer {
    // 'c', or 'r')
    int checkValidAnchorString(const char *offsetAnchor);
 
-   /** normalizePixels transforms the image based on the normalizeLuminanceFlag, normalizeStdDev,
-    * and inverseFlag parameters. Overload this to add additional post process steps in subclasses.
+   /**
+    * normalizePixels transforms the input on a per-pixel basis specified by the batch element,
+    * based on the normalizeLuminanceFlag, normalizeStdDev, and inverseFlag parameters.
+    * Overload this to add additional post process steps in subclasses.
+    * Pixels not occupied by the actual image (due to offsets, padding, etc.) are not changed.
     */
-   virtual void normalizePixels(Buffer<float> &buffer);
-   virtual int allocateV() override;
-   virtual int initializeV() override;
-   virtual int initializeActivity() override;
+   virtual void normalizePixels(int batchElement);
+   virtual void allocateV() override;
+   virtual void initializeV() override;
+   virtual void initializeActivity() override;
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
-   virtual int registerData(Checkpointer *checkpointer) override;
-   virtual int readStateFromCheckpoint(Checkpointer *checkpointer) override;
+   virtual Response::Status registerData(Checkpointer *checkpointer) override;
+   virtual Response::Status readStateFromCheckpoint(Checkpointer *checkpointer) override;
    virtual double getDeltaUpdateTime() override;
 
    // Method that signals when to load the next file.
@@ -167,8 +185,9 @@ class InputLayer : public HyPerLayer {
    virtual ~InputLayer();
 
    virtual int requireChannel(int channelNeeded, int *numChannelsResult) override;
-   virtual int allocateDataStructures() override;
-   virtual int updateState(double time, double dt) override;
+   void makeInputRegionsPointer() { mNeedInputRegionsPointer = true; }
+   virtual Response::Status allocateDataStructures() override;
+   virtual Response::Status updateState(double time, double dt) override;
 
    /**
     * This function is called by updateState if writeFrameToTimestamp is used.
@@ -198,13 +217,17 @@ class InputLayer : public HyPerLayer {
       return mInputPath;
    }
 
+   float *getInputRegionsAllBatchElements() { return mInputRegionsAllBatchElements.data(); }
+
   private:
    /**
-    * Resizes a buffer from the image size to the layer size. If autoResizeFlag is true, it
-    * calls BufferUtils::rescale. If autoResizeFlag is false, it calls Buffer methods grow,
+    * Resizes a buffer from the image size to the global layer size. If autoResizeFlag is true,
+    * it calls BufferUtils::rescale. If autoResizeFlag is false, it calls Buffer methods grow,
     * translate, and crop. This method is called only by the root process.
     */
-   void fitBufferToLayer(Buffer<float> &buffer);
+   void fitBufferToGlobalLayer(Buffer<float> &buffer, int blockBatchElement);
+
+   void cropToMPIBlock(Buffer<float> &buffer);
 
   protected:
    // If mAutoResizeFlag is enabled, do we crop the edges or pad the edges with mPadValue?
@@ -236,16 +259,47 @@ class InputLayer : public HyPerLayer {
    int mOffsetX = 0;
    int mOffsetY = 0;
 
+   // If nonzero, create a sample by shifting image randomly in [-maxRandomShiftX, maxRandomShiftX]
+   // x [-maxRandomShiftY, maxRandomShiftY]
+   int mMaxShiftX = 0;
+   int mMaxShiftY = 0;
+   // How often to change random shifts (measured in displayPeriods)
+   int mJitterChangeInterval = 1;
+
+   // Are horizontal or vertical mirror flips enabled during the augmentation stage?
+   bool mXFlipEnabled = false;
+   bool mYFlipEnabled = false;
+
+   // If this is true, toggle mirror flips each time instead of randomly selecting
+   bool mXFlipToggle = false;
+   bool mYFlipToggle = false;
+
    // Random seed used when batchMethod == random
    int mRandomSeed = 123456789;
 
-   // Object to handle assigning file indices to batches
+   // Object to handle assigning file indices to batch element
    std::unique_ptr<BatchIndexer> mBatchIndexer;
    BatchIndexer::BatchMethod mBatchMethod;
 
   private:
-   // Raw data read from disk, one per batch
+   // Data read from disk, one per batch element.
    std::vector<Buffer<float>> mInputData;
+
+   // The parts of the mInputData buffers occupied by image data, as opposed to gaps created by
+   // offsets or resizing with padding. When mInputData[b] is first filled using retrieveData,
+   // mInputRegion[b] is created as a buffer of the same size filled with ones.
+   // As operations that translate or resize are applied to mInputData[b], the same operation is
+   // applied to mInputRegion[b]. When normalizePixels() normalizes or scatterInput() copies to the
+   // clayer activity, only those pixels where mInputRegion[b] is nonzero are used.
+   std::vector<Buffer<float>> mInputRegion;
+
+   bool mNeedInputRegionsPointer = false;
+
+   // A vector containing the contents of the mInputRegion buffers, allocated as a single array
+   // of size getNumExtendedAllBatches.
+   // Will not be allocated unless the makeInputRegionsPointer() method is called before the
+   // AllocateData stage.
+   std::vector<float> mInputRegionsAllBatchElements;
 
    // BorderExchange object for boundary exchange
    BorderExchange *mBorderExchanger = nullptr;
@@ -275,6 +329,16 @@ class InputLayer : public HyPerLayer {
 
    // An array indicating how far to advance each index, one per batch
    std::vector<int> mSkipFrameIndex;
+
+   // Random number generator for jitter
+   std::mt19937 mRNG;
+   // An array of random shifts in x direction, one per batch
+   std::vector<int> mRandomShiftX;
+   // An array of random shifts in y direction, one per batch
+   std::vector<int> mRandomShiftY;
+   // Same for mirror flips
+   std::vector<bool> mMirrorFlipX;
+   std::vector<bool> mMirrorFlipY;
 };
 
 } // end namespace PV

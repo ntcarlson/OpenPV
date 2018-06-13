@@ -55,7 +55,9 @@ class pvpOpen(object):
             #Calculate num frames
             if(self.header['filetype'] == 5):
                 filesize = os.path.getsize(filename)
-                framesize = self.header['recordsize'] * self.header['nbands'] + self.header['headersize']
+                patchsizeoverall = self.header['nxp'] * self.header['nyp'] * self.header['nfp']
+                recordsize = self.header['numpatches'] * (8+4*patchsizeoverall)
+                framesize = recordsize * self.header['nbands'] + self.header['headersize']
                 self.numFrames = filesize/framesize
             else:
                 self.numFrames = self.header['nbands']
@@ -88,7 +90,7 @@ class pvpOpen(object):
         #Allocate numpy array of type int64 to keep track of file positions
         outFramePos = np.zeros((self.numFrames)).astype(np.int64)
 
-        print "Building frame lookup for sparse pvp file"
+        print("Building frame lookup for sparse pvp file")
         for frame in range(self.numFrames):
             #if(frame % 100 == 0):
             #    print "Frame " + str(frame) + " out of " + str(self.numFrames)
@@ -96,7 +98,7 @@ class pvpOpen(object):
             outFramePos[frame] = self.pvpFile.tell()
             numActive = np.fromfile(self.pvpFile, np.uint32,3)[-1]
             self.pvpFile.seek(entryPattern.itemsize * numActive, os.SEEK_CUR)
-        print "Done"
+        print("Done")
 
         #Restore file position
         self.pvpFile.seek(savePos, os.SEEK_SET)
@@ -312,8 +314,8 @@ class pvpOpen(object):
             header["datatype"]   = np.uint32(4) #Type is location-value pair
             header["nxprocs"]    = np.uint32(1) #No longer used
             header["nyprocs"]    = np.uint32(1)
-            header["nxGlobal"]   = np.uint32(nx)
-            header["nyGlobal"]   = np.uint32(ny)
+            header["nxExtended"] = np.uint32(nx)
+            header["nyExtended"] = np.uint32(ny)
             header["kx0"]        = np.uint32(0)
             header["ky0"]        = np.uint32(0)
             header["nbatch"]     = np.uint32(1)
@@ -335,8 +337,8 @@ class pvpOpen(object):
             header["datatype"]   = np.uint32(3) #Type is float
             header["nxprocs"]    = np.uint32(1) #No longer used
             header["nyprocs"]    = np.uint32(1)
-            header["nxGlobal"]   = np.uint32(nx)
-            header["nyGlobal"]   = np.uint32(ny)
+            header["nxExtended"] = np.uint32(nx)
+            header["nyExtended"] = np.uint32(ny)
             header["kx0"]        = np.uint32(0)
             header["ky0"]        = np.uint32(0)
             header["nbatch"]     = np.uint32(1)
@@ -354,13 +356,13 @@ class pvpOpen(object):
             header["nf"]         = np.uint32(numKernels) #Pre nf
             header["numrecords"] = np.uint32(numArbors)
             #Each data for arbor is preceded by nxp(2 bytes), ny (2 bytes) and offset (4 bytes)
-            header["recordsize"] = np.uint32(numKernels * (8+4*nxp*nyp*nfp))
+            header["recordsize"] = np.uint32(0) #weight files do not use recordsize
             header["datasize"]   = np.uint32(4) #floats are 4 bytes
             header["datatype"]   = np.uint32(3) #float type
             header["nxprocs"]    = np.uint32(1)
             header["nyprocs"]    = np.uint32(1)
-            header["nxGlobal"]   = np.uint32(1)
-            header["nyGlobal"]   = np.uint32(1)
+            header["nxExtended"] = np.uint32(1)
+            header["nyExtended"] = np.uint32(1)
             header["kx0"]        = np.uint32(0)
             header["ky0"]        = np.uint32(0)
             header["nbatch"]     = np.uint32(1)

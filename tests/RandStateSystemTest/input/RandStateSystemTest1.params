@@ -14,7 +14,6 @@ HyPerCol "column" = {
    ny                           = 64;
    dt                           = 1.0;
    randomSeed                   = 1020304050;  // Must be at least 8 digits long.  // if not set here,  clock time is used to generate seed
-   startTime                    = 0.0;
    stopTime                     = 50.0;
    progressInterval             = 50.0;
    writeProgressToErr           = false;
@@ -109,7 +108,6 @@ Retina "RetinaOff" = {
     spikingFlag                 = true;  // false (no quotes) is translated to 0
     
     sparseLayer                 = true;
-    writeSparseValues           = false; // spiking retinas have binary activities
     writeStep                   = -1;
 
     foregroundRate              = 200;   // Hz // Max poisson spiking rate when input is 255
@@ -185,8 +183,6 @@ HyPerConn "InputToDownsampled" = {
    plasticityFlag               = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints   = false;
-   selfFlag                     = false;
-   shrinkPatches                = false;
    convertRateToSpikeCount         = false;
    updateGSynFromPostPerspective = false;
 };
@@ -222,8 +218,6 @@ HyPerConn "CenterOn" = {
    plasticityFlag               = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints   = false;
-   selfFlag                     = false;
-   shrinkPatches                = false;
    convertRateToSpikeCount         = false;
    updateGSynFromPostPerspective = false;
 };
@@ -257,8 +251,6 @@ HyPerConn "SurroundOn" = {
    plasticityFlag               = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints   = false;
-   selfFlag                     = false;
-   shrinkPatches                = false;
    convertRateToSpikeCount         = false;
    updateGSynFromPostPerspective = false;
 };
@@ -293,8 +285,6 @@ HyPerConn "CenterOff" = {
    plasticityFlag               = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints   = false;
-   selfFlag                     = false;
-   shrinkPatches                = false;
    convertRateToSpikeCount         = false;
    updateGSynFromPostPerspective = false;
 };
@@ -328,8 +318,6 @@ HyPerConn "SurroundOff" = {
    plasticityFlag               = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints   = false;
-   selfFlag                     = false;
-   shrinkPatches                = false;
    convertRateToSpikeCount         = false;
    updateGSynFromPostPerspective = false;
 };
@@ -352,8 +340,6 @@ HyPerConn "RetinaOnToLIFLayer" = {
    plasticityFlag              = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints  = false;
-   selfFlag                    = false;
-   shrinkPatches               = false;
    convertRateToSpikeCount        = false;
    updateGSynFromPostPerspective = false;
 };
@@ -376,8 +362,6 @@ HyPerConn "RetinaOffToLIFLayer" = {
    plasticityFlag              = false;
    pvpatchAccumulateType        = "convolve";
    writeCompressedCheckpoints  = false;
-   selfFlag                    = false;
-   shrinkPatches               = false;
    convertRateToSpikeCount        = false;
    updateGSynFromPostPerspective = false;
 };

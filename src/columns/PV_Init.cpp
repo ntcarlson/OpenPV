@@ -4,16 +4,16 @@
  *  Created on: Jul 31, 2015
  *      Author: slundquist
  */
-#include <cMakeHeader.h>
-#include <csignal>
-#ifdef PV_USE_OPENMP_THREADS
-#include <omp.h>
-#endif // PV_USE_OPENMP_THREADS
 #include "PV_Init.hpp"
+#include "cMakeHeader.h"
 #include "columns/CommandLineArguments.hpp"
 #include "columns/ConfigFileArguments.hpp"
 #include "columns/HyPerCol.hpp"
 #include "utils/PVLog.hpp"
+#include <csignal>
+#ifdef PV_USE_OPENMP_THREADS
+#include <omp.h>
+#endif // PV_USE_OPENMP_THREADS
 
 namespace PV {
 
@@ -222,12 +222,15 @@ int PV_Init::setMPIConfiguration(int rows, int columns, int batchWidth) {
 }
 
 void PV_Init::printInitMessage() {
-   time_t currentTime = time(nullptr);
-   InfoLog() << "PetaVision initialized at "
-             << ctime(&currentTime); // string returned by ctime contains a trailing \n.
-   InfoLog() << "Configuration is:\n";
-   printState();
-   InfoLog().printf("----------------\n");
+   Communicator *communicator = getCommunicator();
+   if (communicator == nullptr or communicator->globalCommRank() == 0) {
+      time_t currentTime = time(nullptr);
+      InfoLog() << "PetaVision initialized at "
+                << ctime(&currentTime); // string returned by ctime contains a trailing \n.
+      InfoLog() << "Configuration is:\n";
+      printState();
+      InfoLog().printf("----------------\n");
+   }
 }
 
 int PV_Init::resetState() {
