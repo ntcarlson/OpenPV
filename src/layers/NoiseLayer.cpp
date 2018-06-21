@@ -50,7 +50,7 @@ void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "stdDev", &stdDev, stdDev);
 }
 
-void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
+void NoiseLayer::ioParam_seed(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "seed", &seed, seed);
 }
 
@@ -109,9 +109,6 @@ Response::Status NoiseLayer::updateState(double timef, double dt) {
    for (int b = 0; b < nbatch; b++) {
       const float *originalABatch = originalA + b * originalLayer->getNumExtended();
       float *ABatch               = A + b * getNumExtended();
-#ifdef PV_USE_OPENMP_THREADS
-#pragma omp parallel for
-#endif // PV_USE_OPENMP_THREADS
        for (int k = 0; k < numNeurons; k++) {
 		   int kExt = kIndexExtended(
 				 k,
