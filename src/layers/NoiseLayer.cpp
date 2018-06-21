@@ -50,6 +50,10 @@ void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "stdDev", &stdDev, stdDev);
 }
 
+void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
+   parent->parameters()->ioParamValue(ioFlag, name, "seed", &seed, seed);
+}
+
 int NoiseLayer::setActivity() {
    float *activity = clayer->activity->data;
    memset(activity, 0, sizeof(float) * clayer->numExtendedAllBatches);
@@ -72,8 +76,8 @@ double NoiseLayer::rand_gaussian(double mean, double sdev){
     double u1, u2;
     do {
     	// TODO: CHANGE
-    	u1 = double(rand()) * (1.0 / RAND_MAX);
-    	u2 = double(rand()) * (1.0 / RAND_MAX);
+    	u1 = double(rand_r(&seed)) * (1.0 / RAND_MAX);
+    	u2 = double(rand_r(&seed)) * (1.0 / RAND_MAX);
     } while ( u1 <= epsilon );
 
     z0 = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);

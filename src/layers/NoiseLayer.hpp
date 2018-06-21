@@ -28,6 +28,7 @@ class NoiseLayer : public CloneVLayer {
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
 
    void ioParam_stdDev(enum ParamsIOFlag ioFlag);
+   void ioParam_seed(enum ParamsIOFlag ioFlag);
 
 
 
@@ -38,6 +39,7 @@ class NoiseLayer : public CloneVLayer {
 
   protected:
    double stdDev;
+   unsigned int seed;
 }; // class NoiseLayer
 
 } // namespace PV
