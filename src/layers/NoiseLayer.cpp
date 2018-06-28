@@ -3,7 +3,6 @@
  */
 
 #include "NoiseLayer.hpp"
-#include <stdio.h>
 
 #include "../include/default_params.h"
 
@@ -43,6 +42,7 @@ void NoiseLayer::allocateV() {
 int NoiseLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    CloneVLayer::ioParamsFillGroup(ioFlag);
    ioParam_stdDev(ioFlag);
+   ioParam_seed(ioFlag);
    return PV_SUCCESS;
 }
 
@@ -52,6 +52,7 @@ void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
 
 void NoiseLayer::ioParam_seed(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "seed", &seed, seed);
+   srand48_r(seed, &rng_state);
 }
 
 int NoiseLayer::setActivity() {
@@ -75,21 +76,16 @@ double NoiseLayer::rand_gaussian(double mean, double sdev){
     }
     double u1, u2;
     do {
-    	// TODO: CHANGE
-    	u1 = double(rand_r(&seed)) * (1.0 / RAND_MAX);
-    	u2 = double(rand_r(&seed)) * (1.0 / RAND_MAX);
+        drand48_r(&rng_state, &u1);
+        drand48_r(&rng_state, &u2);
     } while ( u1 <= epsilon );
 
     z0 = sqrt(-2.0 * log(u1)) * cos(two_pi * u2);
     z1 = sqrt(-2.0 * log(u1)) * sin(two_pi * u2);
 
-
     return z0 * sdev + mean;
-
 }
 
-
-#include <stdio.h>
 
 Response::Status NoiseLayer::updateState(double timef, double dt) {
     Response::Status status = Response::SUCCESS;
