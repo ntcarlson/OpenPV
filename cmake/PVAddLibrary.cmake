@@ -57,6 +57,8 @@ macro(pv_add_library TARGET)
     include_directories(${LUA_INCLUDE_DIR})
   endif()
 
+  include_directories(${SDL_INCLUDE_DIR})
+
   if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinRelSize")
     list(APPEND CMAKE_CXX_FLAGS ${PV_COMPILE_FLAGS_RELEASE})
   else()

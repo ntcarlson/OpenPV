@@ -46,7 +46,7 @@ macro(pv_config_project)
   set(CUDA_DEBUG_FLAGS "${CUDA_BASE_FLAGS};-Xptxas;-v;-keep;-lineinfo;-g;-G")
   
   # CUDNN path hints
-  set(CUDNN_PATH_HINT "/usr/local/cudnn")
+  set(CUDNN_PATH_HINT "/usr/local/cudnn_lindon")
   
   # Help strings
   set(PV_DIR_HELP "The core PetaVision directory")
@@ -256,4 +256,6 @@ macro(pv_config_project)
       message(FATAL_ERROR "Lua was not found")
     endif (LUA_FOUND)
   endif (PV_USE_LUA)
+  
+  find_package(SDL)
 endmacro()

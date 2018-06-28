@@ -99,5 +99,7 @@ macro(pv_add_executable TARGET)
   if (PV_USE_LUA)
     target_link_libraries(${TARGET} ${LUA_LIBRARIES})
   endif (PV_USE_LUA)
+
+  target_link_libraries(${TARGET} ${SDL_LIBRARY})
 endmacro()
 

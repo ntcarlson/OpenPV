@@ -11,6 +11,7 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
    ${SUBDIR}/FirmThresholdCostFnLCAProbe.cpp
    ${SUBDIR}/FirmThresholdCostFnProbe.cpp
    ${SUBDIR}/KernelProbe.cpp
+   ${SUBDIR}/VisualKernelProbe.cpp
    ${SUBDIR}/L0NormLCAProbe.cpp
    ${SUBDIR}/L0NormProbe.cpp
    ${SUBDIR}/L1NormLCAProbe.cpp
@@ -38,6 +39,7 @@ set (PVLibSrcHpp ${PVLibSrcHpp}
    ${SUBDIR}/FirmThresholdCostFnLCAProbe.hpp
    ${SUBDIR}/FirmThresholdCostFnProbe.hpp
    ${SUBDIR}/KernelProbe.hpp
+   ${SUBDIR}/VisualKernelProbe.hpp
    ${SUBDIR}/L0NormLCAProbe.hpp
    ${SUBDIR}/L0NormProbe.hpp
    ${SUBDIR}/L1NormLCAProbe.hpp
