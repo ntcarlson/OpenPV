@@ -42,6 +42,7 @@ Response::Status RandomSpikeLayer::communicateInitInfo(std::shared_ptr<Communica
 int RandomSpikeLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    CloneVLayer::ioParamsFillGroup(ioFlag);
    ioParam_spikeValue(ioFlag);
+   ioParam_threshold(ioFlag);
    ioParam_numSpike(ioFlag);
    ioParam_seed(ioFlag);
    ioParam_neuronsToSpike(ioFlag);
@@ -50,6 +51,10 @@ int RandomSpikeLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 
 void RandomSpikeLayer::ioParam_spikeValue(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "spikeValue", &spikeValue, 1.0, true /* warn if absent */);
+}
+
+void RandomSpikeLayer::ioParam_threshold(enum ParamsIOFlag ioFlag) {
+   parent->parameters()->ioParamValue(ioFlag, name, "threshold", &threshold, 1.0, true /* warn if absent */);
 }
 
 void RandomSpikeLayer::ioParam_numSpike(enum ParamsIOFlag ioFlag) {
@@ -74,11 +79,11 @@ void RandomSpikeLayer::ioParam_neuronsToSpike(enum ParamsIOFlag ioFlag) {
       neuronsToSpike     = strdup("any");
       neuronsToSpikeType = SPIKE_ANY;
    }
-   else if (!strcmp(neuronsToSpike, "onlyActive")) {
-      neuronsToSpikeType = SPIKE_ONLYACTIVE;
+   else if (!strcmp(neuronsToSpike, "aboveThreshold")) {
+      neuronsToSpikeType = SPIKE_ABOVE;
    }
-   else if (!strcmp(neuronsToSpike, "onlyInactive")) {
-      neuronsToSpikeType = SPIKE_ONLYINACTIVE;
+   else if (!strcmp(neuronsToSpike, "belowThreshold")) {
+      neuronsToSpikeType = SPIKE_BELOW;
    }
    else {
       if (parent->columnId() == 0) {
@@ -99,86 +104,46 @@ int RandomSpikeLayer::setActivity() {
 }
 
 #include <stdio.h>
-Response::Status RandomSpikeLayer::spikeAnyBatch(float *ABatch) {
-   float *V              = originalLayer->getV();
-   const PVLayerLoc *loc = getLayerLoc();
-   int nx                = loc->nx;
-   int ny                = loc->ny;
-   int nf                = loc->nf;
-   int lt                = loc->halo.lt;
-   int rt                = loc->halo.rt;
-   int up                = loc->halo.up;
-   int dn                = loc->halo.dn;
-   int num_neurons       = nx * ny * nf;
-   int nbatch            = loc->nbatch;
+Response::Status RandomSpikeLayer::spikeAnyBatch(float *VBatch) {
+   int numNeurons       = originalLayer->clayer->numNeurons;
 
    for (int numSpiked = 0; numSpiked < numSpike; numSpiked++) {
       long index;
       lrand48_r(&rng_state, &index);
-      index = index % num_neurons;
-      fprintf(stderr, "spiking neuron %d with value %f\n", index, V[index]);
-      V[index] = spikeValue;
+      index = index % numNeurons;
+      fprintf(stderr, "spiking neuron %d with value %f\n", index, VBatch[index]);
+      VBatch[index] = spikeValue;
    }
    return Response::SUCCESS;
 }
 
-Response::Status RandomSpikeLayer::spikeInactiveBatch(float *ABatch) {
-   float *V              = originalLayer->getV();
-   const PVLayerLoc *loc = getLayerLoc();
-   int nx                = loc->nx;
-   int ny                = loc->ny;
-   int nf                = loc->nf;
-   int lt                = loc->halo.lt;
-   int rt                = loc->halo.rt;
-   int up                = loc->halo.up;
-   int dn                = loc->halo.dn;
-   int num_neurons       = nx * ny * nf;
-   int nbatch            = loc->nbatch;
+Response::Status RandomSpikeLayer::spikeBelowBatch(float *VBatch) {
+   int numNeurons       = originalLayer->clayer->numNeurons;
 
    int numSpiked = 0;
    while (numSpiked < numSpike) {
       long index;
       lrand48_r(&rng_state, &index);
-      index = index % num_neurons;
-      int index_ext = kIndexExtended(index, nx, ny, nf, lt, rt, dn, up);
-      if (ABatch[index_ext] <= 0) {
-         // Check that the neuron is inactive
-         fprintf(stderr, "spiking neuron %d with value %f\n", index, V[index]);
-         V[index] = spikeValue;
+      index = index % numNeurons;
+      if (VBatch[index] <= threshold) {
+         // Naively assume that the majority of neurons are below the threshold
+         fprintf(stderr, "spiking neuron %d with value %f\n", index, VBatch[index]);
+         VBatch[index] = spikeValue;
          numSpiked++;
       }
    }
    return Response::SUCCESS;
 }
 
-Response::Status RandomSpikeLayer::spikeActiveBatch(float *ABatch) {
-   float *V                   = originalLayer->getV();
+Response::Status RandomSpikeLayer::spikeAboveBatch(float *VBatch) {
    PVLayerLoc const *loc      = getLayerLoc();
-   int nxExt                  = loc->nx + loc->halo.lt + loc->halo.rt;
-   int nyExt                  = loc->ny + loc->halo.dn + loc->halo.up;
-   int nf                     = loc->nf;
-   int num_extended           = originalLayer->clayer->numExtended;
+   int numNeurons             = originalLayer->clayer->numNeurons;
 
    // Find the active neurons
    vector<int> activeIndices;
    int numActive = 0;
-   for (int kex = 0; kex < num_extended; kex++) {
-      if (ABatch[kex] > 0) {
-         // Convert from extended indices
-         int x = kxPos(kex, nxExt, nyExt, nf) - loc->halo.lt;
-         if (x < 0 or x >= loc->nx) {
-            continue;
-         }
-         int y = kyPos(kex, nxExt, nyExt, nf) - loc->halo.up;
-         if (y < 0 or y >= loc->ny) {
-            continue;
-         }
-         x += loc->kx0;
-         y += loc->ky0;
-         int f = featureIndex(kex, nxExt, nyExt, nf);
-
-         // Get global restricted index.
-         int k = (uint32_t)kIndex(x, y, f, loc->nxGlobal, loc->nyGlobal, nf);
+   for (int k = 0; k < numNeurons; k++) {
+      if (VBatch[k] > threshold) {
          activeIndices.push_back(k);
          numActive++;
       }
@@ -192,8 +157,8 @@ Response::Status RandomSpikeLayer::spikeActiveBatch(float *ABatch) {
       int k = activeIndices[randk];
          
       fprintf(stderr, "numActive = %d", numActive);
-      fprintf(stderr, "spiking active neuron %d with value %f\n", k, V[k]);
-      V[k] = spikeValue;
+      fprintf(stderr, "spiking active neuron %d with value %f\n", k, VBatch[k]);
+      VBatch[k] = spikeValue;
       activeIndices.erase(activeIndices.begin() + randk);
       numSpiked++;
       numActive--;
@@ -207,7 +172,7 @@ Response::Status RandomSpikeLayer::updateState(double timef, double dt) {
    Response::Status status;
 
    auto *A          = originalLayer->clayer->activity->data;
-   int num_extended = originalLayer->clayer->numExtended;
+   int numNeurons   = originalLayer->clayer->numNeurons;
    float *V         = originalLayer->getV();
    int nbatch       = getLayerLoc()->nbatch;
 
@@ -223,17 +188,17 @@ Response::Status RandomSpikeLayer::updateState(double timef, double dt) {
 #pragma omp parallel for schedule(static)
 #endif
    for (int batch = 0; batch < nbatch; batch++) {
-      float *ABatch = A + batch * num_extended;
+      float *VBatch = V + batch * numNeurons;
       fprintf(stderr, "time %f: ", timef);
       switch (neuronsToSpikeType) {
          case SPIKE_ANY:
-            status = spikeAnyBatch(ABatch);
+            status = spikeAnyBatch(VBatch);
             break;
-         case SPIKE_ONLYINACTIVE:
-            status = spikeInactiveBatch(ABatch);
+         case SPIKE_BELOW:
+            status = spikeBelowBatch(VBatch);
             break;
-         case SPIKE_ONLYACTIVE:
-            status = spikeActiveBatch(ABatch);
+         case SPIKE_ABOVE:
+            status = spikeAboveBatch(VBatch);
             break;
       }
    }

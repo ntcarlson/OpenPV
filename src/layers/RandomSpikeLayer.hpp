@@ -13,8 +13,8 @@ namespace PV {
 
 typedef enum NeuronSpikeTypeEnum {
    SPIKE_ANY,
-   SPIKE_ONLYACTIVE,
-   SPIKE_ONLYINACTIVE
+   SPIKE_BELOW,
+   SPIKE_ABOVE
 } NeuronSpikeType;
 
 class RandomSpikeLayer : public CloneVLayer {
@@ -31,12 +31,13 @@ class RandomSpikeLayer : public CloneVLayer {
 
 
    Response::Status spikeAnyBatch(float *ABatch);
-   Response::Status spikeInactiveBatch(float *ABatch);
-   Response::Status spikeActiveBatch(float *ABatch);
+   Response::Status spikeAboveBatch(float *ABatch);
+   Response::Status spikeBelowBatch(float *ABatch);
 
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    void ioParam_numSpike(enum ParamsIOFlag ioFlag);
    void ioParam_spikeValue(enum ParamsIOFlag ioFlag);
+   void ioParam_threshold(enum ParamsIOFlag ioFlag);
    void ioParam_seed(enum ParamsIOFlag ioFlag);
    void ioParam_neuronsToSpike(enum ParamsIOFlag ioFlag);
 
@@ -46,10 +47,11 @@ class RandomSpikeLayer : public CloneVLayer {
 
   protected:
    double spikeValue;
+   double threshold;
    int numSpike;
    long seed;
 
-   char * neuronsToSpike; // Possible values are any, onlyActive, onlyInactive
+   char * neuronsToSpike;
    NeuronSpikeType neuronsToSpikeType;
    
 }; // class RandomSpikeLayer
