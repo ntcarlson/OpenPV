@@ -46,12 +46,10 @@ void TimerLayer::ioParam_period(enum ParamsIOFlag ioFlag) {
 TimerLayer::~TimerLayer() {}
 
 
-#include <stdio.h>
 bool TimerLayer::needUpdate(double simTime, double dt) {
    internalTimer = simTime;
    double nextUpdate = mLastUpdateTime + getDeltaUpdateTime()*dt;
    if ((simTime >= nextUpdate && simTime < nextUpdate + dt) || simTime <= mLastUpdateTime) {
-      fprintf(stderr, "TimerLayer needs update at time = %f\n", simTime);
       return true;
    }
    return false;

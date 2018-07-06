@@ -11,6 +11,12 @@
 
 namespace PV {
 
+typedef enum NeuronSpikeTypeEnum {
+   SPIKE_ANY,
+   SPIKE_ONLYACTIVE,
+   SPIKE_ONLYINACTIVE
+} NeuronSpikeType;
+
 class RandomSpikeLayer : public CloneVLayer {
   public:
    RandomSpikeLayer(const char *name, HyPerCol *hc);
@@ -23,10 +29,16 @@ class RandomSpikeLayer : public CloneVLayer {
    RandomSpikeLayer();
    int initialize(const char *name, HyPerCol *hc);
 
+
+   Response::Status spikeAnyBatch(float *ABatch);
+   Response::Status spikeInactiveBatch(float *ABatch);
+   Response::Status spikeActiveBatch(float *ABatch);
+
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
    void ioParam_numSpike(enum ParamsIOFlag ioFlag);
    void ioParam_spikeValue(enum ParamsIOFlag ioFlag);
    void ioParam_seed(enum ParamsIOFlag ioFlag);
+   void ioParam_neuronsToSpike(enum ParamsIOFlag ioFlag);
 
   private:
    int initialize_base();
@@ -36,6 +48,10 @@ class RandomSpikeLayer : public CloneVLayer {
    double spikeValue;
    int numSpike;
    long seed;
+
+   char * neuronsToSpike; // Possible values are any, onlyActive, onlyInactive
+   NeuronSpikeType neuronsToSpikeType;
+   
 }; // class RandomSpikeLayer
 
 } // namespace PV
