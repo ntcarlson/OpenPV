@@ -30,6 +30,7 @@ int RandomSpikeLayer::initialize(const char *name, HyPerCol *hc) {
 
    mLastUpdateTime = -1; // Stops the layer from updating on the first timestep
 
+
    return status_init;
 }
 
@@ -38,6 +39,7 @@ Response::Status RandomSpikeLayer::communicateInitInfo(std::shared_ptr<Communica
    // CloneVLayer sets originalLayer and errors out if originalLayerName is not valid
    return status;
 }
+
 
 int RandomSpikeLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    CloneVLayer::ioParamsFillGroup(ioFlag);
@@ -49,8 +51,40 @@ int RandomSpikeLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    return PV_SUCCESS;
 }
 
+
+
 void RandomSpikeLayer::ioParam_spikeValue(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "spikeValue", &spikeValue, 1.0, true /* warn if absent */);
+}
+
+void RandomSpikeLayer::ioParam_spikeMethod(enum ParamsIOFlag ioFlag) {
+   parent->parameters()->ioParamString(
+         ioFlag,
+         name,
+         "spikeMethod",
+         &spikeMethod,
+         "set",
+         true /*warnIfAbsent*/);
+   if (spikeMethod == NULL || !strcmp(spikeMethod, "")) {
+      spikeMethod     = strdup("set");
+      method = SPIKE_METHOD_SET;
+   }
+   else if (!strcmp(neuronsToSpike, "add")) {
+      method = SPIKE_METHOD_ADD;
+   }
+   else if (!strcmp(neuronsToSpike, "scale")) {
+      method = SPIKE_METHOD_SCALE;
+   }
+   else {
+      if (parent->columnId() == 0) {
+         ErrorLog().printf(
+               "%s: spikeMethod=\"%s\" is unrecognized.\n",
+               getDescription_c(),
+               spikeMethod);
+      }
+      MPI_Barrier(parent->getCommunicator()->communicator());
+      exit(EXIT_FAILURE);
+   }
 }
 
 void RandomSpikeLayer::ioParam_threshold(enum ParamsIOFlag ioFlag) {
@@ -63,7 +97,10 @@ void RandomSpikeLayer::ioParam_numSpike(enum ParamsIOFlag ioFlag) {
 
 void RandomSpikeLayer::ioParam_seed(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "seed", &seed, time(NULL));
-   srand48_r(seed, &rng_state);
+
+   int rank;
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   srand48_r(seed + rank, &rng_state);
 }
 
 void RandomSpikeLayer::ioParam_neuronsToSpike(enum ParamsIOFlag ioFlag) {
@@ -103,7 +140,20 @@ int RandomSpikeLayer::setActivity() {
    return 0;
 }
 
-#include <stdio.h>
+void RandomSpikeLayer::spike(float *neuron) {
+   switch (method) {
+      case SPIKE_METHOD_SET:
+         *neuron = spikeValue;
+         break;
+      case SPIKE_METHOD_SCALE:
+         *neuron *= spikeValue;
+         break;
+      case SPIKE_METHOD_ADD:
+         *neuron += spikeValue;
+         break;
+   }
+}
+
 Response::Status RandomSpikeLayer::spikeAnyBatch(float *VBatch) {
    int numNeurons       = originalLayer->clayer->numNeurons;
 
@@ -111,8 +161,7 @@ Response::Status RandomSpikeLayer::spikeAnyBatch(float *VBatch) {
       long index;
       lrand48_r(&rng_state, &index);
       index = index % numNeurons;
-      fprintf(stderr, "spiking neuron %d with value %f\n", index, VBatch[index]);
-      VBatch[index] = spikeValue;
+      spike(VBatch + index);
    }
    return Response::SUCCESS;
 }
@@ -127,8 +176,7 @@ Response::Status RandomSpikeLayer::spikeBelowBatch(float *VBatch) {
       index = index % numNeurons;
       if (VBatch[index] <= threshold) {
          // Naively assume that the majority of neurons are below the threshold
-         fprintf(stderr, "spiking neuron %d with value %f\n", index, VBatch[index]);
-         VBatch[index] = spikeValue;
+         spike(VBatch + index);
          numSpiked++;
       }
    }
@@ -156,9 +204,7 @@ Response::Status RandomSpikeLayer::spikeAboveBatch(float *VBatch) {
       randk = randk % numActive;
       int k = activeIndices[randk];
          
-      fprintf(stderr, "numActive = %d", numActive);
-      fprintf(stderr, "spiking active neuron %d with value %f\n", k, VBatch[k]);
-      VBatch[k] = spikeValue;
+      spike(VBatch + k);
       activeIndices.erase(activeIndices.begin() + randk);
       numSpiked++;
       numActive--;
@@ -177,11 +223,9 @@ Response::Status RandomSpikeLayer::updateState(double timef, double dt) {
    int nbatch       = getLayerLoc()->nbatch;
 
 #ifdef PV_USE_CUDA
-   // TODO: originalLayer->mUpdateGpu is a protected field
-   // How can we figure out if we need to sync with the device?
-   //   if (mUpdateGpu) {
-   originalLayer->getDeviceV()->copyFromDevice(V);
-   //   }
+   if (originalLayer->updatesGpu()) {
+      originalLayer->getDeviceV()->copyFromDevice(V);
+   }
 #endif
 
 #ifdef PV_USE_OPENMP_THREADS
@@ -189,7 +233,6 @@ Response::Status RandomSpikeLayer::updateState(double timef, double dt) {
 #endif
    for (int batch = 0; batch < nbatch; batch++) {
       float *VBatch = V + batch * numNeurons;
-      fprintf(stderr, "time %f: ", timef);
       switch (neuronsToSpikeType) {
          case SPIKE_ANY:
             status = spikeAnyBatch(VBatch);
@@ -204,9 +247,9 @@ Response::Status RandomSpikeLayer::updateState(double timef, double dt) {
    }
 
 #ifdef PV_USE_CUDA
-   //   if (mUpdateGpu) {
-   originalLayer->getDeviceV()->copyToDevice(V);
-   //   }
+   if (originalLayer->updatesGpu()) {
+      originalLayer->getDeviceV()->copyToDevice(V);
+   }
 #endif
 
    return status;

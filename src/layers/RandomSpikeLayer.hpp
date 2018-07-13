@@ -17,6 +17,12 @@ typedef enum NeuronSpikeTypeEnum {
    SPIKE_ABOVE
 } NeuronSpikeType;
 
+typedef enum NeuronSpikeMethod {
+   SPIKE_METHOD_SET,
+   SPIKE_METHOD_ADD,
+   SPIKE_METHOD_SCALE
+} NeuronSpikeMethod;
+
 class RandomSpikeLayer : public CloneVLayer {
   public:
    RandomSpikeLayer(const char *name, HyPerCol *hc);
@@ -40,6 +46,7 @@ class RandomSpikeLayer : public CloneVLayer {
    void ioParam_threshold(enum ParamsIOFlag ioFlag);
    void ioParam_seed(enum ParamsIOFlag ioFlag);
    void ioParam_neuronsToSpike(enum ParamsIOFlag ioFlag);
+   void ioParam_spikeMethod(enum ParamsIOFlag ioFlag);
 
   private:
    int initialize_base();
@@ -53,6 +60,10 @@ class RandomSpikeLayer : public CloneVLayer {
 
    char * neuronsToSpike;
    NeuronSpikeType neuronsToSpikeType;
+   char * spikeMethod;
+   NeuronSpikeMethod method;
+
+   void spike(float *neuron);
    
 }; // class RandomSpikeLayer
 

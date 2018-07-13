@@ -599,6 +599,7 @@ class HyPerLayer : public BaseLayer {
   public:
    virtual void syncGpu();
    virtual double addGpuTimers();
+   bool updatesGpu() { return mUpdateGpu; }
 
    void copyAllGSynToDevice();
    void copyAllGSynFromDevice();

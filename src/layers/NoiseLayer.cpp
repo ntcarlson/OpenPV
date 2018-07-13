@@ -52,7 +52,10 @@ void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
 
 void NoiseLayer::ioParam_seed(enum ParamsIOFlag ioFlag) {
    parent->parameters()->ioParamValue(ioFlag, name, "seed", &seed, seed);
-   srand48_r(seed, &rng_state);
+
+   int rank;
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   srand48_r(seed + rank, &rng_state);
 }
 
 int NoiseLayer::setActivity() {
