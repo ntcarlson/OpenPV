@@ -47,7 +47,11 @@ int NoiseLayer::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
 }
 
 void NoiseLayer::ioParam_stdDev(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->ioParamValue(ioFlag, name, "stdDev", &stdDev, stdDev);
+   parent->parameters()->ioParamValue(ioFlag, name, "stdDev", &stdDev, 0.5);
+}
+
+void NoiseLayer::ioParam_mean(enum ParamsIOFlag ioFlag) {
+   parent->parameters()->ioParamValue(ioFlag, name, "mean", &mean, 0.0);
 }
 
 void NoiseLayer::ioParam_seed(enum ParamsIOFlag ioFlag) {
@@ -91,7 +95,7 @@ double NoiseLayer::rand_gaussian(double mean, double sdev){
 
 
 Response::Status NoiseLayer::updateState(double timef, double dt) {
-    Response::Status status = Response::SUCCESS;
+   Response::Status status = Response::SUCCESS;
 
    int numNeurons                = originalLayer->getNumNeurons();
    float *A                      = clayer->activity->data;
@@ -108,32 +112,32 @@ Response::Status NoiseLayer::updateState(double timef, double dt) {
    for (int b = 0; b < nbatch; b++) {
       const float *originalABatch = originalA + b * originalLayer->getNumExtended();
       float *ABatch               = A + b * getNumExtended();
-       for (int k = 0; k < numNeurons; k++) {
-		   int kExt = kIndexExtended(
-				 k,
-				 loc->nx,
-				 loc->ny,
-				 loc->nf,
-				 loc->halo.lt,
-				 loc->halo.rt,
-				 loc->halo.dn,
-				 loc->halo.up);
-		   int kExtOriginal = kIndexExtended(
-				 k,
-				 locOriginal->nx,
-				 locOriginal->ny,
-				 locOriginal->nf,
-				 locOriginal->halo.lt,
-				 locOriginal->halo.rt,
-				 locOriginal->halo.dn,
-				 locOriginal->halo.up);
+      for (int k = 0; k < numNeurons; k++) {
+         int kExt = kIndexExtended(
+               k,
+               loc->nx,
+               loc->ny,
+               loc->nf,
+               loc->halo.lt,
+               loc->halo.rt,
+               loc->halo.dn,
+               loc->halo.up);
+         int kExtOriginal = kIndexExtended(
+               k,
+               locOriginal->nx,
+               locOriginal->ny,
+               locOriginal->nf,
+               locOriginal->halo.lt,
+               locOriginal->halo.rt,
+               locOriginal->halo.dn,
+               locOriginal->halo.up);
 
-		   double randd = rand_gaussian(0, stdDev);
-		   ABatch[kExt] = originalABatch[kExtOriginal] + randd;
+         double randd = rand_gaussian(mean, stdDev);
+         ABatch[kExt] = originalABatch[kExtOriginal] + randd;
 
-		}
-	 }
-   	 return status;
+      }
+   }
+   return status;
 }
 
 } // end namespace PV
