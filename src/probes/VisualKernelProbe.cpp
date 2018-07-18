@@ -106,20 +106,27 @@ Response::Status VisualKernelProbe::allocateDataStructures() {
    int nyp        = targetHyPerConn->getPatchSizeY();
    render_width = numFeatureX * featureScale * nxp ;
    render_height = numFeatureY * featureScale * nyp;
-   SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
-   renderer = SDL_SetVideoMode(render_width, render_height, 32, SDL_DOUBLEBUF);
-   pixels = (uint32_t *) renderer->pixels;
 
 
+   Communicator *icComm  = parent->getCommunicator();
+   const int rank = icComm->globalCommRank();
+   if (rank == 0) {
+      SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
+      renderer = SDL_SetVideoMode(render_width, render_height, 32, SDL_DOUBLEBUF);
+      pixels = (uint32_t *) renderer->pixels;
+   }
    return Response::SUCCESS;
 }
 
 Response::Status VisualKernelProbe::outputState(double timed) {
+   Communicator *icComm  = parent->getCommunicator();
+   const int rank = icComm->globalCommRank();
+   if (rank != 0) {
+      return Response::NO_ACTION;
+   }
    if (mOutputStreams.empty()) {
       return Response::NO_ACTION;
    }
-   Communicator *icComm  = parent->getCommunicator();
-   const int rank        = icComm->commRank();
    auto *targetHyPerConn = getTargetHyPerConn();
    assert(targetHyPerConn != nullptr);
    int numKernels = getTargetHyPerConn()->getNumDataPatches();
@@ -127,8 +134,11 @@ Response::Status VisualKernelProbe::outputState(double timed) {
    int nyp        = targetHyPerConn->getPatchSizeY();
    int nfp        = targetHyPerConn->getPatchSizeF();
    int patchSize  = nxp * nyp * nfp;
-
    int kernelIndex;
+
+#ifdef PV_USE_OPENMP_THREADS
+#pragma omp parallel for schedule(static)
+#endif
    for (kernelIndex = 0; kernelIndex < numKernels; kernelIndex++) {
        const float *wdata = targetHyPerConn->getWeightsDataStart(arborID) + patchSize * kernelIndex;
 
@@ -154,7 +164,6 @@ Response::Status VisualKernelProbe::outputState(double timed) {
                 int k = kIndex(x, y, f, nxp, nyp, nfp);
                 uint8_t color_val = (uint8_t) (((wdata[k] - min_w) * 255.0)/(max_w - min_w));
                 rgb |= (color_val << 8*f);
-                output(0) << (int) color_val << ", ";
              }
              for (int sx = 0; sx < featureScale; sx++) {
                 for (int sy = 0; sy < featureScale; sy++) {
