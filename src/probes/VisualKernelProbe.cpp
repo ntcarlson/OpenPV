@@ -134,48 +134,51 @@ Response::Status VisualKernelProbe::outputState(double timed) {
    int nyp        = targetHyPerConn->getPatchSizeY();
    int nfp        = targetHyPerConn->getPatchSizeF();
    int patchSize  = nxp * nyp * nfp;
-   int kernelIndex;
+   int numWeights = patchSize * numKernels;
+   
+   const float *wdata = targetHyPerConn->getWeightsDataStart(arborID);
 
+   // Find max/min values needed to rescale the kernels into 24 bit RGB images
+    float min_w = wdata[0];
+    float max_w = wdata[0];
 #ifdef PV_USE_OPENMP_THREADS
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for reduction(max: max_w), reduction(min: min_w)
 #endif
-   for (kernelIndex = 0; kernelIndex < numKernels; kernelIndex++) {
-       const float *wdata = targetHyPerConn->getWeightsDataStart(arborID) + patchSize * kernelIndex;
-
-       int start_x = nxp*featureScale*(kernelIndex % numFeatureX);
-       int start_y = nyp*featureScale*(kernelIndex / numFeatureX);
-
-       float min_w = wdata[0];
-       float max_w = wdata[0];
-       for (int f = 0; f < nfp; f++) {
-          for (int y = 0; y < nyp; y++) {
-             for (int x = 0; x < nxp; x++) {
-                int k = kIndex(x, y, f, nxp, nyp, nfp);
-                min_w = std::min(min_w, wdata[k]);
-                max_w = std::max(max_w, wdata[k]);
-             }
-          }
-       }
-
-       for (int y = 0; y < nyp; y++) {
-          for (int x = 0; x < nxp; x++) {
-             uint32_t rgb = 0;
-             for (int f = 0; f < nfp; f++) {
-                int k = kIndex(x, y, f, nxp, nyp, nfp);
-                uint8_t color_val = (uint8_t) (((wdata[k] - min_w) * 255.0)/(max_w - min_w));
-                rgb |= (color_val << 8*f);
-             }
-             for (int sx = 0; sx < featureScale; sx++) {
-                for (int sy = 0; sy < featureScale; sy++) {
-                   int canvas_x = start_x + featureScale*x + sx;
-                   int canvas_y = start_y + featureScale*y + sy;
-                   pixels[canvas_x + canvas_y*render_width] = rgb;
-                }
-             }
-          }
-       }
+   for (int k = 0; k < numWeights; k++) {
+      if (wdata[k] > max_w) max_w = wdata[k];
+      if (wdata[k] < min_w) min_w = wdata[k];
    }
 
+#ifdef PV_USE_OPENMP_THREADS
+#pragma omp parallel for
+#endif
+   for (int kernelIndex = 0; kernelIndex < numKernels; kernelIndex++) {
+      const float *kernel_data = wdata + patchSize * kernelIndex;
+
+      // Start x,y cordinates on the canvas
+      int start_x = nxp*featureScale*(kernelIndex % numFeatureX);
+      int start_y = nyp*featureScale*(kernelIndex / numFeatureX);
+
+      for (int y = 0; y < nyp; y++) {
+         for (int x = 0; x < nxp; x++) {
+            int k = kIndex(x, y, 0, nxp, nyp, nfp);
+            // Rescale floats to 24 bit RGB
+            uint8_t red   = ((kernel_data[k]   - min_w) * 255.0)/(max_w - min_w);
+            uint8_t green = ((kernel_data[k+1] - min_w) * 255.0)/(max_w - min_w);
+            uint8_t blue  = ((kernel_data[k+2] - min_w) * 255.0)/(max_w - min_w);
+            uint32_t rgb = (red << 16) | (green << 8) | (blue);
+
+            // Draw scaled pixel to canvas
+            for (int sx = 0; sx < featureScale; sx++) {
+               for (int sy = 0; sy < featureScale; sy++) {
+                  int canvas_x = start_x + featureScale*x + sx;
+                  int canvas_y = start_y + featureScale*y + sy;
+                  pixels[canvas_x + canvas_y*render_width] = rgb;
+               }
+            }
+         }
+      }
+   }
 
    SDL_UpdateRect(renderer, 0, 0, render_width, render_height);
 
