@@ -24,6 +24,8 @@ class VisualLayerProbe : public LayerProbe {
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_scale(enum ParamsIOFlag ioFlag);
+   void ioParam_targetName2(enum ParamsIOFlag ioFlag);
+   void ioParam_targetName3(enum ParamsIOFlag ioFlag);
 
    virtual void calcValues(double timevalue) override;
 
@@ -43,6 +45,15 @@ class VisualLayerProbe : public LayerProbe {
     */
    virtual Response::Status outputState(double timevalue) override;
 
+   uint8_t rescale_color(float val, float min, float max) {
+      if (val < min) return 0x00;
+      if (val > max) return 0xFF;
+		return (uint8_t) (((val  - min) * 255.0)/(max - min));
+   }
+
+   void visualizeLayer(HyPerLayer * layer, uint32_t *pixels, float min, float max);
+
+
   private:
    int initialize_base();
 
@@ -52,6 +63,12 @@ class VisualLayerProbe : public LayerProbe {
    int render_height;
    SDL_Surface * renderer;
    uint32_t * pixels;
+
+   char * targetName2;
+   char * targetName3;
+
+	HyPerLayer * targetLayer2;
+	HyPerLayer * targetLayer3;
 }; // end class VisualLayerProbe
 
 } // end namespace PV
