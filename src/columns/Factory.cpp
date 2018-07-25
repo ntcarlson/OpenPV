@@ -46,6 +46,8 @@
 #include "layers/SigmoidLayer.hpp"
 #include "layers/WTALayer.hpp"
 #include "layers/NoiseLayer.hpp"
+#include "layers/RandomSpikeLayer.hpp"
+#include "layers/TimerLayer.hpp"
 
 #include "connections/CloneConn.hpp"
 #include "connections/CopyConn.hpp"
@@ -164,6 +166,9 @@ int Factory::registerCoreKeywords() {
    registerKeyword("ShuffleLayer", Factory::create<ShuffleLayer>);
    registerKeyword("SigmoidLayer", Factory::create<SigmoidLayer>);
    registerKeyword("WTALayer", Factory::create<WTALayer>);
+   registerKeyword("NoiseLayer", Factory::create<NoiseLayer>);
+   registerKeyword("RandomSpikeLayer", Factory::create<RandomSpikeLayer>);
+   registerKeyword("TimerLayer", Factory::create<TimerLayer>);
 
    registerKeyword("HyPerConn", Factory::create<HyPerConn>);
    registerKeyword("CloneConn", Factory::create<CloneConn>);

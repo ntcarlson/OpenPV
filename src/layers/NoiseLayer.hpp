@@ -7,6 +7,7 @@
 #define NOISELAYER_HPP_
 
 #include "CloneVLayer.hpp"
+#include <stdlib.h>
 
 namespace PV {
 
@@ -28,6 +29,7 @@ class NoiseLayer : public CloneVLayer {
    int ioParamsFillGroup(enum ParamsIOFlag ioFlag);
 
    void ioParam_stdDev(enum ParamsIOFlag ioFlag);
+   void ioParam_mean(enum ParamsIOFlag ioFlag);
    void ioParam_seed(enum ParamsIOFlag ioFlag);
 
 
@@ -36,10 +38,12 @@ class NoiseLayer : public CloneVLayer {
    int initialize_base();
 
    double rand_gaussian(double mean, double sdev);
+   struct drand48_data rng_state;
 
   protected:
    double stdDev;
-   unsigned int seed;
+   double mean;
+   long seed;
 }; // class NoiseLayer
 
 } // namespace PV

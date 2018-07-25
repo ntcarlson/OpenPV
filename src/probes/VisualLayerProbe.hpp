@@ -23,9 +23,7 @@ class VisualLayerProbe : public LayerProbe {
    int initialize(const char *name, HyPerCol *hc);
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
-   void ioParam_scale(enum ParamsIOFlag ioFlag);
-   void ioParam_targetName2(enum ParamsIOFlag ioFlag);
-   void ioParam_targetName3(enum ParamsIOFlag ioFlag);
+   void ioParam_extraTargets(enum ParamsIOFlag ioFlag);
 
    virtual void calcValues(double timevalue) override;
 
@@ -51,24 +49,22 @@ class VisualLayerProbe : public LayerProbe {
 		return (uint8_t) (((val  - min) * 255.0)/(max - min));
    }
 
-   void visualizeLayer(HyPerLayer * layer, uint32_t *pixels, float min, float max);
+   void visualizeLayer(HyPerLayer * layer, uint32_t *pixels);
 
 
   private:
    int initialize_base();
 
   private:
-   int scale;
    int render_width;
    int render_height;
    SDL_Surface * renderer;
    uint32_t * pixels;
 
-   char * targetName2;
-   char * targetName3;
 
-	HyPerLayer * targetLayer2;
-	HyPerLayer * targetLayer3;
+	char *namesString;
+	std::vector<char *> extraNames;
+	std::vector<HyPerLayer *> extraTargets;
 }; // end class VisualLayerProbe
 
 } // end namespace PV

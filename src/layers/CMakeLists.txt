@@ -40,6 +40,8 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
    ${SUBDIR}/SigmoidLayer.cpp
    ${SUBDIR}/WTALayer.cpp
    ${SUBDIR}/NoiseLayer.cpp
+   ${SUBDIR}/RandomSpikeLayer.cpp
+   ${SUBDIR}/TimerLayer.cpp
 )
 
 set (PVLibSrcHpp ${PVLibSrcHpp}
@@ -82,6 +84,8 @@ set (PVLibSrcHpp ${PVLibSrcHpp}
    ${SUBDIR}/SigmoidLayer.hpp
    ${SUBDIR}/WTALayer.hpp
    ${SUBDIR}/NoiseLayer.hpp
+   ${SUBDIR}/RandomSpikeLayer.hpp
+   ${SUBDIR}/TimerLayer.hpp
 )
 
 set (PVLibSrcH ${PVLibSrcH}
