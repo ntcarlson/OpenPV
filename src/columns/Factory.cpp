@@ -80,6 +80,7 @@
 #include "probes/QuotientColProbe.hpp"
 #include "probes/RequireAllZeroActivityProbe.hpp"
 #include "probes/StatsProbe.hpp"
+#include "probes/SpikingProbe.hpp"
 
 #include "initv/ConstantV.hpp"
 #include "initv/GaussianRandomV.hpp"
@@ -199,6 +200,7 @@ int Factory::registerCoreKeywords() {
    registerKeyword("QuotientColProbe", Factory::create<QuotientColProbe>);
    registerKeyword("RequireAllZeroActivityProbe", Factory::create<RequireAllZeroActivityProbe>);
    registerKeyword("StatsProbe", Factory::create<StatsProbe>);
+   registerKeyword("SpikingProbe", Factory::create<SpikingProbe>);
 
    registerKeyword("ConstantV", Factory::create<ConstantV>);
    registerKeyword("GaussianRandomV", Factory::create<GaussianRandomV>);

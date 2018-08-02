@@ -46,7 +46,7 @@ macro(pv_config_project)
   set(CUDA_DEBUG_FLAGS "${CUDA_BASE_FLAGS};-Xptxas;-v;-keep;-lineinfo;-g;-G")
   
   # CUDNN path hints
-  set(CUDNN_PATH_HINT "/usr/local/cudnn")
+  set(CUDNN_PATH_HINT "/usr/local/cudnn_lindon")
   
   # Help strings
   set(PV_DIR_HELP "The core PetaVision directory")

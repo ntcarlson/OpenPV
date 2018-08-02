@@ -23,6 +23,7 @@ set (PVLibSrcCpp ${PVLibSrcCpp}
    ${SUBDIR}/QuotientColProbe.cpp
    ${SUBDIR}/RequireAllZeroActivityProbe.cpp
    ${SUBDIR}/StatsProbe.cpp
+   ${SUBDIR}/SpikingProbe.cpp
 )
 
 set (PVLibSrcHpp ${PVLibSrcHpp}
@@ -50,4 +51,5 @@ set (PVLibSrcHpp ${PVLibSrcHpp}
    ${SUBDIR}/QuotientColProbe.hpp
    ${SUBDIR}/RequireAllZeroActivityProbe.hpp
    ${SUBDIR}/StatsProbe.hpp
+   ${SUBDIR}/SpikingProbe.hpp
 )
