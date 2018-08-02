@@ -256,4 +256,6 @@ macro(pv_config_project)
       message(FATAL_ERROR "Lua was not found")
     endif (LUA_FOUND)
   endif (PV_USE_LUA)
+  
+  find_package(SDL)
 endmacro()

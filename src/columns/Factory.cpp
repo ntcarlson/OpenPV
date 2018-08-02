@@ -67,6 +67,8 @@
 #include "probes/FirmThresholdCostFnLCAProbe.hpp"
 #include "probes/FirmThresholdCostFnProbe.hpp"
 #include "probes/KernelProbe.hpp"
+#include "probes/VisualKernelProbe.hpp"
+#include "probes/VisualLayerProbe.hpp"
 #include "probes/KneeTimeScaleProbe.hpp"
 #include "probes/L0NormLCAProbe.hpp"
 #include "probes/L0NormProbe.hpp"
