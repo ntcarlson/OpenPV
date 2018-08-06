@@ -24,19 +24,27 @@ int SpikingProbe::initialize_base() {
 }
 
 int SpikingProbe::initialize(const char *name, HyPerCol *hc) {
+   maskLayer = NULL;
+   maskLayerStr = NULL;
    return LayerProbe::initialize(name, hc);
 }
 
 int SpikingProbe::ioParamsFillGroup(enum ParamsIOFlag ioFlag) {
    int status = LayerProbe::ioParamsFillGroup(ioFlag);
    ioParam_delay(ioFlag);
+   ioParam_period(ioFlag);
    ioParam_numSpike(ioFlag);
    ioParam_seed(ioFlag);
+   ioParam_maskLayer(ioFlag);
    return status;
 }
 
 void SpikingProbe::ioParam_delay(enum ParamsIOFlag ioFlag) {
-   parent->parameters()->ioParamValue(ioFlag, name, "delay", &delay, 0.0, false);
+   parent->parameters()->ioParamValue(ioFlag, name, "delay", &delay, 0, false);
+}
+
+void SpikingProbe::ioParam_period(enum ParamsIOFlag ioFlag) {
+   parent->parameters()->ioParamValue(ioFlag, name, "period", &period, 1, false);
 }
 
 void SpikingProbe::ioParam_numSpike(enum ParamsIOFlag ioFlag) {
@@ -51,6 +59,10 @@ void SpikingProbe::ioParam_seed(enum ParamsIOFlag ioFlag) {
    srand48_r(seed + rank, &rng_state);
 }
 
+void SpikingProbe::ioParam_maskLayer(enum ParamsIOFlag ioFlag) {
+   parent->parameters()->ioParamString(ioFlag, name, "maskLayer", &maskLayerStr, NULL);
+}
+
 Response::Status
 SpikingProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage const> message) {
    auto status = LayerProbe::communicateInitInfo(message);
@@ -58,6 +70,37 @@ SpikingProbe::communicateInitInfo(std::shared_ptr<CommunicateInitInfoMessage con
       return status;
    }
    assert(targetLayer);
+   
+   if (maskLayerStr != NULL) {
+      maskLayer = message->lookup<HyPerLayer>(std::string(maskLayerStr));
+      if (maskLayer == NULL) {
+         if (parent->columnId() == 0) {
+            ErrorLog().printf(
+                  "%s: layer \"%s\" is not a layer in the column.\n",
+                  getDescription_c(),
+                  maskLayerStr);
+         }
+         MPI_Barrier(parent->getCommunicator()->communicator());
+         exit(EXIT_FAILURE);
+      }
+
+
+      const PVLayerLoc *mainLoc = getTargetLayer()->getLayerLoc();
+      const PVLayerLoc *loc    = maskLayer->getLayerLoc();
+      assert(mainLoc != NULL && loc != NULL);
+      if (mainLoc->nxGlobal != loc->nxGlobal || mainLoc->nyGlobal != loc->nyGlobal
+            || mainLoc->nf != loc->nf) {
+         if (parent->columnId() == 0) {
+            ErrorLog(errorMessage);
+            errorMessage.printf(
+                  "%s: Mask layer \"%s\" does not have the same dimensions as targetLayer.\n",
+                  getDescription_c(),
+                  name);
+         }
+         MPI_Barrier(parent->getCommunicator()->communicator());
+         exit(EXIT_FAILURE);
+      }
+   }
 
    return Response::SUCCESS;
 }
@@ -198,14 +241,26 @@ void SpikingProbe::applySpikeValues() {
 #endif
 }
 
+void SpikingProbe::applyMask() {
+   float *V = maskLayer->getV();
+   for (int neuron : neuronsToSpike) {
+     V[neuron] = 0; 
+   }
+}
+
 Response::Status SpikingProbe::outputState(double timevalue) {
    float *V = getTargetLayer()->getV();
+
+   long periodStep = ((long) timevalue) % period;
    
-   if (timevalue == delay) {
+   if (periodStep == delay) {
       findActive();
       findSpikeValues();
-   } else if (timevalue > delay) {
+   } else if (periodStep > delay) {
       applySpikeValues();
+      if (maskLayer != NULL) {
+         applyMask();
+      }
    }
    return Response::SUCCESS;
 }

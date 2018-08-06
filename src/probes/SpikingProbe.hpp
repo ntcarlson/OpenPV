@@ -23,8 +23,10 @@ class SpikingProbe : public LayerProbe {
 
    virtual int ioParamsFillGroup(enum ParamsIOFlag ioFlag) override;
    void ioParam_delay(enum ParamsIOFlag ioFlag);
+   void ioParam_period(enum ParamsIOFlag ioFlag);
    void ioParam_seed(enum ParamsIOFlag ioFlag);
    void ioParam_numSpike(enum ParamsIOFlag ioFlag);
+   void ioParam_maskLayer(enum ParamsIOFlag ioFlag);
 
    virtual void calcValues(double timevalue) override;
 
@@ -50,12 +52,17 @@ class SpikingProbe : public LayerProbe {
    void findActive();
    void findSpikeValues();
    void applySpikeValues();
+   void applyMask();
+
+   HyPerLayer * maskLayer;
+   char * maskLayerStr;
 
    std::vector<int> neuronsToSpike;
    std::vector<float> spikeVals;
    int initialize_base();
    float spikeVal;
-   double delay;
+   int delay;
+   int period;
    int numSpike;
    struct drand48_data rng_state;
    long seed;
