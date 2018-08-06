@@ -70,7 +70,18 @@ void SpikingProbe::findActive() {
    int commSize  = parent->getCommunicator()->commSize();
    int rank      = parent->getCommunicator()->commRank();
 
-   float const *aBuffer  = getTargetLayer()->getLayerData();
+   PVLayerLoc const *loc = getTargetLayer()->getLayerLoc();
+   int const nx          = loc->nx;
+   int const ny          = loc->ny;
+   int const nf          = loc->nf;
+   int const nb          = loc->nbatch;
+   PVHalo const *halo    = &loc->halo;
+   int const lt          = halo->lt;
+   int const rt          = halo->rt;
+   int const dn          = halo->dn;
+   int const up          = halo->up;
+
+   float const *aBuffer  = getTargetLayer()->getActivity();
    int numNeurons        = getTargetLayer()->getNumNeurons();
 
    neuronsToSpike.clear();
@@ -80,7 +91,8 @@ void SpikingProbe::findActive() {
    vector<int> activeIndices;
    int numActive = 0;
    for (int k = 0; k < numNeurons; k++) {
-      if (aBuffer[k] > 0) {
+      int kExt = kIndexExtendedBatch(k, nb, nx, ny, nf, lt, rt, dn, up);
+      if (aBuffer[kExt] > 0) {
          activeIndices.push_back(k);
          numActive++;
       }
@@ -175,7 +187,6 @@ void SpikingProbe::applySpikeValues() {
       getTargetLayer()->getDeviceV()->copyFromDevice(V);
    }
 #endif
-   spikeVals.clear();
    for (int i = 0; i < neuronsToSpike.size(); i++) {
       V[neuronsToSpike[i]] = spikeVals[i];
    }
